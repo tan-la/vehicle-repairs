@@ -1,147 +1,299 @@
-<!DOCTYPE html>
-<html lang="lo">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ລະບົບຈັດການສູນສ້ອມແປງຍານພາຫະນະ - Vehicle Repair Center</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-    <!-- Login Page -->
-    <div id="login-page" class="login-container">
-        <div class="login-box">
-            <div class="login-header">
-                <div class="logo">
-                    <i class="fas fa-car-crash"></i>
-                </div>
-                <h1>ລະບົບຈັດການສູນສ້ອມແປງຍານພາຫະນະ</h1>
-                <p class="subtitle">Vehicle Repair Center Management System</p>
-            </div>
+let supabase = null;
 
-            <form id="login-form" class="login-form">
-                <div class="form-group">
-                    <label for="email"><i class="fas fa-envelope"></i> ອີເມວ</label>
-                    <input type="email" id="email" name="email" placeholder="example@email.com" required>
-                </div>
+function initSupabase() {
+    if (!supabase) {
+        supabase = window.supabase.createClient(
+            CONFIG.SUPABASE_URL,
+            CONFIG.SUPABASE_ANON_KEY,
+            {
+                auth: {
+                    autoRefreshToken: true,
+                    persistSession: true,
+                    detectSessionInUrl: true
+                },
+                db: {
+                    schema: 'public'
+                }
+            }
+        );
+    }
+    return supabase;
+}
 
-                <div class="form-group">
-                    <label for="password"><i class="fas fa-lock"></i> ລະຫັດຜ່ານ</label>
-                    <div class="password-input">
-                        <input type="password" id="password" name="password" placeholder="••••••••" required>
-                        <button type="button" class="toggle-password" onclick="togglePassword()">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
+function getSupabase() {
+    if (!supabase) {
+        return initSupabase();
+    }
+    return supabase;
+}
 
-                <div class="form-group">
-                    <label for="role"><i class="fas fa-user-tag"></i> ຕຳແໜ່ງ</label>
-                    <select id="role" name="role" required>
-                        <option value="">ເລືອກຕຳແໜ່ງ</option>
-                        <option value="reception">ຝ່າຍຕ້ອນຮັບ (Reception)</option>
-                        <option value="mechanic">ຊ່າງສ້ອມແປງ (Mechanic)</option>
-                        <option value="warehouse">ຝ່າຍສາງ (Warehouse)</option>
-                        <option value="pdi">ຝ່າຍກວດກາ PDI</option>
-                        <option value="admin">ຜູ້ບໍລິຫານ (Admin)</option>
-                    </select>
-                </div>
+const DB = {
+    async getCustomers() {
+        const { data, error } = await getSupabase()
+            .from('customers')
+            .select('*')
+            .order('created_at', { ascending: false });
+        return { data, error };
+    },
 
-                <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt"></i> ເຂົ້າສູ່ລະບົບ
-                </button>
+    async createCustomer(customer) {
+        const { data, error } = await getSupabase()
+            .from('customers')
+            .insert([customer])
+            .select()
+            .single();
+        return { data, error };
+    },
 
-                <div id="login-error" class="error-message"></div>
-            </form>
+    async getVehicles() {
+        const { data, error } = await getSupabase()
+            .from('vehicles')
+            .select('*, customers(*)')
+            .order('created_at', { ascending: false });
+        return { data, error };
+    },
 
-            <div class="login-footer">
-                <p>© 2024 ສູນສ້ອມແປງຍານພາຫະນະ - ສປປ ລາວ</p>
-            </div>
-        </div>
-    </div>
+    async createVehicle(vehicle) {
+        const { data, error } = await getSupabase()
+            .from('vehicles')
+            .insert([vehicle])
+            .select()
+            .single();
+        return { data, error };
+    },
 
-    <!-- Main Dashboard (Hidden until login) -->
-    <div id="main-app" class="app-container" style="display: none;">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-small">
-                    <i class="fas fa-car-crash"></i>
-                </div>
-                <span class="brand-name">VRMS</span>
-            </div>
+    async getJobCards() {
+        const { data, error } = await getSupabase()
+            .from('job_cards')
+            .select('*, vehicles(*, customers(*)), mechanics:mechanic_id(*)')
+            .order('created_at', { ascending: false });
+        return { data, error };
+    },
 
-            <nav class="sidebar-nav">
-                <ul id="nav-menu">
-                    <!-- Navigation items will be loaded based on role -->
-                </ul>
-            </nav>
+    async getJobCardById(id) {
+        const { data, error } = await getSupabase()
+            .from('job_cards')
+            .select('*, vehicles(*, customers(*)), mechanics:mechanic_id(*), parts:job_parts(*, parts:part_id(*)), labor:job_labor(*)')
+            .eq('id', id)
+            .single();
+        return { data, error };
+    },
 
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="user-details">
-                        <span id="user-name" class="user-name">ຜູ້ໃຊ້</span>
-                        <span id="user-role" class="user-role">ຕຳແໜ່ງ</span>
-                    </div>
-                </div>
-                <button onclick="logout()" class="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i> ອອກຈາກລະບົບ
-                </button>
-            </div>
-        </aside>
+    async createJobCard(jobCard) {
+        const { data, error } = await getSupabase()
+            .from('job_cards')
+            .insert([jobCard])
+            .select()
+            .single();
+        return { data, error };
+    },
 
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <header class="top-bar">
-                <button class="menu-toggle" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="page-title">
-                    <h2 id="page-title">ໜ້າຫຼັກ</h2>
-                </div>
-                <div class="top-actions">
-                    <div class="notification-bell">
-                        <i class="fas fa-bell"></i>
-                        <span id="notification-count" class="badge">0</span>
-                    </div>
-                    <div class="current-time" id="current-time"></div>
-                </div>
-            </header>
+    async updateJobCard(id, updates) {
+        const { data, error } = await getSupabase()
+            .from('job_cards')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single();
+        return { data, error };
+    },
 
-            <div id="content-area" class="content-area">
-                <!-- Dynamic content loaded here -->
-            </div>
-        </main>
-    </div>
+    async getParts() {
+        const { data, error } = await getSupabase()
+            .from('parts')
+            .select('*')
+            .order('name');
+        return { data, error };
+    },
 
-    <!-- QR Code Scanner Modal -->
-    <div id="qr-modal" class="modal">
-        <div class="modal-content modal-lg">
-            <div class="modal-header">
-                <h3><i class="fas fa-qrcode"></i> ສະແກນ QR Code</h3>
-                <button class="close-btn" onclick="closeQRModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="qr-reader"></div>
-                <div id="qr-result" class="qr-result"></div>
-            </div>
-        </div>
-    </div>
+    async getPartByQRCode(qrCode) {
+        const { data, error } = await getSupabase()
+            .from('parts')
+            .select('*')
+            .eq('qr_code', qrCode)
+            .single();
+        return { data, error };
+    },
 
-    <!-- Toast Notifications -->
-    <div id="toast-container" class="toast-container"></div>
+    async createPart(part) {
+        const { data, error } = await getSupabase()
+            .from('parts')
+            .insert([part])
+            .select()
+            .single();
+        return { data, error };
+    },
 
-    <!-- Scripts -->
-    <script src="js/config.js"></script>
-    <script src="js/supabase-client.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/qr-scanner.js"></script>
-    <script src="js/app.js"></script>
-</body>
-</html>
+    async updatePartStock(id, quantity) {
+        const { data, error } = await getSupabase()
+            .from('parts')
+            .update({ stock_quantity: quantity })
+            .eq('id', id)
+            .select()
+            .single();
+        return { data, error };
+    },
+
+    async getJobParts(jobId) {
+        const { data, error } = await getSupabase()
+            .from('job_parts')
+            .select('*, parts:part_id(*)')
+            .eq('job_card_id', jobId);
+        return { data, error };
+    },
+
+    async requestPart(jobPart) {
+        const { data, error } = await getSupabase()
+            .from('job_parts')
+            .insert([jobPart])
+            .select()
+            .single();
+        return { data, error };
+    },
+
+    async approvePartRequest(id, approved) {
+        const { data, error } = await getSupabase()
+            .from('job_parts')
+            .update({
+                status: approved ? 'approved' : 'rejected',
+                approved_at: approved ? new Date().toISOString() : null
+            })
+            .eq('id', id)
+            .select()
+            .single();
+        return { data, error };
+    },
+
+    async issuePart(id) {
+        const { data, error } = await getSupabase()
+            .from('job_parts')
+            .update({
+                status: 'issued',
+                issued_at: new Date().toISOString()
+            })
+            .eq('id', id)
+            .select()
+            .single();
+        return { data, error };
+    },
+
+    async getJobLabor(jobId) {
+        const { data, error } = await getSupabase()
+            .from('job_labor')
+            .select('*')
+            .eq('job_card_id', jobId);
+        return { data, error };
+    },
+
+    async addLabor(labor) {
+        const { data, error } = await getSupabase()
+            .from('job_labor')
+            .insert([labor])
+            .select()
+            .single();
+        return { data, error };
+    },
+
+    async getPDIChecklist(jobId) {
+        const { data, error } = await getSupabase()
+            .from('pdi_checklists')
+            .select('*')
+            .eq('job_card_id', jobId);
+        return { data, error };
+    },
+
+    async savePDIChecklist(checklist) {
+        const { data, error } = await getSupabase()
+            .from('pdi_checklists')
+            .insert(checklist)
+            .select();
+        return { data, error };
+    },
+
+    async updatePDIResult(id, result) {
+        const { data, error } = await getSupabase()
+            .from('pdi_checklists')
+            .update({ result: result })
+            .eq('id', id)
+            .select()
+            .single();
+        return { data, error };
+    },
+
+    async getStaff() {
+        const { data, error } = await getSupabase()
+            .from('staff')
+            .select('*')
+            .order('name');
+        return { data, error };
+    },
+
+    async getMechanics() {
+        const { data, error } = await getSupabase()
+            .from('staff')
+            .select('*')
+            .eq('role', 'mechanic')
+            .order('name');
+        return { data, error };
+    },
+
+    async getNotifications() {
+        const user = getCurrentUser();
+        const userId = user ? user.id : null;
+        const { data, error } = await getSupabase()
+            .from('notifications')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('read', false)
+            .order('created_at', { ascending: false });
+        return { data, error };
+    },
+
+    async createNotification(notification) {
+        const { data, error } = await getSupabase()
+            .from('notifications')
+            .insert([notification])
+            .select();
+        return { data, error };
+    },
+
+    async markNotificationRead(id) {
+        const { data, error } = await getSupabase()
+            .from('notifications')
+            .update({ read: true })
+            .eq('id', id);
+        return { data, error };
+    },
+
+    subscribeToJobCards(callback) {
+        return getSupabase()
+            .channel('job_cards_changes')
+            .on('postgres_changes',
+                { event: '*', schema: 'public', table: 'job_cards' },
+                callback
+            )
+            .subscribe();
+    },
+
+    subscribeToParts(callback) {
+        return getSupabase()
+            .channel('parts_changes')
+            .on('postgres_changes',
+                { event: '*', schema: 'public', table: 'job_parts' },
+                callback
+            )
+            .subscribe();
+    }
+};
+
+function getCurrentUser() {
+    return JSON.parse(localStorage.getItem('currentUser') || '{}');
+}
+
+function setCurrentUser(user) {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+}
+
+function clearCurrentUser() {
+    localStorage.removeItem('currentUser');
+}
