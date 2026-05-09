@@ -1,8 +1,3 @@
-// ============================================
-// Supabase Client Initialization
-// Vehicle Repair Center Management System
-// ============================================
-
 let supabase = null;
 
 function initSupabase() {
@@ -32,9 +27,7 @@ function getSupabase() {
     return supabase;
 }
 
-// Database helper functions
 const DB = {
-    // Customers
     async getCustomers() {
         const { data, error } = await getSupabase()
             .from('customers')
@@ -52,7 +45,6 @@ const DB = {
         return { data, error };
     },
 
-    // Vehicles
     async getVehicles() {
         const { data, error } = await getSupabase()
             .from('vehicles')
@@ -70,7 +62,6 @@ const DB = {
         return { data, error };
     },
 
-    // Job Cards
     async getJobCards() {
         const { data, error } = await getSupabase()
             .from('job_cards')
@@ -107,7 +98,6 @@ const DB = {
         return { data, error };
     },
 
-    // Parts
     async getParts() {
         const { data, error } = await getSupabase()
             .from('parts')
@@ -144,7 +134,6 @@ const DB = {
         return { data, error };
     },
 
-    // Job Parts (Parts requests)
     async getJobParts(jobId) {
         const { data, error } = await getSupabase()
             .from('job_parts')
@@ -165,7 +154,7 @@ const DB = {
     async approvePartRequest(id, approved) {
         const { data, error } = await getSupabase()
             .from('job_parts')
-            .update({ 
+            .update({
                 status: approved ? 'approved' : 'rejected',
                 approved_at: approved ? new Date().toISOString() : null
             })
@@ -178,7 +167,7 @@ const DB = {
     async issuePart(id) {
         const { data, error } = await getSupabase()
             .from('job_parts')
-            .update({ 
+            .update({
                 status: 'issued',
                 issued_at: new Date().toISOString()
             })
@@ -188,7 +177,6 @@ const DB = {
         return { data, error };
     },
 
-    // Job Labor
     async getJobLabor(jobId) {
         const { data, error } = await getSupabase()
             .from('job_labor')
@@ -206,7 +194,6 @@ const DB = {
         return { data, error };
     },
 
-    // PDI Checklists
     async getPDIChecklist(jobId) {
         const { data, error } = await getSupabase()
             .from('pdi_checklists')
@@ -233,7 +220,6 @@ const DB = {
         return { data, error };
     },
 
-    // Users/Staff
     async getStaff() {
         const { data, error } = await getSupabase()
             .from('staff')
@@ -251,12 +237,13 @@ const DB = {
         return { data, error };
     },
 
-    // Notifications
     async getNotifications() {
+        const user = getCurrentUser();
+        const userId = user ? user.id : null;
         const { data, error } = await getSupabase()
             .from('notifications')
             .select('*')
-            .eq('user_id', getCurrentUser()?.id)
+            .eq('user_id', userId)
             .eq('read', false)
             .order('created_at', { ascending: false });
         return { data, error };
@@ -278,12 +265,11 @@ const DB = {
         return { data, error };
     },
 
-    // Real-time subscriptions
     subscribeToJobCards(callback) {
         return getSupabase()
             .channel('job_cards_changes')
-            .on('postgres_changes', 
-                { event: '*', schema: 'public', table: 'job_cards' }, 
+            .on('postgres_changes',
+                { event: '*', schema: 'public', table: 'job_cards' },
                 callback
             )
             .subscribe();
@@ -292,25 +278,22 @@ const DB = {
     subscribeToParts(callback) {
         return getSupabase()
             .channel('parts_changes')
-            .on('postgres_changes', 
-                { event: '*', schema: 'public', table: 'job_parts' }, 
+            .on('postgres_changes',
+                { event: '*', schema: 'public', table: 'job_parts' },
                 callback
             )
             .subscribe();
     }
 };
 
-// Helper to get current user
 function getCurrentUser() {
     return JSON.parse(localStorage.getItem('currentUser') || '{}');
 }
 
-// Helper to set current user
 function setCurrentUser(user) {
     localStorage.setItem('currentUser', JSON.stringify(user));
 }
 
-// Helper to clear current user
 function clearCurrentUser() {
     localStorage.removeItem('currentUser');
 }
