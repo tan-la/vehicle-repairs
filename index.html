@@ -8,16 +8,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ============================================
-           Vehicle Repair Center Management System
-           Lao Language - LAK Currency
-           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         :root {
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
             --primary-light: #dbeafe;
-            --secondary: #64748b;
             --success: #059669;
             --success-light: #d1fae5;
             --warning: #d97706;
@@ -26,7 +26,6 @@
             --danger-light: #fee2e2;
             --info: #0891b2;
             --info-light: #cffafe;
-            --dark: #1e293b;
             --gray-100: #f1f5f9;
             --gray-200: #e2e8f0;
             --gray-300: #cbd5e1;
@@ -35,34 +34,24 @@
             --gray-600: #475569;
             --gray-700: #334155;
             --gray-800: #1e293b;
-            --gray-900: #0f172a;
             --white: #ffffff;
             --sidebar-width: 280px;
-            --sidebar-collapsed: 70px;
             --header-height: 60px;
             --border-radius: 8px;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
             --transition: all 0.3s ease;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Noto Sans Lao', 'Phetsarath OT', 'Saysettha OT', sans-serif;
+            font-family: 'Noto Sans Lao', 'Phetsarath OT', sans-serif;
             background: var(--gray-100);
             color: var(--gray-800);
             line-height: 1.6;
-            overflow-x: hidden;
         }
 
-        /* LOGIN PAGE */
+        /* Login Page */
         .login-container {
             min-height: 100vh;
             display: flex;
@@ -135,7 +124,6 @@
         .login-form label i {
             margin-right: 6px;
             color: var(--primary);
-            width: 16px;
         }
 
         .login-form input,
@@ -197,8 +185,6 @@
 
         .btn-login:hover {
             background: var(--primary-dark);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
         }
 
         .error-message {
@@ -211,23 +197,9 @@
 
         .error-message.show {
             display: block;
-            animation: shake 0.5s ease;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        .login-footer {
-            margin-top: 24px;
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--gray-400);
-        }
-
-        /* APP LAYOUT */
+        /* App Layout */
         .app-container {
             display: flex;
             min-height: 100vh;
@@ -246,7 +218,7 @@
         }
 
         .sidebar.collapsed {
-            width: var(--sidebar-collapsed);
+            width: 70px;
         }
 
         .sidebar-header {
@@ -266,7 +238,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
         }
 
         .logo-small i {
@@ -320,7 +291,6 @@
         .sidebar-nav a.active {
             background: var(--primary-light);
             color: var(--primary);
-            font-weight: 600;
         }
 
         .sidebar.collapsed .sidebar-nav a span {
@@ -364,9 +334,6 @@
             font-weight: 600;
             font-size: 0.875rem;
             color: var(--gray-800);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .user-role {
@@ -389,7 +356,6 @@
             font-size: 0.875rem;
             font-weight: 500;
             cursor: pointer;
-            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -404,14 +370,12 @@
         .main-content {
             flex: 1;
             margin-left: var(--sidebar-width);
-            display: flex;
-            flex-direction: column;
             min-height: 100vh;
             transition: var(--transition);
         }
 
         .sidebar.collapsed+.main-content {
-            margin-left: var(--sidebar-collapsed);
+            margin-left: 70px;
         }
 
         .top-bar {
@@ -453,40 +417,16 @@
             gap: 16px;
         }
 
-        .notification-bell {
-            position: relative;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: var(--border-radius);
-        }
-
-        .badge {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: var(--danger);
-            color: var(--white);
-            font-size: 0.625rem;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 10px;
-            min-width: 16px;
-            text-align: center;
-        }
-
         .current-time {
             font-size: 0.875rem;
             color: var(--gray-500);
-            font-weight: 500;
         }
 
         .content-area {
-            flex: 1;
             padding: 24px;
-            overflow-y: auto;
         }
 
-        /* DASHBOARD CARDS */
+        /* Dashboard Cards */
         .dashboard-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -499,25 +439,12 @@
             border-radius: 12px;
             padding: 20px;
             box-shadow: var(--shadow);
-            transition: var(--transition);
             border-left: 4px solid var(--primary);
         }
 
-        .stat-card.success {
-            border-left-color: var(--success);
-        }
-
-        .stat-card.warning {
-            border-left-color: var(--warning);
-        }
-
-        .stat-card.danger {
-            border-left-color: var(--danger);
-        }
-
-        .stat-card.info {
-            border-left-color: var(--info);
-        }
+        .stat-card.success { border-left-color: var(--success); }
+        .stat-card.warning { border-left-color: var(--warning); }
+        .stat-card.info { border-left-color: var(--info); }
 
         .stat-header {
             display: flex;
@@ -529,7 +456,6 @@
         .stat-label {
             font-size: 0.875rem;
             color: var(--gray-500);
-            font-weight: 500;
         }
 
         .stat-icon {
@@ -539,39 +465,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.125rem;
             background: var(--primary-light);
             color: var(--primary);
-        }
-
-        .stat-card.success .stat-icon {
-            background: var(--success-light);
-            color: var(--success);
-        }
-
-        .stat-card.warning .stat-icon {
-            background: var(--warning-light);
-            color: var(--warning);
-        }
-
-        .stat-card.danger .stat-icon {
-            background: var(--danger-light);
-            color: var(--danger);
-        }
-
-        .stat-card.info .stat-icon {
-            background: var(--info-light);
-            color: var(--info);
         }
 
         .stat-value {
             font-size: 1.75rem;
             font-weight: 700;
             color: var(--gray-800);
-            margin-bottom: 4px;
         }
 
-        /* TABLES */
+        /* Tables */
         .data-table-container {
             background: var(--white);
             border-radius: 12px;
@@ -598,28 +502,6 @@
         .table-actions {
             display: flex;
             gap: 8px;
-            align-items: center;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-box input {
-            padding: 10px 14px 10px 38px;
-            border: 2px solid var(--gray-200);
-            border-radius: var(--border-radius);
-            font-family: inherit;
-            font-size: 0.875rem;
-            width: 240px;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-400);
         }
 
         .data-table {
@@ -638,9 +520,7 @@
             background: var(--gray-50);
             color: var(--gray-600);
             font-weight: 600;
-            text-transform: uppercase;
             font-size: 0.75rem;
-            letter-spacing: 0.5px;
             border-bottom: 2px solid var(--gray-200);
         }
 
@@ -670,52 +550,16 @@
             border-radius: 50%;
         }
 
-        .status-pending {
-            background: var(--warning-light);
-            color: var(--warning);
-        }
+        .status-pending { background: var(--warning-light); color: var(--warning); }
+        .status-pending::before { background: var(--warning); }
+        .status-approved { background: var(--success-light); color: var(--success); }
+        .status-approved::before { background: var(--success); }
+        .status-progress { background: var(--info-light); color: var(--info); }
+        .status-progress::before { background: var(--info); }
+        .status-completed { background: var(--primary-light); color: var(--primary); }
+        .status-completed::before { background: var(--primary); }
 
-        .status-pending::before {
-            background: var(--warning);
-        }
-
-        .status-approved {
-            background: var(--success-light);
-            color: var(--success);
-        }
-
-        .status-approved::before {
-            background: var(--success);
-        }
-
-        .status-rejected {
-            background: var(--danger-light);
-            color: var(--danger);
-        }
-
-        .status-rejected::before {
-            background: var(--danger);
-        }
-
-        .status-progress {
-            background: var(--info-light);
-            color: var(--info);
-        }
-
-        .status-progress::before {
-            background: var(--info);
-        }
-
-        .status-completed {
-            background: var(--primary-light);
-            color: var(--primary);
-        }
-
-        .status-completed::before {
-            background: var(--primary);
-        }
-
-        /* BUTTONS */
+        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -728,56 +572,18 @@
             cursor: pointer;
             transition: var(--transition);
             border: none;
-            text-decoration: none;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: var(--white);
-        }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); color: var(--white); }
+        .btn-danger { background: var(--danger); color: var(--white); }
+        .btn-secondary { background: var(--gray-200); color: var(--gray-700); }
+        .btn-outline { background: transparent; border: 2px solid var(--gray-300); color: var(--gray-600); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+        .btn-sm { padding: 6px 12px; font-size: 0.8125rem; }
 
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: var(--white);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: var(--white);
-        }
-
-        .btn-secondary {
-            background: var(--gray-200);
-            color: var(--gray-700);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--gray-300);
-            color: var(--gray-600);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: var(--primary-light);
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 0.8125rem;
-        }
-
-        .btn-icon {
-            padding: 8px;
-            border-radius: var(--border-radius);
-        }
-
-        /* FORMS */
+        /* Forms */
         .form-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -797,9 +603,7 @@
             font-size: 0.875rem;
         }
 
-        .form-group .required {
-            color: var(--danger);
-        }
+        .form-group .required { color: var(--danger); }
 
         .form-group input,
         .form-group select,
@@ -820,15 +624,7 @@
             box-shadow: 0 0 0 3px var(--primary-light);
         }
 
-        .form-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            padding-top: 16px;
-            border-top: 1px solid var(--gray-200);
-        }
-
-        /* MODALS */
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -843,9 +639,7 @@
             padding: 20px;
         }
 
-        .modal.show {
-            display: flex;
-        }
+        .modal.show { display: flex; }
 
         .modal-content {
             background: var(--white);
@@ -857,9 +651,7 @@
             overflow-y: auto;
         }
 
-        .modal-content.modal-xl {
-            max-width: 900px;
-        }
+        .modal-content.modal-xl { max-width: 900px; }
 
         .modal-header {
             padding: 20px 24px;
@@ -869,14 +661,7 @@
             justify-content: space-between;
         }
 
-        .modal-header h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--gray-800);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .modal-header h3 { font-size: 1.125rem; font-weight: 600; color: var(--gray-800); }
 
         .close-btn {
             background: none;
@@ -886,13 +671,9 @@
             cursor: pointer;
         }
 
-        .close-btn:hover {
-            color: var(--danger);
-        }
+        .close-btn:hover { color: var(--danger); }
 
-        .modal-body {
-            padding: 24px;
-        }
+        .modal-body { padding: 24px; }
 
         .modal-footer {
             padding: 16px 24px;
@@ -902,7 +683,7 @@
             justify-content: flex-end;
         }
 
-        /* JOB CARD */
+        /* Job Card */
         .job-card {
             background: var(--white);
             border-radius: 12px;
@@ -917,9 +698,7 @@
             color: var(--white);
         }
 
-        .job-card-body {
-            padding: 24px;
-        }
+        .job-card-body { padding: 24px; }
 
         .job-info-grid {
             display: grid;
@@ -938,17 +717,12 @@
             font-size: 0.75rem;
             color: var(--gray-500);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             margin-bottom: 4px;
         }
 
-        .job-info-item .value {
-            font-weight: 600;
-            color: var(--gray-800);
-            font-size: 0.9375rem;
-        }
+        .job-info-item .value { font-weight: 600; color: var(--gray-800); }
 
-        /* TOAST NOTIFICATIONS */
+        /* Toast */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -968,36 +742,17 @@
             align-items: center;
             gap: 12px;
             min-width: 300px;
-            max-width: 400px;
             animation: slideInRight 0.3s ease;
             border-left: 4px solid var(--primary);
         }
 
-        .toast.success {
-            border-left-color: var(--success);
-        }
-
-        .toast.error {
-            border-left-color: var(--danger);
-        }
-
-        .toast.warning {
-            border-left-color: var(--warning);
-        }
-
-        .toast.info {
-            border-left-color: var(--info);
-        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
 
         @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(100px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .toast-icon {
@@ -1007,54 +762,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
         }
 
-        .toast.success .toast-icon {
-            background: var(--success-light);
-            color: var(--success);
-        }
+        .toast.success .toast-icon { background: var(--success-light); color: var(--success); }
+        .toast.error .toast-icon { background: var(--danger-light); color: var(--danger); }
 
-        .toast.error .toast-icon {
-            background: var(--danger-light);
-            color: var(--danger);
-        }
-
-        .toast.warning .toast-icon {
-            background: var(--warning-light);
-            color: var(--warning);
-        }
-
-        .toast.info .toast-icon {
-            background: var(--info-light);
-            color: var(--info);
-        }
-
-        .toast-content {
-            flex: 1;
-        }
-
-        .toast-title {
-            font-weight: 600;
-            font-size: 0.9375rem;
-            color: var(--gray-800);
-            margin-bottom: 2px;
-        }
-
-        .toast-message {
-            font-size: 0.8125rem;
-            color: var(--gray-500);
-        }
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 600; font-size: 0.9375rem; }
+        .toast-message { font-size: 0.8125rem; color: var(--gray-500); }
 
         .toast-close {
             background: none;
             border: none;
             color: var(--gray-400);
             cursor: pointer;
-            font-size: 1rem;
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -1071,16 +794,7 @@
             margin: 0 auto 20px;
         }
 
-        .empty-state-icon i {
-            font-size: 2rem;
-            color: var(--gray-400);
-        }
-
-        .empty-state h3 {
-            font-size: 1.125rem;
-            color: var(--gray-700);
-            margin-bottom: 8px;
-        }
+        .empty-state-icon i { font-size: 2rem; color: var(--gray-400); }
 
         .loading-overlay {
             position: fixed;
@@ -1105,39 +819,20 @@
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
-        .currency::after {
-            content: ' ₭';
-            font-size: 0.85em;
-            color: var(--gray-500);
-        }
+        .currency::after { content: ' ₭'; }
 
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                position: fixed;
-            }
-
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .dashboard-stats {
-                grid-template-columns: 1fr;
-            }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .dashboard-stats { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- LOGIN PAGE -->
     <div id="login-page" class="login-container">
         <div class="login-box">
             <div class="login-header">
@@ -1176,12 +871,11 @@
                 <div id="login-error" class="error-message"></div>
             </form>
             <div class="login-footer">
-                <p>Demo Login: any email + 123456 + select role</p>
+                <p>Demo: any email + password 123456 + select role</p>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APP -->
     <div id="main-app" class="app-container" style="display: none;">
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -1214,10 +908,6 @@
                     <h2 id="page-title">Dashboard</h2>
                 </div>
                 <div class="top-actions">
-                    <div class="notification-bell">
-                        <i class="fas fa-bell"></i>
-                        <span id="notification-count" class="badge">0</span>
-                    </div>
                     <div class="current-time" id="current-time"></div>
                 </div>
             </header>
@@ -1234,25 +924,15 @@
         // ============================================
         // CONFIGURATION
         // ============================================
-        const CONFIG = {
+        const APP_CONFIG = {
             SUPABASE_URL: 'https://tmsisqxvfgcplnqtlhfv.supabase.co',
             SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc2lzcXh2ZmdjcGxucXRsaGZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzgzODAsImV4cCI6MjA5MzkxNDM4MH0.-7f8vXtZ59PRnlpB4HraEn-L6jl58ywVlsMqVkAiBtk',
-            CURRENCY: 'LAK',
-            LABOR_RATES: {
-                general: 50000,
-                specialist: 80000,
-                electrical: 70000
-            },
-            PDI_CATEGORIES: [
-                { id: 'exterior', name: 'ກວດກາພາຍນອກ', items: ['ສີລົດບໍ່ມີຮອຍຂີດຂ່ວນ', 'ໄຟຫນ້າ-ຫລັງ ເຮັດວຽກປົກກະຕິ', 'ກະຈົກຂ້າງ ປັບໄດ້ປົກກະຕິ'] },
-                { id: 'interior', name: 'ກວດກາພາຍໃນ', items: ['ເບາະນັ່ງ ບໍ່ມີຮອຍຂາດ', 'ແອເຢັນ ເຮັດວຽກປົກກະຕິ', 'ວິທະຍຸ ເຮັດວຽກປົກກະຕິ'] }
-            ]
+            LABOR_RATES: { general: 50000, specialist: 80000, electrical: 70000 }
         };
 
-        // Global variables
-        let supabase = null;
+        // Use a different variable name to avoid conflict with Supabase global
+        let supabaseClient = null;
         let currentUser = null;
-        let currentPage = 'dashboard';
 
         // ============================================
         // UTILITY FUNCTIONS
@@ -1269,7 +949,7 @@
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-circle', info: 'fa-info-circle' };
+            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-circle' };
             toast.innerHTML = `
                 <div class="toast-icon"><i class="fas ${icons[type]}"></i></div>
                 <div class="toast-content">
@@ -1319,17 +999,17 @@
         }
 
         function getCurrentUser() {
-            const user = localStorage.getItem('currentUser');
+            const user = localStorage.getItem('vrms_currentUser');
             return user ? JSON.parse(user) : null;
         }
 
         function setCurrentUser(user) {
-            localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('vrms_currentUser', JSON.stringify(user));
             currentUser = user;
         }
 
         function clearCurrentUser() {
-            localStorage.removeItem('currentUser');
+            localStorage.removeItem('vrms_currentUser');
             currentUser = null;
         }
 
@@ -1337,36 +1017,71 @@
             return currentUser ? currentUser.role : null;
         }
 
+        function getRoleLabel(role) {
+            const labels = { 'reception': 'ຝ່າຍຕ້ອນຮັບ', 'mechanic': 'ຊ່າງສ້ອມແປງ', 'warehouse': 'ຝ່າຍສາງ', 'pdi': 'ຝ່າຍກວດກາ PDI', 'admin': 'ຜູ້ບໍລິຫານ' };
+            return labels[role] || role;
+        }
+
         // ============================================
-        // SUPABASE CLIENT
+        // SUPABASE CLIENT - using different variable name
         // ============================================
         function initSupabase() {
-            if (!supabase) {
-                supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+            if (!supabaseClient) {
+                supabaseClient = window.supabase.createClient(APP_CONFIG.SUPABASE_URL, APP_CONFIG.SUPABASE_ANON_KEY);
             }
-            return supabase;
+            return supabaseClient;
         }
+
+        // Sample staff data for demo (in case database table doesn't exist)
+        const DEMO_STAFF = [
+            { id: '1', name: 'ສົມຈິດ ສຸກສະຫວັນ', email: 'somchai@test.com', role: 'reception', phone: '02012345678', active: true },
+            { id: '2', name: 'ວິໄລ ພົມມະວົງ', email: 'vilay@test.com', role: 'mechanic', phone: '02087654321', active: true, specialty: 'ເຄື່ອງຈັກ' },
+            { id: '3', name: 'ຄຳພອນ ແກ້ວຄຳ', email: 'khamphone@test.com', role: 'warehouse', phone: '02011223344', active: true },
+            { id: '4', name: 'ບຸນມີ ວົງສະຫວັນ', email: 'bounmee@test.com', role: 'pdi', phone: '02055667788', active: true },
+            { id: '5', name: 'ທອງລີ ສີສຸວັນ', email: 'thonglee@test.com', role: 'admin', phone: '02099887766', active: true }
+        ];
 
         const DB = {
             async getStaff() {
-                const { data, error } = await initSupabase().from('staff').select('*').order('name');
-                return { data, error };
+                try {
+                    const { data, error } = await initSupabase().from('staff').select('*').order('name');
+                    if (error) throw error;
+                    return { data: data && data.length > 0 ? data : DEMO_STAFF, error: null };
+                } catch (err) {
+                    console.warn('Using demo staff data:', err);
+                    return { data: DEMO_STAFF, error: null };
+                }
             },
             async getCustomers() {
-                const { data, error } = await initSupabase().from('customers').select('*').order('created_at', { ascending: false });
-                return { data, error };
+                try {
+                    const { data, error } = await initSupabase().from('customers').select('*').order('created_at', { ascending: false });
+                    if (error) throw error;
+                    return { data: data || [], error: null };
+                } catch (err) {
+                    return { data: [], error: null };
+                }
             },
             async createCustomer(customer) {
                 const { data, error } = await initSupabase().from('customers').insert([customer]).select().single();
                 return { data, error };
             },
             async getVehicles() {
-                const { data, error } = await initSupabase().from('vehicles').select('*, customers(*)').order('created_at', { ascending: false });
-                return { data, error };
+                try {
+                    const { data, error } = await initSupabase().from('vehicles').select('*, customers(*)').order('created_at', { ascending: false });
+                    if (error) throw error;
+                    return { data: data || [], error: null };
+                } catch (err) {
+                    return { data: [], error: null };
+                }
             },
             async getJobCards() {
-                const { data, error } = await initSupabase().from('job_cards').select('*, vehicles(*, customers(*)), mechanics:mechanic_id(*)').order('created_at', { ascending: false });
-                return { data, error };
+                try {
+                    const { data, error } = await initSupabase().from('job_cards').select('*, vehicles(*, customers(*)), mechanics:mechanic_id(*)').order('created_at', { ascending: false });
+                    if (error) throw error;
+                    return { data: data || [], error: null };
+                } catch (err) {
+                    return { data: [], error: null };
+                }
             },
             async getJobCardById(id) {
                 const { data, error } = await initSupabase().from('job_cards').select('*, vehicles(*, customers(*)), mechanics:mechanic_id(*)').eq('id', id).single();
@@ -1381,32 +1096,17 @@
                 return { data, error };
             },
             async getParts() {
-                const { data, error } = await initSupabase().from('parts').select('*').order('name');
-                return { data, error };
+                try {
+                    const { data, error } = await initSupabase().from('parts').select('*').order('name');
+                    if (error) throw error;
+                    return { data: data || [], error: null };
+                } catch (err) {
+                    return { data: [], error: null };
+                }
             },
             async getMechanics() {
-                const { data, error } = await initSupabase().from('staff').select('*').eq('role', 'mechanic').order('name');
-                return { data, error };
-            },
-            async getJobParts(jobId) {
-                const { data, error } = await initSupabase().from('job_parts').select('*, parts:part_id(*)').eq('job_card_id', jobId);
-                return { data, error };
-            },
-            async requestPart(jobPart) {
-                const { data, error } = await initSupabase().from('job_parts').insert([jobPart]).select().single();
-                return { data, error };
-            },
-            async getJobLabor(jobId) {
-                const { data, error } = await initSupabase().from('job_labor').select('*').eq('job_card_id', jobId);
-                return { data, error };
-            },
-            async addLabor(labor) {
-                const { data, error } = await initSupabase().from('job_labor').insert([labor]).select().single();
-                return { data, error };
-            },
-            async createNotification(notification) {
-                const { data, error } = await initSupabase().from('notifications').insert([notification]).select();
-                return { data, error };
+                const { data } = await this.getStaff();
+                return { data: (data || []).filter(s => s.role === 'mechanic'), error: null };
             }
         };
 
@@ -1416,12 +1116,15 @@
         async function login(email, password, role) {
             showLoading();
             try {
-                const { data: staff, error } = await DB.getStaff();
-                if (error) throw error;
-
-                const user = staff.find(s => s.email === email && s.role === role);
-                if (!user) throw new Error('ບໍ່ພົບຜູ້ໃຊ້');
-                if (password !== '123456') throw new Error('ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ');
+                const { data: staff } = await DB.getStaff();
+                const user = (staff || []).find(s => s.email === email && s.role === role);
+                
+                if (!user) {
+                    throw new Error('ບໍ່ພົບຜູ້ໃຊ້ ຫຼື ຕຳແໜ່ງບໍ່ຖືກຕ້ອງ');
+                }
+                if (password !== '123456') {
+                    throw new Error('ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ (ລະຫັດຜ່ານສຳລັບທົດສອບແມ່ນ 123456)');
+                }
 
                 setCurrentUser({ id: user.id, email: user.email, name: user.name, role: user.role });
                 hideLoading();
@@ -1439,6 +1142,7 @@
             document.getElementById('main-app').style.display = 'none';
             document.getElementById('login-page').style.display = 'flex';
             document.getElementById('login-form').reset();
+            document.getElementById('login-error').classList.remove('show');
             showToast('info', 'ອອກຈາກລະບົບ', 'ທ່ານໄດ້ອອກຈາກລະບົບສຳເລັດ');
         }
 
@@ -1456,11 +1160,6 @@
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('collapsed');
-        }
-
-        function getRoleLabel(role) {
-            const labels = { 'reception': 'ຝ່າຍຕ້ອນຮັບ', 'mechanic': 'ຊ່າງສ້ອມແປງ', 'warehouse': 'ຝ່າຍສາງ', 'pdi': 'ຝ່າຍກວດກາ PDI', 'admin': 'ຜູ້ບໍລິຫານ' };
-            return labels[role] || role;
         }
 
         function buildNavigation(role) {
@@ -1505,7 +1204,8 @@
         }
 
         function updateTime() {
-            document.getElementById('current-time').textContent = new Date().toLocaleDateString('lo-LA', {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleDateString('lo-LA', {
                 weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
             });
         }
@@ -1515,14 +1215,12 @@
         // ============================================
         async function navigateTo(page) {
             currentPage = page;
-            document.getElementById('page-title').textContent = {
+            const titles = {
                 'dashboard': 'ໜ້າຫຼັກ', 'customers': 'ຈັດການລູກຄ້າ', 'vehicles': 'ຈັດການຍານພາຫະນະ',
                 'job-cards': 'ຈັດການໃບສັ່ງງານ', 'my-jobs': 'ງານຂອງຂ້ອຍ', 'parts-inventory': 'ສາງອາໄຫຼ່',
                 'pdi-check': 'ກວດກາ PDI', 'staff': 'ຈັດການພະນັກງານ'
-            }[page] || 'ໜ້າຫຼັກ';
-
-            document.querySelectorAll('.sidebar-nav a').forEach(link => link.classList.remove('active'));
-            event.target.closest('a')?.classList.add('active');
+            };
+            document.getElementById('page-title').textContent = titles[page] || 'ໜ້າຫຼັກ';
 
             const loaders = {
                 dashboard: loadDashboard, customers: loadCustomers, vehicles: loadVehicles,
@@ -1532,14 +1230,31 @@
             if (loaders[page]) await loaders[page]();
         }
 
+        function renderJobsTable(jobs) {
+            if (!jobs || jobs.length === 0) {
+                return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-clipboard-list"></i></div><h3>ບໍ່ມີໃບສັ່ງງານ</h3></div>';
+            }
+            return `
+                <table class="data-table"><thead><tr><th>ເລກທີ</th><th>ຍານພາຫະນະ</th><th>ລູກຄ້າ</th><th>ສະຖານະ</th><th>ວັນທີ</th><th>ຈັດການ</th></tr></thead>
+                <tbody>${jobs.map(j => `<tr>
+                    <td><strong>${j.job_number || 'JC-' + j.id}</strong></td>
+                    <td>${j.vehicles ? `${j.vehicles.brand || ''} ${j.vehicles.model || ''}`.trim() || '-' : '-'}</td>
+                    <td>${j.vehicles?.customers?.name || '-'}</td>
+                    <td><span class="status-badge ${getStatusBadgeClass(j.status)}">${getStatusLabel(j.status)}</span></td>
+                    <td>${formatDate(j.created_at)}</td>
+                    <td><button class="btn btn-sm btn-outline" onclick="viewJobCard('${j.id}')"><i class="fas fa-eye"></i></button></td>
+                </tr>`).join('')}</tbody></table>
+            `;
+        }
+
         async function loadDashboard() {
             const content = document.getElementById('content-area');
             try {
                 const { data: jobs } = await DB.getJobCards();
                 const totalJobs = jobs?.length || 0;
-                const pendingJobs = jobs?.filter(j => j.status === 'pending').length || 0;
+                const pendingJobs = jobs?.filter(j => j.status === 'pending' || j.status === 'assigned').length || 0;
                 const inProgressJobs = jobs?.filter(j => j.status === 'in_progress').length || 0;
-                const completedJobs = jobs?.filter(j => j.status === 'completed').length || 0;
+                const completedJobs = jobs?.filter(j => j.status === 'completed' || j.status === 'released').length || 0;
 
                 content.innerHTML = `
                     <div class="dashboard-stats">
@@ -1551,22 +1266,17 @@
                     <div class="data-table-container"><div class="table-header"><h3 class="table-title">ງານລ້າສຸດ</h3></div>${renderJobsTable(jobs?.slice(0, 5) || [])}</div>
                 `;
             } catch (error) {
-                content.innerHTML = '<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3></div>';
+                content.innerHTML = '<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>' + error.message + '</p></div>';
             }
         }
 
-        function renderJobsTable(jobs) {
-            if (!jobs || jobs.length === 0) return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-clipboard-list"></i></div><h3>ບໍ່ມີໃບສັ່ງງານ</h3></div>';
+        function renderCustomersTable(customers) {
+            if (!customers.length) {
+                return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-users"></i></div><h3>ບໍ່ມີຂໍ້ມູນລູກຄ້າ</h3><p>ກົດປຸ່ມ "ເພີ່ມລູກຄ້າ" ເພື່ອເພີ່ມຂໍ້ມູນ</p></div>';
+            }
             return `
-                <table class="data-table"><thead><tr><th>ເລກທີ</th><th>ຍານພາຫະນະ</th><th>ລູກຄ້າ</th><th>ສະຖານະ</th><th>ວັນທີ</th><th>ຈັດການ</th></tr></thead>
-                <tbody>${jobs.map(j => `<tr>
-                    <td><strong>${j.job_number}</strong></td>
-                    <td>${j.vehicles ? `${j.vehicles.brand} ${j.vehicles.model}` : '-'}</td>
-                    <td>${j.vehicles?.customers?.name || '-'}</td>
-                    <td><span class="status-badge ${getStatusBadgeClass(j.status)}">${getStatusLabel(j.status)}</span></td>
-                    <td>${formatDate(j.created_at)}</td>
-                    <td><button class="btn btn-sm btn-outline" onclick="viewJobCard('${j.id}')"><i class="fas fa-eye"></i></button></td>
-                </tr>`).join('')}</tbody></table>
+                <table class="data-table"><thead><tr><th>ຊື່</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ວັນທີລົງທະບຽນ</th></tr></thead>
+                <tbody>${customers.map(c => `<tr><td><strong>${c.name}</strong></td><td>${c.phone || '-'}</td><td>${c.email || '-'}</td><td>${formatDate(c.created_at)}</td></tr>`).join('')}</tbody></table>
             `;
         }
 
@@ -1583,42 +1293,14 @@
             }
         }
 
-        function renderCustomersTable(customers) {
-            if (!customers.length) return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-users"></i></div><h3>ບໍ່ມີຂໍ້ມູນລູກຄ້າ</h3></div>';
-            return `
-                <table class="data-table"><thead><tr><th>ຊື່</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ວັນທີລົງທະບຽນ</th></tr></thead>
-                <tbody>${customers.map(c => `<tr><td><strong>${c.name}</strong></td><td>${c.phone || '-'}</td><td>${c.email || '-'}</td><td>${formatDate(c.created_at)}</td></tr>`).join('')}</tbody></table>
-            `;
-        }
-
-        function showAddCustomer() {
-            const modal = document.createElement('div');
-            modal.className = 'modal show';
-            modal.id = 'customer-modal';
-            modal.innerHTML = `
-                <div class="modal-content"><div class="modal-header"><h3>ເພີ່ມລູກຄ້າໃໝ່</h3><button class="close-btn" onclick="this.closest(\'.modal\').remove()">&times;</button></div>
-                <div class="modal-body"><div class="form-group"><label>ຊື່ <span class="required">*</span></label><input type="text" id="cust-name" placeholder="ຊື່ ແລະ ນາມສະກຸນ"></div>
-                <div class="form-group"><label>ເບີໂທ</label><input type="tel" id="cust-phone" placeholder="020XXXXXXXX"></div>
-                <div class="form-group"><label>ອີເມວ</label><input type="email" id="cust-email"></div></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest(\'.modal\').remove()">ຍົກເລີກ</button><button class="btn btn-primary" onclick="saveCustomer()">ບັນທຶກ</button></div></div>
-            `;
-            document.body.appendChild(modal);
-        }
-
-        async function saveCustomer() {
-            const name = document.getElementById('cust-name')?.value;
-            if (!name) { showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນຊື່ລູກຄ້າ'); return; }
-            showLoading();
-            try {
-                await DB.createCustomer({ name, phone: document.getElementById('cust-phone')?.value, email: document.getElementById('cust-email')?.value });
-                hideLoading();
-                document.querySelector('#customer-modal')?.remove();
-                showToast('success', 'ສຳເລັດ', 'ເພີ່ມລູກຄ້າສຳເລັດ');
-                loadCustomers();
-            } catch (error) {
-                hideLoading();
-                showToast('error', 'ຜິດພາດ', error.message);
+        function renderVehiclesTable(vehicles) {
+            if (!vehicles.length) {
+                return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-car"></i></div><h3>ບໍ່ມີຂໍ້ມູນຍານພາຫະນະ</h3></div>';
             }
+            return `
+                <table class="data-table"><thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້</th><th>ຮຸ່ນ</th><th>ເຈົ້າຂອງ</th></tr></thead>
+                <tbody>${vehicles.map(v => `<tr><td><strong>${v.license_plate}</strong></td><td>${v.brand}</td><td>${v.model}</td><td>${v.customers?.name || '-'}</td></tr>`).join('')}</tbody></table>
+            `;
         }
 
         async function loadVehicles() {
@@ -1629,14 +1311,6 @@
             } catch (error) {
                 content.innerHTML = '<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3></div>';
             }
-        }
-
-        function renderVehiclesTable(vehicles) {
-            if (!vehicles.length) return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-car"></i></div><h3>ບໍ່ມີຂໍ້ມູນຍານພາຫະນະ</h3></div>';
-            return `
-                <table class="data-table"><thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້</th><th>ຮຸ່ນ</th><th>ເຈົ້າຂອງ</th></tr></thead>
-                <tbody>${vehicles.map(v => `<tr><td><strong>${v.license_plate}</strong></td><td>${v.brand}</td><td>${v.model}</td><td>${v.customers?.name || '-'}</td></tr>`).join('')}</tbody></table>
-            `;
         }
 
         async function loadJobCards() {
@@ -1656,12 +1330,14 @@
             modal.className = 'modal show';
             modal.id = 'jobcard-modal';
             modal.innerHTML = `
-                <div class="modal-content modal-xl"><div class="modal-header"><h3>ເປີດໃບສັ່ງງານໃໝ່</h3><button class="close-btn" onclick="this.closest(\'.modal\').remove()">&times;</button></div>
-                <div class="modal-body"><div class="form-row"><div class="form-group"><label>ເລືອກລູກຄ້າ</label><select id="job-customer"><option value="">ເລືອກລູກຄ້າ</option>${customers?.map(c => `<option value="${c.id}">${c.name}</option>`).join('') || ''}</select></div>
-                <div class="form-group"><label>ເລືອກຍານພາຫະນະ</label><select id="job-vehicle"><option value="">ເລືອກຍານພາຫະນະ</option></select></div></div>
-                <div class="form-group"><label>ບັນຫາທີ່ແຈ້ງ</label><textarea id="job-problem" rows="3"></textarea></div>
-                <div class="form-group"><label>ມອບຫມາຍໃຫ້ຊ່າງ</label><select id="job-mechanic"><option value="">ເລືອກຊ່າງ</option>${mechanics?.map(m => `<option value="${m.id}">${m.name}</option>`).join('') || ''}</select></div></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest(\'.modal\').remove()">ຍົກເລີກ</button><button class="btn btn-primary" onclick="saveJobCard()">ບັນທຶກ</button></div></div>
+                <div class="modal-content modal-xl"><div class="modal-header"><h3>ເປີດໃບສັ່ງງານໃໝ່</h3><button class="close-btn" onclick="closeModal(this)">&times;</button></div>
+                <div class="modal-body">
+                    <div class="form-row"><div class="form-group"><label>ເລືອກລູກຄ້າ</label><select id="job-customer"><option value="">ເລືອກລູກຄ້າ</option>${customers?.map(c => `<option value="${c.id}">${c.name}</option>`).join('') || ''}</select></div>
+                    <div class="form-group"><label>ເລືອກຍານພາຫະນະ</label><select id="job-vehicle"><option value="">ເລືອກຍານພາຫະນະ</option></select></div></div>
+                    <div class="form-group"><label>ບັນຫາທີ່ແຈ້ງ</label><textarea id="job-problem" rows="3"></textarea></div>
+                    <div class="form-group"><label>ມອບຫມາຍໃຫ້ຊ່າງ</label><select id="job-mechanic"><option value="">ເລືອກຊ່າງ</option>${mechanics?.map(m => `<option value="${m.id}">${m.name}</option>`).join('') || ''}</select></div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal(this)">ຍົກເລີກ</button><button class="btn btn-primary" onclick="saveJobCard()">ບັນທຶກ</button></div></div>
             `;
             document.body.appendChild(modal);
 
@@ -1674,14 +1350,28 @@
             });
         }
 
+        function closeModal(btn) {
+            const modal = btn.closest('.modal');
+            if (modal) modal.remove();
+        }
+
         async function saveJobCard() {
             const vehicleId = document.getElementById('job-vehicle')?.value;
             const mechanicId = document.getElementById('job-mechanic')?.value;
             const problem = document.getElementById('job-problem')?.value;
-            if (!vehicleId || !mechanicId) { showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາເລືອກຍານພາຫະນະ ແລະ ຊ່າງ'); return; }
+            if (!vehicleId || !mechanicId) {
+                showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາເລືອກຍານພາຫະນະ ແລະ ຊ່າງ');
+                return;
+            }
             showLoading();
             try {
-                const jobCard = { job_number: generateJobNumber(), vehicle_id: vehicleId, mechanic_id: mechanicId, problem_description: problem, status: 'assigned', created_by: currentUser.id };
+                const jobCard = {
+                    job_number: generateJobNumber(),
+                    vehicle_id: vehicleId,
+                    mechanic_id: mechanicId,
+                    problem_description: problem,
+                    status: 'assigned'
+                };
                 const { data, error } = await DB.createJobCard(jobCard);
                 if (error) throw error;
                 hideLoading();
@@ -1698,17 +1388,24 @@
             showLoading();
             const { data: job } = await DB.getJobCardById(jobId);
             hideLoading();
-            if (!job) { showToast('error', 'ຜິດພາດ', 'ບໍ່ພົບໃບສັ່ງງານ'); return; }
+            if (!job) {
+                showToast('error', 'ຜິດພາດ', 'ບໍ່ພົບໃບສັ່ງງານ');
+                return;
+            }
             const modal = document.createElement('div');
             modal.className = 'modal show';
             modal.innerHTML = `
-                <div class="modal-content"><div class="modal-header"><h3>ໃບສັ່ງງານ ${job.job_number}</h3><button class="close-btn" onclick="this.closest(\'.modal\').remove()">&times;</button></div>
-                <div class="modal-body"><div class="job-info-grid"><div class="job-info-item"><div class="label">ລູກຄ້າ</div><div class="value">${job.vehicles?.customers?.name || '-'}</div></div>
-                <div class="job-info-item"><div class="label">ຍານພາຫະນະ</div><div class="value">${job.vehicles?.brand} ${job.vehicles?.model} (${job.vehicles?.license_plate})</div></div>
-                <div class="job-info-item"><div class="label">ຊ່າງ</div><div class="value">${job.mechanics?.name || '-'}</div></div>
-                <div class="job-info-item"><div class="label">ສະຖານະ</div><div class="value"><span class="status-badge ${getStatusBadgeClass(job.status)}">${getStatusLabel(job.status)}</span></div></div></div>
-                <div><h4>ບັນຫາ</h4><p>${job.problem_description || '-'}</p></div></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest(\'.modal\').remove()">ປິດ</button></div></div>
+                <div class="modal-content"><div class="modal-header"><h3>ໃບສັ່ງງານ ${job.job_number}</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
+                <div class="modal-body">
+                    <div class="job-info-grid">
+                        <div class="job-info-item"><div class="label">ລູກຄ້າ</div><div class="value">${job.vehicles?.customers?.name || '-'}</div></div>
+                        <div class="job-info-item"><div class="label">ຍານພາຫະນະ</div><div class="value">${job.vehicles?.brand || ''} ${job.vehicles?.model || ''} (${job.vehicles?.license_plate || '-'})</div></div>
+                        <div class="job-info-item"><div class="label">ຊ່າງ</div><div class="value">${job.mechanics?.name || '-'}</div></div>
+                        <div class="job-info-item"><div class="label">ສະຖານະ</div><div class="value"><span class="status-badge ${getStatusBadgeClass(job.status)}">${getStatusLabel(job.status)}</span></div></div>
+                    </div>
+                    <div><h4>ບັນຫາ</h4><p>${job.problem_description || '-'}</p></div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button></div></div>
             `;
             document.body.appendChild(modal);
         }
@@ -1723,6 +1420,16 @@
             }
         }
 
+        function renderPartsTable(parts) {
+            if (!parts.length) {
+                return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-boxes"></i></div><h3>ບໍ່ມີຂໍ້ມູນອາໄຫຼ່</h3></div>';
+            }
+            return `
+                <table class="data-table"><thead><tr><th>ລະຫັດ</th><th>ຊື່ອາໄຫຼ່</th><th>ຈຳນວນ</th><th>ລາຄາ</th></tr></thead>
+                <tbody>${parts.map(p => `<tr><td><code>${p.code}</code></td><td><strong>${p.name}</strong></td><td>${p.stock_quantity || 0}</td><td class="currency">${formatCurrency(p.price)}</td></tr>`).join('')}</tbody></table>
+            `;
+        }
+
         async function loadPartsInventory() {
             const content = document.getElementById('content-area');
             try {
@@ -1731,14 +1438,6 @@
             } catch (error) {
                 content.innerHTML = '<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3></div>';
             }
-        }
-
-        function renderPartsTable(parts) {
-            if (!parts.length) return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-boxes"></i></div><h3>ບໍ່ມີຂໍ້ມູນອາໄຫຼ່</h3></div>';
-            return `
-                <table class="data-table"><thead><tr><th>ລະຫັດ</th><th>ຊື່ອາໄຫຼ່</th><th>ຈຳນວນ</th><th>ລາຄາ</th></tr></thead>
-                <tbody>${parts.map(p => `<tr><td><code>${p.code}</code></td><td><strong>${p.name}</strong></td><td>${p.stock_quantity}</td><td class="currency">${formatCurrency(p.price)}</td></tr>`).join('')}</tbody></table>
-            `;
         }
 
         async function loadPDICheck() {
@@ -1751,6 +1450,16 @@
             }
         }
 
+        function renderStaffTable(staff) {
+            if (!staff.length) {
+                return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-users"></i></div><h3>ບໍ່ມີຂໍ້ມູນພະນັກງານ</h3></div>';
+            }
+            return `
+                <table class="data-table"><thead><tr><th>ຊື່</th><th>ຕຳແໜ່ງ</th><th>ເບີໂທ</th><th>ອີເມວ</th><tr></thead>
+                <tbody>${staff.map(s => `<tr><td><strong>${s.name}</strong></td><td>${getRoleLabel(s.role)}</td><td>${s.phone || '-'}</td><td>${s.email || '-'}</td>`).join('')}</tbody></table>
+            `;
+        }
+
         async function loadStaff() {
             const content = document.getElementById('content-area');
             try {
@@ -1761,12 +1470,43 @@
             }
         }
 
-        function renderStaffTable(staff) {
-            if (!staff.length) return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-users"></i></div><h3>ບໍ່ມີຂໍ້ມູນພະນັກງານ</h3></div>';
-            return `
-                <table class="data-table"><thead><tr><th>ຊື່</th><th>ຕຳແໜ່ງ</th><th>ເບີໂທ</th><th>ອີເມວ</th></tr></thead>
-                <tbody>${staff.map(s => `<tr><td><strong>${s.name}</strong></td><td>${getRoleLabel(s.role)}</td><td>${s.phone || '-'}</td><td>${s.email || '-'}</td></tr>`).join('')}</tbody></table>
+        function showAddCustomer() {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.id = 'customer-modal';
+            modal.innerHTML = `
+                <div class="modal-content"><div class="modal-header"><h3>ເພີ່ມລູກຄ້າໃໝ່</h3><button class="close-btn" onclick="closeModal(this)">&times;</button></div>
+                <div class="modal-body">
+                    <div class="form-group"><label>ຊື່ <span class="required">*</span></label><input type="text" id="cust-name" placeholder="ຊື່ ແລະ ນາມສະກຸນ"></div>
+                    <div class="form-group"><label>ເບີໂທ</label><input type="tel" id="cust-phone" placeholder="020XXXXXXXX"></div>
+                    <div class="form-group"><label>ອີເມວ</label><input type="email" id="cust-email"></div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal(this)">ຍົກເລີກ</button><button class="btn btn-primary" onclick="saveCustomer()">ບັນທຶກ</button></div></div>
             `;
+            document.body.appendChild(modal);
+        }
+
+        async function saveCustomer() {
+            const name = document.getElementById('cust-name')?.value;
+            if (!name) {
+                showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນຊື່ລູກຄ້າ');
+                return;
+            }
+            showLoading();
+            try {
+                await DB.createCustomer({
+                    name: name,
+                    phone: document.getElementById('cust-phone')?.value,
+                    email: document.getElementById('cust-email')?.value
+                });
+                hideLoading();
+                document.querySelector('#customer-modal')?.remove();
+                showToast('success', 'ສຳເລັດ', 'ເພີ່ມລູກຄ້າສຳເລັດ');
+                loadCustomers();
+            } catch (error) {
+                hideLoading();
+                showToast('error', 'ຜິດພາດ', error.message);
+            }
         }
 
         function showMainApp() {
@@ -1780,11 +1520,11 @@
             setInterval(updateTime, 1000);
         }
 
-        // Initialize
+        // Initialize application
         document.addEventListener('DOMContentLoaded', () => {
             initSupabase();
             const savedUser = getCurrentUser();
-            if (savedUser) {
+            if (savedUser && savedUser.id) {
                 currentUser = savedUser;
                 showMainApp();
             }
@@ -1795,15 +1535,19 @@
                 const password = document.getElementById('password').value;
                 const role = document.getElementById('role').value;
                 const errorDiv = document.getElementById('login-error');
+                
                 if (!role) {
                     errorDiv.textContent = 'ກະລຸນາເລືອກຕຳແໜ່ງ';
                     errorDiv.classList.add('show');
                     return;
                 }
+                
                 const result = await login(email, password, role);
                 if (!result.success) {
                     errorDiv.textContent = result.error;
                     errorDiv.classList.add('show');
+                } else {
+                    errorDiv.classList.remove('show');
                 }
             });
         });
