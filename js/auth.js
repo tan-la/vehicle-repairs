@@ -10,23 +10,54 @@ async function login(email, password, role) {
     try {
         showLoading();
 
-        // In a real app, you'd authenticate with Supabase Auth
-        // For this demo, we'll simulate authentication
+        // Validate inputs
+        if (!email || !password || !role) {
+            hideLoading();
+            return { success: false, error: 'ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບຖ້ວນ' };
+        }
 
-        const { data: staff, error } = await DB.getStaff();
+        // Try to get staff from database
+        let staff = [];
+        let dbError = null;
 
-        if (error) throw error;
+        try {
+            const result = await DB.getStaff();
+            staff = result.data || [];
+            dbError = result.error;
+        } catch (e) {
+            console.warn('Database error, using demo data:', e);
+        }
 
-        // Find user by email and role (demo purposes)
+        // If no staff in database, use demo data
+        if (staff.length === 0 || dbError) {
+            staff = [
+                { id: '1', name: 'Admin User', email: 'admin@example.com', role: 'admin', phone: '02055555555', active: true },
+                { id: '2', name: 'Reception User', email: 'reception@example.com', role: 'reception', phone: '02055555556', active: true },
+                { id: '3', name: 'Mechanic User', email: 'mechanic@example.com', role: 'mechanic', phone: '02055555557', active: true, specialty: 'ເຄື່ອງຈັກ' },
+                { id: '4', name: 'Warehouse User', email: 'warehouse@example.com', role: 'warehouse', phone: '02055555558', active: true },
+                { id: '5', name: 'PDI User', email: 'pdi@example.com', role: 'pdi', phone: '02055555559', active: true }
+            ];
+        }
+
+        // Find user by email and role
         const user = staff.find(s => s.email === email && s.role === role);
 
         if (!user) {
-            throw new Error('ບໍ່ພົບຜູ້ໃຊ້ ຫລື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ');
+            hideLoading();
+            return { success: false, error: 'ບໍ່ພົບຜູ້ໃຊ້ ຫລື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ' };
+        }
+
+        // Check if user is active
+        if (user.active === false) {
+            hideLoading();
+            return { success: false, error: 'ບັນຊີນີ້ຖືກປິດການໃຊ້ງານ' };
         }
 
         // Simulate password check (in production, use Supabase Auth)
+        // Demo password is '123456' for all demo accounts
         if (password !== '123456') {
-            throw new Error('ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ');
+            hideLoading();
+            return { success: false, error: 'ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ' };
         }
 
         currentUser = {
@@ -51,7 +82,7 @@ async function login(email, password, role) {
     } catch (error) {
         hideLoading();
         console.error('Login error:', error);
-        return { success: false, error: error.message };
+        return { success: false, error: error.message || 'ເກີດຂໍ້ຜິດພາດໃນການເຂົ້າສູ່ລະບົບ' };
     }
 }
 
@@ -61,12 +92,18 @@ function logout() {
     clearCurrentUser();
 
     // Hide main app, show login
-    document.getElementById('main-app').style.display = 'none';
-    document.getElementById('login-page').style.display = 'flex';
+    const mainApp = document.getElementById('main-app');
+    const loginPage = document.getElementById('login-page');
+
+    if (mainApp) mainApp.style.display = 'none';
+    if (loginPage) loginPage.style.display = 'flex';
 
     // Clear form
-    document.getElementById('login-form').reset();
-    document.getElementById('login-error').classList.remove('show');
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) loginForm.reset();
+
+    const loginError = document.getElementById('login-error');
+    if (loginError) loginError.classList.remove('show');
 
     showToast('info', 'ອອກຈາກລະບົບ', 'ທ່ານໄດ້ອອກຈາກລະບົບສຳເລັດແລ້ວ');
 }
@@ -95,10 +132,14 @@ function hasAnyRole(roles) {
 
 // Initialize auth on page load
 function initAuth() {
-    const user = getCurrentUser();
-    if (user && user.id) {
-        currentUser = user;
-        showMainApp();
+    try {
+        const user = getCurrentUser();
+        if (user && user.id) {
+            currentUser = user;
+            showMainApp();
+        }
+    } catch (error) {
+        console.error('Auth initialization error:', error);
     }
 }
 
@@ -106,6 +147,8 @@ function initAuth() {
 function togglePassword() {
     const passwordInput = document.getElementById('password');
     const toggleBtn = document.querySelector('.toggle-password i');
+
+    if (!passwordInput || !toggleBtn) return;
 
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
@@ -120,13 +163,19 @@ function togglePassword() {
 
 // Show main application
 function showMainApp() {
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('main-app').style.display = 'flex';
+    const loginPage = document.getElementById('login-page');
+    const mainApp = document.getElementById('main-app');
+
+    if (loginPage) loginPage.style.display = 'none';
+    if (mainApp) mainApp.style.display = 'flex';
 
     // Update user info in sidebar
     const user = getCurrentUser();
-    document.getElementById('user-name').textContent = user.name;
-    document.getElementById('user-role').textContent = getRoleLabel(user.role);
+    const userNameEl = document.getElementById('user-name');
+    const userRoleEl = document.getElementById('user-role');
+
+    if (userNameEl) userNameEl.textContent = user.name || 'User';
+    if (userRoleEl) userRoleEl.textContent = getRoleLabel(user.role);
 
     // Build navigation based on role
     buildNavigation(user.role);
@@ -157,6 +206,8 @@ function getRoleLabel(role) {
 // Build navigation menu based on role
 function buildNavigation(role) {
     const navMenu = document.getElementById('nav-menu');
+    if (!navMenu) return;
+
     navMenu.innerHTML = '';
 
     const navItems = {
@@ -211,6 +262,9 @@ function buildNavigation(role) {
 
 // Update current time
 function updateTime() {
+    const timeEl = document.getElementById('current-time');
+    if (!timeEl) return;
+
     const now = new Date();
     const options = { 
         weekday: 'long', 
@@ -220,27 +274,32 @@ function updateTime() {
         hour: '2-digit',
         minute: '2-digit'
     };
-    document.getElementById('current-time').textContent = now.toLocaleDateString('lo-LA', options);
+    timeEl.textContent = now.toLocaleDateString('lo-LA', options);
 }
 
 // Toggle sidebar
 function toggleSidebar() {
-    document.querySelector('.sidebar').classList.toggle('collapsed');
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) sidebar.classList.toggle('collapsed');
 }
 
 // Start real-time updates
 function startRealtimeUpdates() {
-    // Subscribe to job card changes
-    DB.subscribeToJobCards((payload) => {
-        console.log('Job card change:', payload);
-        updateNotificationCount();
-    });
+    try {
+        // Subscribe to job card changes
+        DB.subscribeToJobCards((payload) => {
+            console.log('Job card change:', payload);
+            updateNotificationCount();
+        });
 
-    // Subscribe to parts changes
-    DB.subscribeToParts((payload) => {
-        console.log('Parts change:', payload);
-        updateNotificationCount();
-    });
+        // Subscribe to parts changes
+        DB.subscribeToParts((payload) => {
+            console.log('Parts change:', payload);
+            updateNotificationCount();
+        });
+    } catch (error) {
+        console.warn('Realtime updates not available:', error);
+    }
 }
 
 // Update notification count
@@ -248,8 +307,11 @@ async function updateNotificationCount() {
     try {
         const { data } = await DB.getNotifications();
         const count = data ? data.length : 0;
-        document.getElementById('notification-count').textContent = count;
-        document.getElementById('notification-count').style.display = count > 0 ? 'flex' : 'none';
+        const badge = document.getElementById('notification-count');
+        if (badge) {
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'flex' : 'none';
+        }
     } catch (error) {
         console.error('Error updating notifications:', error);
     }
