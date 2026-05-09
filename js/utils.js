@@ -245,15 +245,13 @@ function exportToCSV(data, filename) {
             headers.map(header => {
                 let cell = row[header] || '';
                 cell = String(cell).replace(/"/g, '""');
-                if (cell.includes(',') || cell.includes('"') || cell.includes('
-')) {
+                if (cell.includes(',') || cell.includes('"') || cell.includes('\n'')) {
                     cell = `"${cell}"`;
                 }
                 return cell;
             }).join(',')
         )
-    ].join('
-');
+    ].join('\n');
 
     const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
