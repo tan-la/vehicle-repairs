@@ -84,6 +84,18 @@ function navigateTo(page) {
         case 'reports':
             loadReports();
             break;
+        case 'invoices':
+            loadInvoices();
+            break;
+        case 'job-history':
+            loadJobHistory();
+            break;
+        case 'completed-pdi':
+            loadCompletedPDI();
+            break;
+        case 'add-parts':
+            loadAddParts();
+            break;
         default:
             loadDashboard();
     }
@@ -893,6 +905,79 @@ function searchJobs(query) {
 function printJobCard(jobId) {
     showToast('info', 'ກະລຸນາລໍຖ້າ', 'ກຳລັງກະກຽມເອກະສານ...');
     // Implementation would generate print-friendly view
+}
+
+// ============================================
+// MECHANIC - REQUEST PARTS PAGE
+// ============================================
+async function loadRequestParts() {
+    // Redirect to my-jobs since request parts is a modal action
+    document.getElementById('page-title').textContent = 'ຂໍອາໄຫຼ່';
+    const content = document.getElementById('content-area');
+    const user = getCurrentUser();
+
+    try {
+        const { data: jobs } = await getSupabase()
+            .from('job_cards')
+            .select('*, vehicles(*, customers(*))')
+            .eq('mechanic_id', user.id)
+            .in('status', ['in_progress', 'parts_requested', 'parts_approved'])
+            .order('created_at', { ascending: false });
+
+        if (!jobs || jobs.length === 0) {
+            content.innerHTML = `
+                <div class="empty-state" style="padding: 40px;">
+                    <div class="empty-state-icon"><i class="fas fa-boxes"></i></div>
+                    <h3>ບໍ່ມີງານທີ່ກຳລັງດຳເນີນ</h3>
+                    <p>ກະລຸນາເລີ່ມງານຈາກ "ງານຂອງຂ້ອຍ" ກ່ອນ</p>
+                    <button class="btn btn-primary" onclick="navigateTo('my-jobs')" style="margin-top: 16px;">
+                        <i class="fas fa-wrench"></i> ໄປທີ່ງານຂອງຂ້ອຍ
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        content.innerHTML = `
+            <div class="data-table-container">
+                <div class="table-header">
+                    <h3 class="table-title"><i class="fas fa-boxes"></i> ເລືອກງານທີ່ຕ້ອງການຂໍອາໄຫຼ່</h3>
+                </div>
+                <div style="display: grid; gap: 16px;">
+                    ${jobs.map(j => `
+                        <div class="job-card" style="margin-bottom: 0;">
+                            <div class="job-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h3>${j.job_number}</h3>
+                                    <div class="job-number">${j.vehicles ? `${j.vehicles.brand} ${j.vehicles.model} (${j.vehicles.license_plate})` : ''}</div>
+                                </div>
+                                <span class="status-badge ${getStatusBadgeClass(j.status)}">${getStatusLabel(j.status)}</span>
+                            </div>
+                            <div class="job-card-body">
+                                <div class="job-info-grid" style="margin-bottom: 16px;">
+                                    <div class="job-info-item">
+                                        <div class="label">ລູກຄ້າ</div>
+                                        <div class="value">${j.vehicles && j.vehicles.customers ? j.vehicles.customers.name : '-'}</div>
+                                    </div>
+                                    <div class="job-info-item">
+                                        <div class="label">ບັນຫາ</div>
+                                        <div class="value">${j.problem_description ? j.problem_description.substring(0, 50) + '...' : '-'}</div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" onclick="openRequestParts('${j.id}')">
+                                    <i class="fas fa-boxes"></i> ຂໍອາໄຫຼ່
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+    } catch (error) {
+        console.error('Error loading request parts:', error);
+        content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3></div>`;
+    }
 }
 
 // ============================================
@@ -2535,8 +2620,13 @@ async function loadCompletedPDI() {
 // ============================================
 // ADD PARTS (Warehouse)
 // ============================================
-function loadAddParts() {
-    loadPartsInventory();
+async function loadAddParts() {
+    // For warehouse staff, redirect to parts inventory with add button
+    await loadPartsInventory();
+    // Auto-open the add part modal after a short delay
+    setTimeout(() => {
+        showAddPart();
+    }, 500);
 }
 
 // ============================================
