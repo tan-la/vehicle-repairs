@@ -39,10 +39,11 @@ function formatDateTime(dateString) {
 }
 
 // Generate unique ID
-function generateId(prefix = '') {
+function generateId(prefix) {
+    prefix = prefix || '';
     const timestamp = Date.now().toString(36);
     const random = Math.random().toString(36).substr(2, 5);
-    return `${prefix}${timestamp}${random}`.toUpperCase();
+    return (prefix + timestamp + random).toUpperCase();
 }
 
 // Generate Job Card Number
@@ -52,12 +53,12 @@ function generateJobNumber() {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const random = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-    return `JC${year}${month}${day}-${random}`;
+    return 'JC' + year + month + day + '-' + random;
 }
 
 // Generate QR Code data for part
 function generatePartQRCode(partId, partCode) {
-    return `PART:${partId}:${partCode}`;
+    return 'PART:' + partId + ':' + partCode;
 }
 
 // Parse QR Code data
@@ -74,9 +75,10 @@ function parseQRCodeData(qrData) {
 }
 
 // Calculate labor cost based on part type
-function calculateLaborCost(partCategory, hours = 1) {
+function calculateLaborCost(partCategory, hours) {
+    hours = hours || 1;
     const rates = CONFIG.LABOR_RATES;
-    let rate = rates.general;
+    var rate = rates.general;
 
     switch(partCategory) {
         case 'electrical':
@@ -100,97 +102,86 @@ function calculateLaborCost(partCategory, hours = 1) {
 
 // Calculate total cost
 function calculateTotalCost(parts, labor) {
-    let partsTotal = 0;
-    let laborTotal = 0;
+    var partsTotal = 0;
+    var laborTotal = 0;
 
     if (parts && parts.length > 0) {
-        partsTotal = parts.reduce((sum, p) => {
-            const price = p.parts ? p.parts.price : p.price;
-            const qty = p.quantity || 1;
+        partsTotal = parts.reduce(function(sum, p) {
+            var price = p.parts ? p.parts.price : p.price;
+            var qty = p.quantity || 1;
             return sum + (price * qty);
         }, 0);
     }
 
     if (labor && labor.length > 0) {
-        laborTotal = labor.reduce((sum, l) => sum + (l.cost || 0), 0);
+        laborTotal = labor.reduce(function(sum, l) {
+            return sum + (l.cost || 0);
+        }, 0);
     }
 
     return {
-        partsTotal,
-        laborTotal,
+        partsTotal: partsTotal,
+        laborTotal: laborTotal,
         grandTotal: partsTotal + laborTotal
     };
 }
 
 // Toast notification
-function showToast(type, title, message, duration = 3000) {
-    const container = document.getElementById('toast-container');
+function showToast(type, title, message, duration) {
+    duration = duration || 3000;
+    var container = document.getElementById('toast-container');
 
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
 
-    const icons = {
+    var icons = {
         success: 'fa-check-circle',
         error: 'fa-times-circle',
         warning: 'fa-exclamation-circle',
         info: 'fa-info-circle'
     };
 
-    toast.innerHTML = `
-        <div class="toast-icon">
-            <i class="fas ${icons[type]}"></i>
-        </div>
-        <div class="toast-content">
-            <div class="toast-title">${title}</div>
-            <div class="toast-message">${message}</div>
-        </div>
-        <button class="toast-close" onclick="this.parentElement.remove()">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
+    var html = '<div class="toast-icon"><i class="fas ' + icons[type] + '"></i></div>';
+    html += '<div class="toast-content"><div class="toast-title">' + title + '</div>';
+    html += '<div class="toast-message">' + message + '</div></div>';
+    html += '<button class="toast-close" onclick="this.parentElement.remove()">';
+    html += '<i class="fas fa-times"></i></button>';
 
+    toast.innerHTML = html;
     container.appendChild(toast);
 
-    // Auto remove
-    setTimeout(() => {
-        toast.style.animation = 'slideInRight 0.3s ease reverse';
-        setTimeout(() => toast.remove(), 300);
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        setTimeout(function() { toast.remove(); }, 300);
     }, duration);
 }
 
 // Confirm dialog
 function showConfirm(title, message, onConfirm, onCancel) {
-    const modal = document.createElement('div');
+    var modal = document.createElement('div');
     modal.className = 'modal show';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-question-circle"></i> ${title}</h3>
-            </div>
-            <div class="modal-body">
-                <p>${message}</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="this.closest('.modal').remove(); ${onCancel ? onCancel.toString() + '();' : ''}">
-                    <i class="fas fa-times"></i> ຍົກເລີກ
-                </button>
-                <button class="btn btn-primary" onclick="this.closest('.modal').remove(); ${onConfirm.toString()}();">
-                    <i class="fas fa-check"></i> ຢືນຢັນ
-                </button>
-            </div>
-        </div>
-    `;
 
+    var html = '<div class="modal-content">';
+    html += '<div class="modal-header"><h3><i class="fas fa-question-circle"></i> ' + title + '</h3></div>';
+    html += '<div class="modal-body"><p>' + message + '</p></div>';
+    html += '<div class="modal-footer">';
+    html += '<button class="btn btn-secondary" onclick="this.closest(\'.modal\').remove();">';
+    html += '<i class="fas fa-times"></i> ຍົກເລີກ</button>';
+    html += '<button class="btn btn-primary" onclick="this.closest(\'.modal\').remove(); ' + onConfirm + '();">';
+    html += '<i class="fas fa-check"></i> ຢືນຢັນ</button></div></div>';
+
+    modal.innerHTML = html;
     document.body.appendChild(modal);
 }
 
 // Debounce function
 function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
+    var timeout;
+    return function executedFunction() {
+        var args = arguments;
+        var later = function() {
             clearTimeout(timeout);
-            func(...args);
+            func.apply(null, args);
         };
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
@@ -204,19 +195,18 @@ function deepClone(obj) {
 
 // Validate form
 function validateForm(formId) {
-    const form = document.getElementById(formId);
+    var form = document.getElementById(formId);
     if (!form) return true;
 
-    const requiredFields = form.querySelectorAll('[required]');
-    let isValid = true;
+    var requiredFields = form.querySelectorAll('[required]');
+    var isValid = true;
 
-    requiredFields.forEach(field => {
+    requiredFields.forEach(function(field) {
         if (!field.value.trim()) {
             isValid = false;
             field.style.borderColor = 'var(--danger)';
 
-            // Add error message
-            let errorMsg = field.parentElement.querySelector('.field-error');
+            var errorMsg = field.parentElement.querySelector('.field-error');
             if (!errorMsg) {
                 errorMsg = document.createElement('span');
                 errorMsg.className = 'field-error';
@@ -226,7 +216,7 @@ function validateForm(formId) {
             errorMsg.textContent = 'ກະລຸນາປ້ອນຂໍ້ມູນນີ້';
         } else {
             field.style.borderColor = '';
-            const errorMsg = field.parentElement.querySelector('.field-error');
+            var errorMsg = field.parentElement.querySelector('.field-error');
             if (errorMsg) errorMsg.remove();
         }
     });
@@ -238,23 +228,23 @@ function validateForm(formId) {
 function exportToCSV(data, filename) {
     if (!data || data.length === 0) return;
 
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-        headers.join(','),
-        ...data.map(row => 
-            headers.map(header => {
-                let cell = row[header] || '';
-                cell = String(cell).replace(/"/g, '""');
-                if (cell.includes(',') || cell.includes('"') || cell.includes('\n'')) {
-                    cell = `"${cell}"`;
-                }
-                return cell;
-            }).join(',')
-        )
-    ].join('\n');
+    var headers = Object.keys(data[0]);
+    var csvContent = headers.join(',') + '\n';
 
-    const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    data.forEach(function(row) {
+        var rowData = headers.map(function(header) {
+            var cell = row[header] || '';
+            cell = String(cell).replace(/"/g, '""');
+            if (cell.indexOf(',') >= 0 || cell.indexOf('"') >= 0 || cell.indexOf('\n') >= 0) {
+                cell = '"' + cell + '"';
+            }
+            return cell;
+        }).join(',');
+        csvContent += rowData + '\n';
+    });
+
+    var blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = filename;
     link.click();
@@ -262,33 +252,25 @@ function exportToCSV(data, filename) {
 
 // Print element
 function printElement(elementId) {
-    const element = document.getElementById(elementId);
+    var element = document.getElementById(elementId);
     if (!element) return;
 
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>ພິມເອກະສານ</title>
-            <style>
-                body { font-family: 'Noto Sans Lao', sans-serif; padding: 20px; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                th { background: #f5f5f5; }
-            </style>
-        </head>
-        <body>
-            ${element.innerHTML}
-        </body>
-        </html>
-    `);
+    var printWindow = window.open('', '_blank');
+    var html = '<html><head><title>ພິມເອກະສານ</title>';
+    html += '<style>body{font-family:\'Noto Sans Lao\',sans-serif;padding:20px}';
+    html += 'table{width:100%;border-collapse:collapse}';
+    html += 'th,td{border:1px solid #ddd;padding:8px;text-align:left}';
+    html += 'th{background:#f5f5f5}</style></head><body>';
+    html += element.innerHTML + '</body></html>';
+
+    printWindow.document.write(html);
     printWindow.document.close();
     printWindow.print();
 }
 
 // Get status label
 function getStatusLabel(status) {
-    const labels = {
+    var labels = {
         'pending': 'ລໍຖ້າ',
         'assigned': 'ມອບຫມາຍແລ້ວ',
         'parts_requested': 'ຂໍອາໄຫຼ່',
@@ -310,7 +292,7 @@ function getStatusLabel(status) {
 
 // Get status badge class
 function getStatusBadgeClass(status) {
-    const classes = {
+    var classes = {
         'pending': 'status-pending',
         'assigned': 'status-progress',
         'parts_requested': 'status-warning',
@@ -330,17 +312,13 @@ function getStatusBadgeClass(status) {
     return classes[status] || 'status-pending';
 }
 
-// Generate QR Code SVG (simple version)
-function generateQRSVG(data, size = 200) {
-    // This is a placeholder - in production, use a QR code library
-    // For now, return a placeholder SVG
-    return `
-        <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100%" height="100%" fill="white"/>
-            <rect x="20" y="20" width="${size-40}" height="${size-40}" fill="none" stroke="black" stroke-width="2"/>
-            <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="14" font-family="monospace">
-                ${data}
-            </text>
-        </svg>
-    `;
+// Generate QR Code SVG (placeholder)
+function generateQRSVG(data, size) {
+    size = size || 200;
+    var svg = '<svg width="' + size + '" height="' + size + '" xmlns="http://www.w3.org/2000/svg">';
+    svg += '<rect width="100%" height="100%" fill="white"/>';
+    svg += '<rect x="20" y="20" width="' + (size - 40) + '" height="' + (size - 40) + '" fill="none" stroke="black" stroke-width="2"/>';
+    svg += '<text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="14" font-family="monospace">';
+    svg += data + '</text></svg>';
+    return svg;
 }
