@@ -21,6 +21,7 @@
             --danger: #dc2626;
             --danger-light: #fee2e2;
             --info: #0891b2;
+            --info-light: #cffafe;
             --gray-100: #f1f5f9;
             --gray-200: #e2e8f0;
             --gray-300: #cbd5e1;
@@ -273,6 +274,20 @@
         .page-title h2 { font-size: 1.25rem; font-weight: 600; }
         
         .top-actions { display: flex; align-items: center; gap: 16px; }
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+        .notification-bell .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
         .current-time { font-size: 0.875rem; color: var(--gray-500); }
         
         .content-area { padding: 24px; }
@@ -291,8 +306,11 @@
             padding: 20px;
             box-shadow: var(--shadow);
             border-left: 4px solid var(--primary);
+            cursor: pointer;
+            transition: transform 0.2s;
         }
         
+        .stat-card:hover { transform: translateY(-2px); }
         .stat-card.success { border-left-color: var(--success); }
         .stat-card.warning { border-left-color: var(--warning); }
         .stat-card.info { border-left-color: var(--info); }
@@ -336,6 +354,7 @@
         }
         
         .table-title { font-size: 1.125rem; font-weight: 600; }
+        .table-actions { display: flex; gap: 10px; }
         
         .data-table {
             width: 100%;
@@ -354,6 +373,7 @@
             font-weight: 600;
             color: var(--gray-600);
         }
+        .data-table tbody tr:hover { background: var(--gray-50); }
 
         /* Status Badges */
         .status-badge {
@@ -392,11 +412,14 @@
         .btn-primary { background: var(--primary); color: var(--white); }
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-success { background: var(--success); color: var(--white); }
+        .btn-success:hover { background: #047857; }
+        .btn-warning { background: var(--warning); color: var(--white); }
         .btn-danger { background: var(--danger); color: var(--white); }
         .btn-secondary { background: var(--gray-300); color: var(--gray-700); }
         .btn-outline { background: transparent; border: 1px solid var(--gray-400); color: var(--gray-700); }
         .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
         .btn-sm { padding: 4px 12px; font-size: 0.75rem; }
+        .btn-icon { padding: 8px; border-radius: 50%; }
 
         /* Modal */
         .modal {
@@ -437,6 +460,7 @@
             color: var(--gray-400);
             cursor: pointer;
         }
+        .close-btn:hover { color: var(--danger); }
         .modal-body { padding: 24px; }
         .modal-footer {
             padding: 16px 24px;
@@ -466,6 +490,56 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
+        }
+
+        /* Checklist for PDI */
+        .checklist-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .checklist-category {
+            margin-bottom: 24px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .checklist-category-title {
+            background: var(--gray-100);
+            padding: 12px 16px;
+            font-weight: 600;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item.pass { background: var(--success-light); }
+        .checklist-item.fail { background: var(--danger-light); }
+
+        /* Parts Request */
+        .parts-list { display: flex; flex-direction: column; gap: 12px; }
+        .part-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px;
+            background: var(--gray-100);
+            border-radius: 8px;
+        }
+        .part-item .part-info { flex: 1; }
+        .part-item .part-name { font-weight: 600; }
+        .part-item .part-code { font-size: 0.75rem; color: var(--gray-500); }
+        .part-qty { display: flex; align-items: center; gap: 10px; }
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid var(--gray-300);
+            background: white;
+            cursor: pointer;
         }
 
         /* Toast */
@@ -541,6 +615,14 @@
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        /* Search Box */
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 20px;
+            width: 250px;
         }
 
         /* Responsive */
@@ -627,6 +709,10 @@
                     <h2 id="page-title">Dashboard</h2>
                 </div>
                 <div class="top-actions">
+                    <div class="notification-bell" id="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span id="notification-count" class="badge" style="display: none;">0</span>
+                    </div>
                     <div class="current-time" id="current-time"></div>
                 </div>
             </header>
@@ -646,14 +732,22 @@
 
     <script>
         // ============================================
-        // SUPABASE CONFIGURATION
+        // CONFIGURATION
         // ============================================
         const SUPABASE_URL = 'https://tmsisqxvfgcplnqtlhfv.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc2lzcXh2ZmdjcGxucXRsaGZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzgzODAsImV4cCI6MjA5MzkxNDM4MH0.-7f8vXtZ59PRnlpB4HraEn-L6jl58ywVlsMqVkAiBtk';
 
-        // Use a different variable name to avoid conflict with window.supabase
         let sbClient = null;
         let currentUser = null;
+        let currentPage = 'dashboard';
+        let pdiResults = {};
+
+        // PDI Checklist Categories
+        const PDI_CATEGORIES = [
+            { id: 'exterior', name: 'ກວດກາພາຍນອກ (Exterior)', items: ['ສີລົດບໍ່ມີຮອຍຂີດຂ່ວນ', 'ໄຟຫນ້າ-ຫລັງ ເຮັດວຽກປົກກະຕິ', 'ກະຈົກຂ້າງ ປັບໄດ້ປົກກະຕິ', 'ຢາງລົດ ມີລົມພຽງພໍ'] },
+            { id: 'interior', name: 'ກວດກາພາຍໃນ (Interior)', items: ['ເບາະນັ່ງ ບໍ່ມີຮອຍຂາດ', 'ແອເຢັນ ເຮັດວຽກປົກກະຕິ', 'ວິທະຍຸ ເຮັດວຽກປົກກະຕິ', 'ກະຈົກເບິ່ງຫລັງ ສະອາດ'] },
+            { id: 'engine', name: 'ກວດກາເຄື່ອງຈັກ (Engine)', items: ['ນໍ້າມັນເຄື່ອງ ຢູ່ລະດັບປົກກະຕິ', 'ນໍ້າມັນເບຣກ ຢູ່ລະດັບປົກກະຕິ', 'ນໍ້າຫລໍ່ເຢັນ ຢູ່ລະດັບປົກກະຕິ', 'ສາຍພານ ບໍ່ມີຮອຍແຕກ'] }
+        ];
 
         // ============================================
         // UTILITY FUNCTIONS
@@ -737,7 +831,7 @@
         }
 
         // ============================================
-        // SUPABASE INIT - using different variable name
+        // SUPABASE INIT
         // ============================================
         function initSupabase() {
             if (!sbClient) {
@@ -781,7 +875,6 @@
                     throw new Error('ບໍ່ພົບຜູ້ໃຊ້ ຫຼື ຕຳແໜ່ງບໍ່ຖືກຕ້ອງ');
                 }
                 
-                // Simple password check (in production, use proper auth)
                 if (password !== '123456') {
                     throw new Error('ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ');
                 }
@@ -858,7 +951,7 @@
             async getJobCardById(id) {
                 const { data, error } = await initSupabase()
                     .from('job_cards')
-                    .select('*, vehicles(*, customers(*)), mechanic:mechanic_id(*)')
+                    .select('*, vehicles(*, customers(*)), mechanic:mechanic_id(*), parts:job_parts(*, part:part_id(*))')
                     .eq('id', id)
                     .single();
                 return { data, error };
@@ -883,18 +976,17 @@
                 return { data, error };
             },
             
+            async getPendingPDIJobs() {
+                const { data, error } = await initSupabase()
+                    .from('job_cards')
+                    .select('*, vehicles(*, customers(*)), mechanic:mechanic_id(*)')
+                    .eq('status', 'completed')
+                    .order('completed_at', { ascending: false });
+                return { data, error };
+            },
+            
             async getParts() {
                 const { data, error } = await initSupabase().from('parts').select('*').order('name');
-                return { data, error };
-            },
-            
-            async getPartByCode(code) {
-                const { data, error } = await initSupabase().from('parts').select('*').eq('code', code).single();
-                return { data, error };
-            },
-            
-            async updatePartStock(id, quantity) {
-                const { data, error } = await initSupabase().from('parts').update({ stock_quantity: quantity }).eq('id', id).select().single();
                 return { data, error };
             },
             
@@ -911,8 +1003,13 @@
                 return { data, error };
             },
             
-            async updateJobPartStatus(id, status) {
-                const { data, error } = await initSupabase().from('job_parts').update({ status }).eq('id', id).select().single();
+            async updateJobPartQuantity(id, quantity) {
+                const { data, error } = await initSupabase().from('job_parts').update({ quantity }).eq('id', id).select().single();
+                return { data, error };
+            },
+            
+            async deleteJobPart(id) {
+                const { data, error } = await initSupabase().from('job_parts').delete().eq('id', id);
                 return { data, error };
             },
             
@@ -929,6 +1026,35 @@
                     .eq('read', false)
                     .order('created_at', { ascending: false });
                 return { data, error };
+            },
+            
+            async markNotificationRead(id) {
+                const { data, error } = await initSupabase().from('notifications').update({ read: true }).eq('id', id);
+                return { data, error };
+            },
+            
+            async savePDIResults(jobId, results, notes) {
+                // First delete existing results for this job
+                await initSupabase().from('pdi_checklists').delete().eq('job_card_id', jobId);
+                
+                // Insert new results
+                const items = [];
+                for (const [key, value] of Object.entries(results)) {
+                    items.push({
+                        job_card_id: jobId,
+                        category: key.split('_')[0],
+                        item_id: key,
+                        item_name: key,
+                        result: value ? 'pass' : 'fail',
+                        checked_by: currentUser.id,
+                        notes: notes
+                    });
+                }
+                if (items.length > 0) {
+                    const { data, error } = await initSupabase().from('pdi_checklists').insert(items).select();
+                    return { data, error };
+                }
+                return { data: null, error: null };
             }
         };
 
@@ -980,6 +1106,7 @@
         }
 
         async function loadPage(page) {
+            currentPage = page;
             document.getElementById('page-title').textContent = {
                 'dashboard': 'ໜ້າຫຼັກ', 'customers': 'ຈັດການລູກຄ້າ', 'vehicles': 'ຈັດການຍານພາຫະນະ',
                 'job-cards': 'ໃບສັ່ງງານ', 'my-jobs': 'ງານຂອງຂ້ອຍ', 'parts': 'ສາງອາໄຫຼ່',
@@ -1001,9 +1128,9 @@
         }
 
         // ============================================
-        // PAGE LOADERS
+        // RENDER FUNCTIONS
         // ============================================
-        function renderJobsTable(jobs) {
+        function renderJobsTable(jobs, showActions = true) {
             if (!jobs || jobs.length === 0) {
                 return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-clipboard-list"></i></div><h3>ບໍ່ມີໃບສັ່ງງານ</h3></div>`;
             }
@@ -1012,18 +1139,18 @@
                 <div style="overflow-x: auto;">
                     <table class="data-table">
                         <thead>
-                            <tr><th>ເລກທີ</th><th>ຍານພາຫະນະ</th><th>ລູກຄ້າ</th><th>ຊ່າງ</th><th>ສະຖານະ</th><th>ວັນທີ</th><th>ຈັດການ</th></tr>
+                            <tr><th>ເລກທີ</th><th>ຍານພາຫະນະ</th><th>ລູກຄ້າ</th><th>ຊ່າງ</th><th>ສະຖານະ</th><th>ວັນທີ</th>${showActions ? '<th>ຈັດການ</th>' : ''}</tr>
                         </thead>
                         <tbody>
                             ${jobs.map(job => `
                                 <tr>
                                     <td><strong>${job.job_number}</strong></td>
-                                    <td>${job.vehicles?.brand || ''} ${job.vehicles?.model || ''}<br><small>${job.vehicles?.license_plate || ''}</small></td>
+                                    <td>${job.vehicles?.brand || ''} ${job.vehicles?.model || ''}<br><small style="color:var(--primary)">${job.vehicles?.license_plate || ''}</small></td>
                                     <td>${job.vehicles?.customers?.name || '-'}</td>
                                     <td>${job.mechanic?.name || '-'}</td>
                                     <td><span class="status-badge ${getStatusClass(job.status)}">${getStatusLabel(job.status)}</span></td>
                                     <td>${formatDate(job.created_at)}</td>
-                                    <td><button class="btn btn-outline btn-sm" onclick="viewJobDetail('${job.id}')"><i class="fas fa-eye"></i></button></td>
+                                    ${showActions ? `<td><button class="btn btn-outline btn-sm" onclick="viewJobDetail('${job.id}')"><i class="fas fa-eye"></i></button></td>` : ''}
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -1032,6 +1159,68 @@
             `;
         }
 
+        function renderCustomersTable(customers) {
+            if (!customers || customers.length === 0) {
+                return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-users"></i></div><h3>ບໍ່ມີຂໍ້ມູນລູກຄ້າ</h3><p>ກົດປຸ່ມ "ເພີ່ມລູກຄ້າ" ເພື່ອເລີ່ມຕົ້ນ</p></div>`;
+            }
+            
+            return `
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead><tr><th>ຊື່</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ທີ່ຢູ່</th><th>ວັນທີ</th><th>ຈັດການ</th></tr></thead>
+                        <tbody>
+                            ${customers.map(c => `
+                                <tr>
+                                    <td><strong>${c.name}</strong></td>
+                                    <td>${c.phone || '-'}</td>
+                                    <td>${c.email || '-'}</td>
+                                    <td>${c.address || '-'}</td>
+                                    <td>${formatDate(c.created_at)}</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm" onclick="showCustomerVehicles('${c.id}', '${c.name}')" title="ເບິ່ງຍານພາຫະນະ">
+                                            <i class="fas fa-car"></i>
+                                        </button>
+                                        <button class="btn btn-success btn-sm" onclick="addVehicleToCustomer('${c.id}', '${c.name}')" title="ເພີ່ມຍານພາຫະນະ">
+                                            <i class="fas fa-plus"></i> <i class="fas fa-car"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderVehiclesTable(vehicles) {
+            if (!vehicles || vehicles.length === 0) {
+                return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-car"></i></div><h3>ບໍ່ມີຂໍ້ມູນຍານພາຫະນະ</h3></div>`;
+            }
+            
+            return `
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ເຈົ້າຂອງ</th><th>ຈັດການ</th></tr></thead>
+                        <tbody>
+                            ${vehicles.map(v => `
+                                <tr>
+                                    <td><strong>${v.license_plate}</strong></td>
+                                    <td>${v.brand} ${v.model}</td>
+                                    <td>${v.color || '-'}</td>
+                                    <td>${v.year || '-'}</td>
+                                    <td>${v.customers?.name || '-'}</td>
+                                    <td><button class="btn btn-primary btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // PAGE LOADERS
+        // ============================================
         async function loadDashboard() {
             const content = document.getElementById('content-area');
             showLoading();
@@ -1045,19 +1234,33 @@
                 
                 content.innerHTML = `
                     <div class="dashboard-stats">
-                        <div class="stat-card"><div class="stat-header"><span class="stat-label">ງານທັງໝົດ</span><div class="stat-icon"><i class="fas fa-clipboard-list"></i></div></div><div class="stat-value">${total}</div></div>
-                        <div class="stat-card warning"><div class="stat-header"><span class="stat-label">ລໍຖ້າມອບໝາຍ</span><div class="stat-icon"><i class="fas fa-clock"></i></div></div><div class="stat-value">${pending}</div></div>
-                        <div class="stat-card info"><div class="stat-header"><span class="stat-label">ກຳລັງສ້ອມແປງ</span><div class="stat-icon"><i class="fas fa-wrench"></i></div></div><div class="stat-value">${inProgress}</div></div>
-                        <div class="stat-card success"><div class="stat-header"><span class="stat-label">ສຳເລັດແລ້ວ</span><div class="stat-icon"><i class="fas fa-check-circle"></i></div></div><div class="stat-value">${completed}</div></div>
+                        <div class="stat-card" onclick="loadPage('job-cards')">
+                            <div class="stat-header"><span class="stat-label">ງານທັງໝົດ</span><div class="stat-icon"><i class="fas fa-clipboard-list"></i></div></div>
+                            <div class="stat-value">${total}</div>
+                        </div>
+                        <div class="stat-card warning" onclick="loadPage('job-cards')">
+                            <div class="stat-header"><span class="stat-label">ລໍຖ້າມອບໝາຍ</span><div class="stat-icon"><i class="fas fa-clock"></i></div></div>
+                            <div class="stat-value">${pending}</div>
+                        </div>
+                        <div class="stat-card info" onclick="loadPage('my-jobs')">
+                            <div class="stat-header"><span class="stat-label">ກຳລັງສ້ອມແປງ</span><div class="stat-icon"><i class="fas fa-wrench"></i></div></div>
+                            <div class="stat-value">${inProgress}</div>
+                        </div>
+                        <div class="stat-card success" onclick="loadPage('job-cards')">
+                            <div class="stat-header"><span class="stat-label">ສຳເລັດແລ້ວ</span><div class="stat-icon"><i class="fas fa-check-circle"></i></div></div>
+                            <div class="stat-value">${completed}</div>
+                        </div>
                     </div>
                     <div class="data-table-container">
                         <div class="table-header">
-                            <h3 class="table-title">ງານລ້າສຸດ</h3>
+                            <h3 class="table-title"><i class="fas fa-clock"></i> ງານລ້າສຸດ</h3>
                             <button class="btn btn-primary btn-sm" onclick="showCreateJobModal()"><i class="fas fa-plus"></i> ເປີດໃບສັ່ງງານ</button>
                         </div>
                         ${renderJobsTable(jobs?.slice(0, 5) || [])}
                     </div>
                 `;
+                
+                await loadNotifications();
             } catch (error) {
                 content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`;
             }
@@ -1073,28 +1276,24 @@
                 content.innerHTML = `
                     <div class="data-table-container">
                         <div class="table-header">
-                            <h3 class="table-title">ລາຍຊື່ລູກຄ້າ</h3>
-                            <button class="btn btn-primary btn-sm" onclick="showAddCustomerModal()"><i class="fas fa-plus"></i> ເພີ່ມລູກຄ້າ</button>
+                            <h3 class="table-title"><i class="fas fa-users"></i> ລາຍຊື່ລູກຄ້າ</h3>
+                            <div class="table-actions">
+                                <input type="text" id="customer-search" class="search-input" placeholder="ຄົ້ນຫາລູກຄ້າ...">
+                                <button class="btn btn-primary btn-sm" onclick="showAddCustomerModal()"><i class="fas fa-plus"></i> ເພີ່ມລູກຄ້າ</button>
+                            </div>
                         </div>
-                        <div style="overflow-x: auto;">
-                            <table class="data-table">
-                                <thead><tr><th>ຊື່</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ທີ່ຢູ່</th><th>ວັນທີ</th><th>ຈັດການ</th></tr></thead>
-                                <tbody>
-                                    ${customers?.map(c => `
-                                        <tr>
-                                            <td><strong>${c.name}</strong></td>
-                                            <td>${c.phone || '-'}</td>
-                                            <td>${c.email || '-'}</td>
-                                            <td>${c.address || '-'}</td>
-                                            <td>${formatDate(c.created_at)}</td>
-                                            <td><button class="btn btn-outline btn-sm" onclick="showCustomerVehicles('${c.id}', '${c.name}')"><i class="fas fa-car"></i> ຍານພາຫະນະ</button></td>
-                                        </tr>
-                                    `).join('') || '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td></tr>'}
-                                </tbody>
-                            </table>
-                        </div>
+                        <div id="customers-table">${renderCustomersTable(customers || [])}</div>
                     </div>
                 `;
+                
+                document.getElementById('customer-search')?.addEventListener('keyup', (e) => {
+                    const search = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#customers-table .data-table tbody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(search) ? '' : 'none';
+                    });
+                });
             } catch (error) {
                 content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`;
             }
@@ -1110,28 +1309,23 @@
                 content.innerHTML = `
                     <div class="data-table-container">
                         <div class="table-header">
-                            <h3 class="table-title">ລາຍການຍານພາຫະນະ</h3>
-                            <button class="btn btn-primary btn-sm" onclick="showAddVehicleModal()"><i class="fas fa-plus"></i> ເພີ່ມຍານພາຫະນະ</button>
+                            <h3 class="table-title"><i class="fas fa-car"></i> ລາຍການຍານພາຫະນະ</h3>
+                            <div class="table-actions">
+                                <input type="text" id="vehicle-search" class="search-input" placeholder="ຄົ້ນຫາຍານພາຫະນະ...">
+                            </div>
                         </div>
-                        <div style="overflow-x: auto;">
-                            <table class="data-table">
-                                <thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ເຈົ້າຂອງ</th><th>ຈັດການ</th></td></thead>
-                                <tbody>
-                                    ${vehicles?.map(v => `
-                                        <tr>
-                                            <td><strong>${v.license_plate}</strong></td>
-                                            <td>${v.brand} ${v.model}</td>
-                                            <td>${v.color || '-'}</td>
-                                            <td>${v.year || '-'}</td>
-                                            <td>${v.customers?.name || '-'}</td>
-                                            <td><button class="btn btn-success btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td>
-                                        </tr>
-                                    `).join('') || '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td></tr>'}
-                                </tbody>
-                            </table>
-                        </div>
+                        <div id="vehicles-table">${renderVehiclesTable(vehicles || [])}</div>
                     </div>
                 `;
+                
+                document.getElementById('vehicle-search')?.addEventListener('keyup', (e) => {
+                    const search = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#vehicles-table .data-table tbody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(search) ? '' : 'none';
+                    });
+                });
             } catch (error) {
                 content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`;
             }
@@ -1147,12 +1341,24 @@
                 content.innerHTML = `
                     <div class="data-table-container">
                         <div class="table-header">
-                            <h3 class="table-title">ລາຍການໃບສັ່ງງານ</h3>
-                            <button class="btn btn-primary btn-sm" onclick="showCreateJobModal()"><i class="fas fa-plus"></i> ເປີດໃບສັ່ງງານ</button>
+                            <h3 class="table-title"><i class="fas fa-clipboard-list"></i> ລາຍການໃບສັ່ງງານ</h3>
+                            <div class="table-actions">
+                                <input type="text" id="job-search" class="search-input" placeholder="ຄົ້ນຫາໃບສັ່ງງານ...">
+                                <button class="btn btn-primary btn-sm" onclick="showCreateJobModal()"><i class="fas fa-plus"></i> ເປີດໃບສັ່ງງານ</button>
+                            </div>
                         </div>
-                        ${renderJobsTable(jobs || [])}
+                        <div id="jobs-table">${renderJobsTable(jobs || [])}</div>
                     </div>
                 `;
+                
+                document.getElementById('job-search')?.addEventListener('keyup', (e) => {
+                    const search = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#jobs-table .data-table tbody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(search) ? '' : 'none';
+                    });
+                });
             } catch (error) {
                 content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`;
             }
@@ -1168,7 +1374,7 @@
                 content.innerHTML = `
                     <div class="data-table-container">
                         <div class="table-header">
-                            <h3 class="table-title">ງານທີ່ໄດ້ຮັບມອບໝາຍ</h3>
+                            <h3 class="table-title"><i class="fas fa-wrench"></i> ງານທີ່ໄດ້ຮັບມອບໝາຍ</h3>
                         </div>
                         ${renderJobsTable(jobs || [])}
                     </div>
@@ -1188,14 +1394,14 @@
                 content.innerHTML = `
                     <div class="data-table-container">
                         <div class="table-header">
-                            <h3 class="table-title">ສາງອາໄຫຼ່</h3>
+                            <h3 class="table-title"><i class="fas fa-boxes"></i> ສາງອາໄຫຼ່</h3>
                             <div class="table-actions">
-                                <input type="text" id="part-search" placeholder="ຄົ້ນຫາ..." style="padding: 6px 12px; border: 1px solid var(--gray-300); border-radius: 6px;">
+                                <input type="text" id="part-search" class="search-input" placeholder="ຄົ້ນຫາອາໄຫຼ່...">
                             </div>
                         </div>
                         <div style="overflow-x: auto;">
                             <table class="data-table">
-                                <thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ລາຄາ</th></tr></thead>
+                                <thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ລາຄາ</th><th>ສະຖານະ</th></tr></thead>
                                 <tbody>
                                     ${parts?.map(p => `
                                         <tr>
@@ -1204,8 +1410,9 @@
                                             <td>${p.category || '-'}</td>
                                             <td style="${p.stock_quantity < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">${p.stock_quantity}</td>
                                             <td class="currency">${formatCurrency(p.price)}</td>
+                                            <td>${p.stock_quantity < 5 ? '<span class="status-badge status-pending">ໃກ້ຫມົດ</span>' : '<span class="status-badge status-approved">ມີສາງ</span>'}</td>
                                         </tr>
-                                    `).join('') || '<tr><td colspan="5" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td></tr>'}
+                                    `).join('') || '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td></tr>'}
                                 </tbody>
                             </table>
                         </div>
@@ -1231,18 +1438,13 @@
             showLoading();
             
             try {
-                const { data: jobs } = await initSupabase()
-                    .from('job_cards')
-                    .select('*, vehicles(*, customers(*))')
-                    .eq('status', 'completed')
-                    .order('completed_at', { ascending: false });
-                
+                const { data: jobs } = await DB.getPendingPDIJobs();
                 content.innerHTML = `
                     <div class="data-table-container">
                         <div class="table-header">
-                            <h3 class="table-title">ຍານພາຫະນະລໍຖ້າກວດກາ PDI</h3>
+                            <h3 class="table-title"><i class="fas fa-clipboard-check"></i> ຍານພາຫະນະລໍຖ້າກວດກາ PDI</h3>
                         </div>
-                        ${renderJobsTable(jobs || [])}
+                        ${renderJobsTable(jobs || [], true)}
                     </div>
                 `;
             } catch (error) {
@@ -1260,7 +1462,7 @@
                 content.innerHTML = `
                     <div class="data-table-container">
                         <div class="table-header">
-                            <h3 class="table-title">ລາຍຊື່ພະນັກງານ</h3>
+                            <h3 class="table-title"><i class="fas fa-users-cog"></i> ລາຍຊື່ພະນັກງານ</h3>
                         </div>
                         <div style="overflow-x: auto;">
                             <table class="data-table">
@@ -1284,6 +1486,22 @@
                 content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`;
             }
             hideLoading();
+        }
+
+        async function loadNotifications() {
+            try {
+                const { data: notifications } = await DB.getUnreadNotifications(currentUser.id);
+                const count = notifications?.length || 0;
+                const badge = document.getElementById('notification-count');
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
         }
 
         // ============================================
@@ -1313,7 +1531,7 @@
                             <div class="form-group">
                                 <label>ເລືອກຍານພາຫະນະ <span class="required">*</span></label>
                                 <select id="job_vehicle_id">
-                                    <option value="">ເລືອກຍານພາຫະນະ</option>
+                                    <option value="">ເລືອກຍານພາຫະນະກ່ອນ</option>
                                 </select>
                             </div>
                         </div>
@@ -1341,7 +1559,7 @@
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
-                        <button class="btn btn-primary" onclick="saveJobCard()">ບັນທຶກ</button>
+                        <button class="btn btn-primary" onclick="saveJobCard()">ບັນທຶກ ແລະ ເປີດໃບສັ່ງງານ</button>
                     </div>
                 </div>
             `;
@@ -1387,7 +1605,6 @@
                 const { data, error } = await DB.createJobCard(jobCard);
                 if (error) throw error;
                 
-                // Create notification for mechanic
                 await DB.createNotification({
                     user_id: mechanicId,
                     title: 'ມີງານໃໝ່',
@@ -1398,7 +1615,7 @@
                 hideLoading();
                 document.querySelector('.modal.show')?.remove();
                 showToast('success', 'ສຳເລັດ', `ເປີດໃບສັ່ງງານ ${data.job_number} ສຳເລັດ`);
-                loadJobCards();
+                await loadJobCards();
             } catch (error) {
                 hideLoading();
                 showToast('error', 'ຜິດພາດ', error.message);
@@ -1435,6 +1652,8 @@
                         <div class="form-group"><label>ບັນຫາທີ່ແຈ້ງ</label><textarea readonly rows="3">${job.problem_description || '-'}</textarea></div>
                         ${job.notes ? `<div class="form-group"><label>ໝາຍເຫດ</label><textarea readonly rows="2">${job.notes}</textarea></div>` : ''}
                         <div class="form-group"><label>ວັນທີເປີດງານ</label><input type="text" value="${formatDateTime(job.created_at)}" readonly></div>
+                        ${job.started_at ? `<div class="form-group"><label>ວັນທີເລີ່ມງານ</label><input type="text" value="${formatDateTime(job.started_at)}" readonly></div>` : ''}
+                        ${job.completed_at ? `<div class="form-group"><label>ວັນທີສຳເລັດ</label><input type="text" value="${formatDateTime(job.completed_at)}" readonly></div>` : ''}
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
@@ -1442,6 +1661,8 @@
                             `<button class="btn btn-primary" onclick="startJob('${job.id}')">ເລີ່ມງານ</button>` : ''}
                         ${job.status === 'in_progress' && currentUser.role === 'mechanic' && currentUser.id === job.mechanic_id ?
                             `<button class="btn btn-success" onclick="completeJob('${job.id}')">ສຳເລັດງານ</button>` : ''}
+                        ${job.status === 'completed' && currentUser.role === 'pdi' ?
+                            `<button class="btn btn-primary" onclick="startPDI('${job.id}')">ກວດກາ PDI</button>` : ''}
                     </div>
                 </div>
             `;
@@ -1455,7 +1676,7 @@
                 hideLoading();
                 showToast('success', 'ສຳເລັດ', 'ເລີ່ມດຳເນີນງານແລ້ວ');
                 document.querySelector('.modal.show')?.remove();
-                loadMyJobs();
+                await loadMyJobs();
             } catch (error) {
                 hideLoading();
                 showToast('error', 'ຜິດພາດ', error.message);
@@ -1463,7 +1684,7 @@
         };
 
         window.completeJob = async function(jobId) {
-            if (!confirm('ທ່ານແນ່ໃຈບໍ່ວ່າງານນີ້ສຳເລັດແລ້ວ?')) return;
+            if (!confirm('ທ່ານແນ່ໃຈບໍ່ວ່າງານນີ້ສຳເລັດແລ້ວ? ຈະສົ່ງໄປກວດກາ PDI')) return;
             
             showLoading();
             try {
@@ -1471,7 +1692,83 @@
                 hideLoading();
                 showToast('success', 'ສຳເລັດ', 'ສົ່ງງານໄປກວດກາ PDI ແລ້ວ');
                 document.querySelector('.modal.show')?.remove();
-                loadMyJobs();
+                await loadMyJobs();
+            } catch (error) {
+                hideLoading();
+                showToast('error', 'ຜິດພາດ', error.message);
+            }
+        };
+
+        window.startPDI = async function(jobId) {
+            const { data: job } = await DB.getJobCardById(jobId);
+            pdiResults = {};
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content modal-lg">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-clipboard-check"></i> ກວດກາ PDI - ${job.job_number}</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="padding: 12px; background: var(--info-light); border-radius: 8px; margin-bottom: 20px;">
+                            <strong>${job.vehicles?.brand} ${job.vehicles?.model}</strong> | 
+                            ${job.vehicles?.license_plate} | 
+                            ລູກຄ້າ: ${job.vehicles?.customers?.name}
+                        </div>
+                        <div class="checklist-container">
+                            ${PDI_CATEGORIES.map(cat => `
+                                <div class="checklist-category">
+                                    <div class="checklist-category-title">${cat.name}</div>
+                                    ${cat.items.map(item => `
+                                        <div class="checklist-item" id="pdi_${cat.id}_${item.replace(/ /g, '_')}">
+                                            <span>${item}</span>
+                                            <div>
+                                                <button class="btn btn-sm btn-success" onclick="setPDIResult('${cat.id}_${item.replace(/ /g, '_')}', true)">ຜ່ານ</button>
+                                                <button class="btn btn-sm btn-danger" onclick="setPDIResult('${cat.id}_${item.replace(/ /g, '_')}', false)">ບໍ່ຜ່ານ</button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label>ໝາຍເຫດ PDI</label>
+                            <textarea id="pdi_notes" rows="2" placeholder="ໝາຍເຫດເພີ່ມເຕີມ..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                        <button class="btn btn-danger" onclick="submitPDI('${job.id}', false)">ບໍ່ຜ່ານ PDI</button>
+                        <button class="btn btn-success" onclick="submitPDI('${job.id}', true)">ຜ່ານ PDI</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        };
+
+        window.setPDIResult = function(itemId, passed) {
+            pdiResults[itemId] = passed;
+            const element = document.getElementById(`pdi_${itemId}`);
+            if (element) {
+                element.classList.remove('pass', 'fail');
+                element.classList.add(passed ? 'pass' : 'fail');
+            }
+        };
+
+        window.submitPDI = async function(jobId, passed) {
+            showLoading();
+            try {
+                const notes = document.getElementById('pdi_notes')?.value || '';
+                await DB.savePDIResults(jobId, pdiResults, notes);
+                const newStatus = passed ? 'pdi_passed' : 'pdi_failed';
+                await DB.updateJobCard(jobId, { status: newStatus, pdi_completed_at: new Date().toISOString() });
+                
+                hideLoading();
+                document.querySelector('.modal.show')?.remove();
+                showToast('success', 'ສຳເລັດ', passed ? 'PDI ຜ່ານ! ຍານພາຫະນະພ້ອມສົ່ງມອບ' : 'PDI ບໍ່ຜ່ານ! ຕ້ອງກັບໄປແກ້ໄຂ');
+                await loadPDI();
             } catch (error) {
                 hideLoading();
                 showToast('error', 'ຜິດພາດ', error.message);
@@ -1511,29 +1808,94 @@
             
             showLoading();
             try {
-                await DB.createCustomer({
+                const { data, error } = await DB.createCustomer({
                     name: name,
                     phone: document.getElementById('cust_phone')?.value,
                     email: document.getElementById('cust_email')?.value,
                     id_card: document.getElementById('cust_id_card')?.value,
                     address: document.getElementById('cust_address')?.value
                 });
+                if (error) throw error;
+                
                 hideLoading();
                 document.querySelector('.modal.show')?.remove();
                 showToast('success', 'ສຳເລັດ', 'ເພີ່ມລູກຄ້າສຳເລັດແລ້ວ');
-                loadCustomers();
+                
+                // Ask if user wants to add vehicle
+                if (confirm('ຕ້ອງການເພີ່ມຍານພາຫະນະໃຫ້ລູກຄ້ານີ້ບໍ່?')) {
+                    addVehicleToCustomer(data.id, name);
+                }
+                await loadCustomers();
             } catch (error) {
                 hideLoading();
                 showToast('error', 'ຜິດພາດ', error.message);
             }
         };
 
-        window.showAddVehicleModal = function() {
-            showToast('info', 'ກຳລັງພັດທະນາ', 'ຟອມເພີ່ມຍານພາຫະນະຈະມາໃນລຸ້ນຕໍ່ໄປ');
+        window.addVehicleToCustomer = function(customerId, customerName) {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-car-side"></i> ເພີ່ມຍານພາຫະນະໃຫ້ ${customerName}</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group"><label>ປ້າຍທະບຽນ <span class="required">*</span></label><input type="text" id="vehicle_plate" placeholder="ກມ 1234"></div>
+                            <div class="form-group"><label>ຍີ່ຫໍ້ <span class="required">*</span></label><input type="text" id="vehicle_brand" placeholder="Toyota / Honda / Ford"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ຮຸ່ນ <span class="required">*</span></label><input type="text" id="vehicle_model" placeholder="Vios / CR-V / Ranger"></div>
+                            <div class="form-group"><label>ປີຜະລິດ</label><input type="number" id="vehicle_year" placeholder="2024"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ສີ</label><input type="text" id="vehicle_color" placeholder="ຂາວ / ດຳ / ເງິນ"></div>
+                            <div class="form-group"><label>VIN</label><input type="text" id="vehicle_vin" placeholder="ເລກ VIN"></div>
+                        </div>
+                        <div class="form-group"><label>ເລກເຄື່ອງ</label><input type="text" id="vehicle_engine" placeholder="ເລກເຄື່ອງຈັກ"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                        <button class="btn btn-primary" onclick="saveVehicle('${customerId}')">ບັນທຶກຍານພາຫະນະ</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
         };
 
-        window.createJobForVehicle = function(vehicleId) {
-            showCreateJobModal();
+        window.saveVehicle = async function(customerId) {
+            const plate = document.getElementById('vehicle_plate')?.value;
+            const brand = document.getElementById('vehicle_brand')?.value;
+            const model = document.getElementById('vehicle_model')?.value;
+            
+            if (!plate) { showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນປ້າຍທະບຽນ'); return; }
+            if (!brand) { showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນຍີ່ຫໍ້ລົດ'); return; }
+            if (!model) { showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນຮຸ່ນລົດ'); return; }
+            
+            showLoading();
+            try {
+                await DB.createVehicle({
+                    customer_id: customerId,
+                    license_plate: plate.toUpperCase(),
+                    brand: brand,
+                    model: model,
+                    year: parseInt(document.getElementById('vehicle_year')?.value) || null,
+                    color: document.getElementById('vehicle_color')?.value,
+                    vin: document.getElementById('vehicle_vin')?.value,
+                    engine_number: document.getElementById('vehicle_engine')?.value
+                });
+                
+                hideLoading();
+                document.querySelector('.modal.show')?.remove();
+                showToast('success', 'ສຳເລັດ', 'ເພີ່ມຍານພາຫະນະສຳເລັດແລ້ວ');
+                await loadVehicles();
+                await loadCustomers();
+            } catch (error) {
+                hideLoading();
+                showToast('error', 'ຜິດພາດ', error.message);
+            }
         };
 
         window.showCustomerVehicles = async function(customerId, customerName) {
@@ -1549,19 +1911,50 @@
                     <div class="modal-body">
                         ${vehicles && vehicles.length > 0 ? `
                             <table class="data-table">
-                                <thead></tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້</th><th>ຮຸ່ນ</th><th>ສີ</th></tr></thead>
+                                <thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ຈັດການ</th></tr></thead>
                                 <tbody>
-                                    ${vehicles.map(v => `<tr><td><strong>${v.license_plate}</strong></td><td>${v.brand}</td><td>${v.model}</td><td>${v.color || '-'}</td></tr>`).join('')}
+                                    ${vehicles.map(v => `
+                                        <tr>
+                                            <td><strong>${v.license_plate}</strong></td>
+                                            <td>${v.brand} ${v.model}</td>
+                                            <td>${v.color || '-'}</td>
+                                            <td>${v.year || '-'}</td>
+                                            <td><button class="btn btn-primary btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td>
+                                        </tr>
+                                    `).join('')}
                                 </tbody>
                             </table>
                         ` : '<div class="empty-state">ບໍ່ມີຂໍ້ມູນຍານພາຫະນະ</div>'}
                         <div style="margin-top: 16px;">
-                            <button class="btn btn-primary" onclick="this.closest('.modal').remove(); showAddVehicleModal()"><i class="fas fa-plus"></i> ເພີ່ມຍານພາຫະນະ</button>
+                            <button class="btn btn-primary" onclick="this.closest('.modal').remove(); addVehicleToCustomer('${customerId}', '${customerName}')">
+                                <i class="fas fa-plus"></i> ເພີ່ມຍານພາຫະນະ
+                            </button>
                         </div>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
+        };
+
+        window.createJobForVehicle = async function(vehicleId) {
+            // Get vehicle info first
+            const { data: vehicle } = await initSupabase().from('vehicles').select('*, customers(*)').eq('id', vehicleId).single();
+            if (vehicle && vehicle.customers) {
+                showCreateJobModal();
+                setTimeout(async () => {
+                    const customerSelect = document.getElementById('job_customer_id');
+                    if (customerSelect) {
+                        customerSelect.value = vehicle.customer_id;
+                        await loadCustomerVehicles(vehicle.customer_id);
+                        setTimeout(() => {
+                            const vehicleSelect = document.getElementById('job_vehicle_id');
+                            if (vehicleSelect) vehicleSelect.value = vehicleId;
+                        }, 100);
+                    }
+                }, 100);
+            } else {
+                showCreateJobModal();
+            }
         };
 
         function updateTime() {
@@ -1584,6 +1977,7 @@
             loadDashboard();
             updateTime();
             setInterval(updateTime, 1000);
+            setInterval(() => loadNotifications(), 30000); // Check notifications every 30 seconds
         }
 
         // ============================================
@@ -1621,6 +2015,22 @@
             
             document.getElementById('logout-btn').addEventListener('click', logout);
             document.getElementById('menu-toggle').addEventListener('click', toggleSidebar);
+            document.getElementById('notification-bell').addEventListener('click', async () => {
+                const { data: notifications } = await DB.getUnreadNotifications(currentUser?.id);
+                if (notifications && notifications.length > 0) {
+                    let message = '';
+                    notifications.forEach(n => {
+                        message += `${n.title}: ${n.message}\n`;
+                    });
+                    alert(message);
+                    for (const n of notifications) {
+                        await DB.markNotificationRead(n.id);
+                    }
+                    await loadNotifications();
+                } else {
+                    showToast('info', 'ແຈ້ງເຕືອນ', 'ບໍ່ມີການແຈ້ງເຕືອນໃໝ່');
+                }
+            });
             
             // Enter key support
             ['email', 'password', 'role'].forEach(id => {
