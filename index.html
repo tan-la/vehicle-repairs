@@ -340,14 +340,6 @@
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            overflow-x: auto;
-            display: block;
-        }
-        
-        .data-table thead,
-        .data-table tbody {
-            display: table;
-            width: 100%;
         }
         
         .data-table th, .data-table td {
@@ -551,13 +543,14 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); position: fixed; }
             .sidebar.show { transform: translateX(0); }
             .main-content { margin-left: 0; }
             .dashboard-stats { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
-            .data-table { display: block; overflow-x: scroll; }
+            .data-table { display: block; overflow-x: auto; }
         }
     </style>
 </head>
@@ -658,7 +651,8 @@
         const SUPABASE_URL = 'https://tmsisqxvfgcplnqtlhfv.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc2lzcXh2ZmdjcGxucXRsaGZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzgzODAsImV4cCI6MjA5MzkxNDM4MH0.-7f8vXtZ59PRnlpB4HraEn-L6jl58ywVlsMqVkAiBtk';
 
-        let supabase = null;
+        // Use a different variable name to avoid conflict with window.supabase
+        let sbClient = null;
         let currentUser = null;
 
         // ============================================
@@ -743,13 +737,13 @@
         }
 
         // ============================================
-        // SUPABASE INIT
+        // SUPABASE INIT - using different variable name
         // ============================================
         function initSupabase() {
-            if (!supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            if (!sbClient) {
+                sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             }
-            return supabase;
+            return sbClient;
         }
 
         // ============================================
@@ -818,7 +812,6 @@
         // DATABASE OPERATIONS
         // ============================================
         const DB = {
-            // Staff
             async getStaff() {
                 const { data, error } = await initSupabase().from('staff').select('*').order('name');
                 return { data, error };
@@ -829,7 +822,6 @@
                 return { data, error };
             },
             
-            // Customers
             async getCustomers() {
                 const { data, error } = await initSupabase().from('customers').select('*').order('created_at', { ascending: false });
                 return { data, error };
@@ -840,7 +832,6 @@
                 return { data, error };
             },
             
-            // Vehicles
             async getVehicles() {
                 const { data, error } = await initSupabase().from('vehicles').select('*, customers(*)').order('created_at', { ascending: false });
                 return { data, error };
@@ -856,7 +847,6 @@
                 return { data, error };
             },
             
-            // Job Cards
             async getJobCards() {
                 const { data, error } = await initSupabase()
                     .from('job_cards')
@@ -893,7 +883,6 @@
                 return { data, error };
             },
             
-            // Parts
             async getParts() {
                 const { data, error } = await initSupabase().from('parts').select('*').order('name');
                 return { data, error };
@@ -909,7 +898,6 @@
                 return { data, error };
             },
             
-            // Job Parts
             async getJobParts(jobId) {
                 const { data, error } = await initSupabase()
                     .from('job_parts')
@@ -928,7 +916,6 @@
                 return { data, error };
             },
             
-            // Notifications
             async createNotification(notification) {
                 const { data, error } = await initSupabase().from('notifications').insert([notification]).select();
                 return { data, error };
@@ -1016,6 +1003,35 @@
         // ============================================
         // PAGE LOADERS
         // ============================================
+        function renderJobsTable(jobs) {
+            if (!jobs || jobs.length === 0) {
+                return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-clipboard-list"></i></div><h3>ບໍ່ມີໃບສັ່ງງານ</h3></div>`;
+            }
+            
+            return `
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>ເລກທີ</th><th>ຍານພາຫະນະ</th><th>ລູກຄ້າ</th><th>ຊ່າງ</th><th>ສະຖານະ</th><th>ວັນທີ</th><th>ຈັດການ</th></tr>
+                        </thead>
+                        <tbody>
+                            ${jobs.map(job => `
+                                <tr>
+                                    <td><strong>${job.job_number}</strong></td>
+                                    <td>${job.vehicles?.brand || ''} ${job.vehicles?.model || ''}<br><small>${job.vehicles?.license_plate || ''}</small></td>
+                                    <td>${job.vehicles?.customers?.name || '-'}</td>
+                                    <td>${job.mechanic?.name || '-'}</td>
+                                    <td><span class="status-badge ${getStatusClass(job.status)}">${getStatusLabel(job.status)}</span></td>
+                                    <td>${formatDate(job.created_at)}</td>
+                                    <td><button class="btn btn-outline btn-sm" onclick="viewJobDetail('${job.id}')"><i class="fas fa-eye"></i></button></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
         async function loadDashboard() {
             const content = document.getElementById('content-area');
             showLoading();
@@ -1046,35 +1062,6 @@
                 content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`;
             }
             hideLoading();
-        }
-
-        function renderJobsTable(jobs) {
-            if (!jobs || jobs.length === 0) {
-                return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-clipboard-list"></i></div><h3>ບໍ່ມີໃບສັ່ງງານ</h3></div>`;
-            }
-            
-            return `
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>ເລກທີ</th><th>ຍານພາຫະນະ</th><th>ລູກຄ້າ</th><th>ຊ່າງ</th><th>ສະຖານະ</th><th>ວັນທີ</th><th>ຈັດການ</th></tr>
-                        </thead>
-                        <tbody>
-                            ${jobs.map(job => `
-                                <tr>
-                                    <td><strong>${job.job_number}</strong></td>
-                                    <td>${job.vehicles?.brand || ''} ${job.vehicles?.model || ''}<br><small>${job.vehicles?.license_plate || ''}</small></td>
-                                    <td>${job.vehicles?.customers?.name || '-'}</td>
-                                    <td>${job.mechanic?.name || '-'}</td>
-                                    <td><span class="status-badge ${getStatusClass(job.status)}">${getStatusLabel(job.status)}</span></td>
-                                    <td>${formatDate(job.created_at)}</td>
-                                    <td><button class="btn btn-outline btn-sm" onclick="viewJobDetail('${job.id}')"><i class="fas fa-eye"></i></button></td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
         }
 
         async function loadCustomers() {
@@ -1128,7 +1115,7 @@
                         </div>
                         <div style="overflow-x: auto;">
                             <table class="data-table">
-                                <thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ເຈົ້າຂອງ</th><th>ຈັດການ</th></tr></thead>
+                                <thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ເຈົ້າຂອງ</th><th>ຈັດການ</th></td></thead>
                                 <tbody>
                                     ${vehicles?.map(v => `
                                         <tr>
@@ -1354,7 +1341,7 @@
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
-                        <button class="btn btn-primary" onclick="saveJobCard()">ບັນທຶກ ແລະ ເປີດໃບສັ່ງງານ</button>
+                        <button class="btn btn-primary" onclick="saveJobCard()">ບັນທຶກ</button>
                     </div>
                 </div>
             `;
@@ -1506,6 +1493,7 @@
                             <div class="form-group"><label>ເບີໂທ</label><input type="tel" id="cust_phone" placeholder="020XXXXXXXX"></div>
                             <div class="form-group"><label>ອີເມວ</label><input type="email" id="cust_email" placeholder="example@email.com"></div>
                         </div>
+                        <div class="form-group"><label>ເລກປະຈຳຕົວ</label><input type="text" id="cust_id_card" placeholder="ເລກປະຈຳຕົວປະຊາຊົນ"></div>
                         <div class="form-group"><label>ທີ່ຢູ່</label><textarea id="cust_address" rows="2" placeholder="ບ້ານ, ເມືອງ, ແຂວງ..."></textarea></div>
                     </div>
                     <div class="modal-footer">
@@ -1527,6 +1515,7 @@
                     name: name,
                     phone: document.getElementById('cust_phone')?.value,
                     email: document.getElementById('cust_email')?.value,
+                    id_card: document.getElementById('cust_id_card')?.value,
                     address: document.getElementById('cust_address')?.value
                 });
                 hideLoading();
@@ -1540,17 +1529,11 @@
         };
 
         window.showAddVehicleModal = function() {
-            alert('ຟອມເພີ່ມຍານພາຫະນະ - ຈະເພີ່ມໃນລຸ້ນຕໍ່ໄປ');
+            showToast('info', 'ກຳລັງພັດທະນາ', 'ຟອມເພີ່ມຍານພາຫະນະຈະມາໃນລຸ້ນຕໍ່ໄປ');
         };
 
         window.createJobForVehicle = function(vehicleId) {
             showCreateJobModal();
-            setTimeout(() => {
-                const customerSelect = document.getElementById('job_customer_id');
-                if (customerSelect && customerSelect.options.length > 1) {
-                    // This would need to pre-select the customer
-                }
-            }, 100);
         };
 
         window.showCustomerVehicles = async function(customerId, customerName) {
@@ -1566,7 +1549,7 @@
                     <div class="modal-body">
                         ${vehicles && vehicles.length > 0 ? `
                             <table class="data-table">
-                                <thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້</th><th>ຮຸ່ນ</th><th>ສີ</th></tr></thead>
+                                <thead></tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້</th><th>ຮຸ່ນ</th><th>ສີ</th></tr></thead>
                                 <tbody>
                                     ${vehicles.map(v => `<tr><td><strong>${v.license_plate}</strong></td><td>${v.brand}</td><td>${v.model}</td><td>${v.color || '-'}</td></tr>`).join('')}
                                 </tbody>
