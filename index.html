@@ -2125,20 +2125,97 @@
             }
         };
         
-        function exportFinancialReport() {
-            showToast('info', 'ກຳລັງສົ່ງອອກ', 'ກະລຸນາລໍຖ້າ...');
-            setTimeout(() => { showToast('success', 'ສຳເລັດ', 'ສົ່ງອອກລາຍງານສຳເລັດ'); }, 1000);
+        async function exportFinancialReport() {
+    showLoading();
+    try {
+        const { data: transactions } = await DB.getFinancialReports();
+        if (!transactions || transactions.length === 0) {
+            showToast('warning', 'ແຈ້ງເຕືອນ', 'ບໍ່ມີຂໍ້ມູນສຳລັບສົ່ງອອກ');
+            hideLoading();
+            return;
         }
         
-        function exportInventoryReport() {
-            showToast('info', 'ກຳລັງສົ່ງອອກ', 'ກະລຸນາລໍຖ້າ...');
-            setTimeout(() => { showToast('success', 'ສຳເລັດ', 'ສົ່ງອອກລາຍງານສຳເລັດ'); }, 1000);
+        const exportData = transactions.map(t => ({
+            'ວັນທີ': formatDateTime(t.created_at),
+            'ເລກໃບເສັງ': t.receipt_number,
+            'ເລກໃບສັ່ງງານ': t.job_cards?.job_number || '-',
+            'ລູກຄ້າ': t.job_cards?.vehicles?.customers?.name || '-',
+            'ຈຳນວນເງິນ (₭)': t.amount || 0,
+            'ສະຖານະ': t.status === 'paid' ? 'ຊຳລະແລ້ວ' : 'ຍັງບໍ່ທັນຊຳລະ'
+        }));
+        
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Financial_Report');
+        XLSX.writeFile(wb, `financial_report_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+        
+        showToast('success', 'ສຳເລັດ', 'ສົ່ງອອກລາຍງານການເງິນສຳເລັດ');
+    } catch (error) {
+        showToast('error', 'ຜິດພາດ', error.message);
+    }
+    hideLoading();
+}
+        async function exportInventoryReport() {
+    showLoading();
+    try {
+        const { data: parts } = await DB.getInventoryReport();
+        if (!parts || parts.length === 0) {
+            showToast('warning', 'ແຈ້ງເຕືອນ', 'ບໍ່ມີຂໍ້ມູນສຳລັບສົ່ງອອກ');
+            hideLoading();
+            return;
         }
         
-        function exportCustomerReport() {
-            showToast('info', 'ກຳລັງສົ່ງອອກ', 'ກະລຸນາລໍຖ້າ...');
-            setTimeout(() => { showToast('success', 'ສຳເລັດ', 'ສົ່ງອອກລາຍງານສຳເລັດ'); }, 1000);
+        const exportData = parts.map(p => ({
+            'ລະຫັດ': p.code || '-',
+            'ຊື່': p.name || '-',
+            'ປະເພດ': p.category || '-',
+            'ຍີ່ຫໍ້': p.brand || '-',
+            'ຈຳນວນສາງ': p.stock_quantity || 0,
+            'ລາຄາຕໍ່ອັນ (₭)': p.price || 0,
+            'ມູນຄ່າລວມ (₭)': (p.price || 0) * (p.stock_quantity || 0)
+        }));
+        
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Inventory_Report');
+        XLSX.writeFile(wb, `inventory_report_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+        
+        showToast('success', 'ສຳເລັດ', 'ສົ່ງອອກລາຍງານສາງສຳເລັດ');
+    } catch (error) {
+        showToast('error', 'ຜິດພາດ', error.message);
+    }
+    hideLoading();
+}
+        async function exportCustomerReport() {
+    showLoading();
+    try {
+        const { data: customers } = await DB.getCustomerReport();
+        if (!customers || customers.length === 0) {
+            showToast('warning', 'ແຈ້ງເຕືອນ', 'ບໍ່ມີຂໍ້ມູນສຳລັບສົ່ງອອກ');
+            hideLoading();
+            return;
         }
+        
+        const exportData = customers.map(c => ({
+            'ຊື່ລູກຄ້າ': c.name || '-',
+            'ເບີໂທ': c.phone || '-',
+            'ອີເມວ': c.email || '-',
+            'ທີ່ຢູ່': c.address || '-',
+            'ຈຳນວນຍານພາຫະນະ': c.vehicles?.length || 0,
+            'ວັນທີລົງທະບຽນ': formatDate(c.created_at)
+        }));
+        
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Customer_Report');
+        XLSX.writeFile(wb, `customer_report_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+        
+        showToast('success', 'ສຳເລັດ', 'ສົ່ງອອກລາຍງານລູກຄ້າສຳເລັດ');
+    } catch (error) {
+        showToast('error', 'ຜິດພາດ', error.message);
+    }
+    hideLoading();
+}
 
         // ============================================
         // JOB CARD MODALS & ACTIONS (Simplified)
