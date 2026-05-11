@@ -1873,7 +1873,7 @@
             hideLoading();
         }
 
-                async function loadInventoryReport() {
+                     async function loadInventoryReport() {
             const content = document.getElementById('content-area');
             showLoading();
             try {
@@ -1882,6 +1882,26 @@
                 const lowStock = parts?.filter(p => (p.stock_quantity || 0) < 10).length || 0;
                 const outOfStock = parts?.filter(p => (p.stock_quantity || 0) === 0).length || 0;
                 const totalItems = parts?.length || 0;
+                
+                let tableRows = '';
+                if (parts && parts.length > 0) {
+                    for (let i = 0; i < parts.length; i++) {
+                        const p = parts[i];
+                        const itemTotal = (p.price || 0) * (p.stock_quantity || 0);
+                        tableRows += `
+                            <tr>
+                                <td><code>${p.code || '-'}</code></td>
+                                <td><strong>${p.name || '-'}</strong></td>
+                                <td>${p.category || '-'}</td>
+                                <td style="${(p.stock_quantity || 0) < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">${p.stock_quantity || 0}</td>
+                                <td>${new Intl.NumberFormat('lo-LA').format(p.price || 0)} ₭</td
+                                <td>${new Intl.NumberFormat('lo-LA').format(itemTotal)} ₭</td
+                            </tr>
+                        `;
+                    }
+                } else {
+                    tableRows = '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</tr>';
+                }
                 
                 content.innerHTML = `
                     <div class="data-table-container">
@@ -1892,22 +1912,10 @@
                             </div>
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 16px 24px; background: var(--primary-light);">
-                            <div style="text-align: center;">
-                                <div style="font-size: 0.75rem; color: var(--gray-600);">ມູນຄ່າສາງທັງໝົດ</div>
-                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">${new Intl.NumberFormat('lo-LA').format(totalValue)} ₭</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 0.75rem; color: var(--gray-600);">ຈຳນວນອາໄຫຼ່ທັງໝົດ</div>
-                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">${totalItems}</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 0.75rem; color: var(--gray-600);">ອາໄຫຼ່ໃກ້ໝົດ (&lt;10)</div>
-                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--warning);">${lowStock}</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 0.75rem; color: var(--gray-600);">ອາໄຫຼ່ໝົດສາງ</div>
-                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--danger);">${outOfStock}</div>
-                            </div>
+                            <div style="text-align: center;"><div style="font-size: 0.75rem; color: var(--gray-600);">ມູນຄ່າສາງທັງໝົດ</div><div style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">${new Intl.NumberFormat('lo-LA').format(totalValue)} ₭</div></div>
+                            <div style="text-align: center;"><div style="font-size: 0.75rem; color: var(--gray-600);">ຈຳນວນອາໄຫຼ່ທັງໝົດ</div><div style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">${totalItems}</div></div>
+                            <div style="text-align: center;"><div style="font-size: 0.75rem; color: var(--gray-600);">ອາໄຫຼ່ໃກ້ໝົດ (&lt;10)</div><div style="font-size: 1.25rem; font-weight: 700; color: var(--warning);">${lowStock}</div></div>
+                            <div style="text-align: center;"><div style="font-size: 0.75rem; color: var(--gray-600);">ອາໄຫຼ່ໝົດສາງ</div><div style="font-size: 1.25rem; font-weight: 700; color: var(--danger);">${outOfStock}</div></div>
                         </div>
                         <div style="overflow-x: auto;">
                             <table class="data-table">
@@ -1922,16 +1930,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${parts && parts.length > 0 ? parts.map(p => `
-                                        <tr>
-                                            <td><code>${p.code || '-'}</code></td>
-                                            <td><strong>${p.name || '-'}</strong></td>
-                                            <td>${p.category || '-'}</td>
-                                            <td style="${(p.stock_quantity || 0) < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">${p.stock_quantity || 0}</td>
-                                            <td>${new Intl.NumberFormat('lo-LA').format(p.price || 0)} ₭</td
-                                            <td>${new Intl.NumberFormat('lo-LA').format((p.price || 0) * (p.stock_quantity || 0))} ₭</td
-                                        </tr>
-                                    `).join('') : '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</td>'}
+                                    ${tableRows}
                                 </tbody>
                             </table>
                         </div>
@@ -2041,11 +2040,10 @@
             const content = document.getElementById('content-area');
             let scanQrCode = null;
             
-            content.innerHTML = `
+                        content.innerHTML = `
                 <div class="data-table-container">
                     <div class="table-header">
                         <h3 class="table-title"><i class="fas fa-qrcode"></i> ສະແກນ QR Code</h3>
-                        <button class="btn btn-danger btn-sm" id="stop-scan-btn"><i class="fas fa-stop"></i> ຢຸດສະແກນ</button>
                     </div>
                     <div style="padding: 24px; text-align: center;">
                         <div id="scan-qr-reader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
@@ -2090,14 +2088,7 @@
                 }
             }
             
-            // Add event listeners for stop buttons
-            document.getElementById('stop-scan-btn')?.addEventListener('click', () => {
-                if (scanQrCode && scanQrCode.isScanning) {
-                    scanQrCode.stop();
-                    document.getElementById('scan-result').innerHTML = '<div style="background: var(--info-light); padding: 12px; border-radius: 8px;">ຢຸດການສະແກນແລ້ວ</div>';
-                }
-            });
-            
+                     // Add event listener for close camera button
             document.getElementById('close-camera-btn')?.addEventListener('click', () => {
                 if (scanQrCode && scanQrCode.isScanning) {
                     scanQrCode.stop();
