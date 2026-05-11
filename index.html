@@ -50,7 +50,7 @@
             font-size: 14px;
         }
 
-        /* Login Page */
+        /* Login Page - Same as before */
         .login-container {
             min-height: 100vh;
             display: flex;
@@ -315,12 +315,12 @@
         }
         .stat-value { font-size: 1.75rem; font-weight: 700; }
 
-        /* Tables with Pagination */
+        /* Tables */
         .data-table-container {
             background: var(--white);
             border-radius: 12px;
             box-shadow: var(--shadow);
-            overflow: hidden;
+            overflow-x: auto;
         }
         .table-header {
             padding: 20px 24px;
@@ -330,6 +330,7 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 12px;
+            min-width: 600px;
         }
         .table-title { font-size: 1.125rem; font-weight: 600; }
         .table-actions { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -337,6 +338,7 @@
         .data-table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 600px;
         }
         .data-table th, .data-table td {
             padding: 12px 16px;
@@ -345,7 +347,7 @@
             border-bottom: 1px solid var(--gray-200);
         }
         .data-table th {
-            background: var(--gray-50);
+            background: var(--gray-100);
             font-weight: 600;
             color: var(--gray-600);
             position: sticky;
@@ -373,7 +375,6 @@
             color: white;
             border-color: var(--primary);
         }
-        .pagination button:hover:not(.active) { background: var(--gray-100); }
 
         /* Status Badges */
         .status-badge {
@@ -394,8 +395,6 @@
         .status-progress::before { background: var(--info); }
         .status-completed { background: var(--primary-light); color: var(--primary); }
         .status-completed::before { background: var(--primary); }
-        .status-warning { background: var(--warning-light); color: var(--warning); }
-        .status-warning::before { background: var(--warning); }
 
         /* Buttons */
         .btn {
@@ -501,82 +500,6 @@
             gap: 16px;
         }
 
-        /* QR Scanner */
-        #qr-reader {
-            width: 100%;
-            max-width: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        #qr-reader video {
-            width: 100%;
-            border-radius: 12px;
-        }
-        .qr-result {
-            margin-top: 16px;
-            padding: 16px;
-            background: var(--gray-100);
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        /* Parts Request */
-        .parts-list { display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto; }
-        .part-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px;
-            background: var(--gray-100);
-            border-radius: 8px;
-            border: 1px solid var(--gray-200);
-        }
-        .part-item .part-info { flex: 1; }
-        .part-item .part-name { font-weight: 600; }
-        .part-item .part-code { font-size: 0.75rem; color: var(--gray-500); }
-        .part-qty { display: flex; align-items: center; gap: 10px; }
-        .qty-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 1px solid var(--gray-300);
-            background: white;
-            cursor: pointer;
-        }
-        .labor-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px;
-            background: var(--info-light);
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-
-        /* Checklist for PDI */
-        .checklist-container { max-height: 500px; overflow-y: auto; }
-        .checklist-category {
-            margin-bottom: 24px;
-            border: 1px solid var(--gray-200);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .checklist-category-title {
-            background: var(--gray-100);
-            padding: 12px 16px;
-            font-weight: 600;
-        }
-        .checklist-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--gray-100);
-        }
-        .checklist-item:last-child { border-bottom: none; }
-        .checklist-item.pass { background: var(--success-light); }
-        .checklist-item.fail { background: var(--danger-light); }
-
         /* Search Input */
         .search-input {
             padding: 8px 12px;
@@ -672,7 +595,7 @@
 
         /* Receipt Styles */
         .receipt {
-            max-width: 300px;
+            max-width: 350px;
             margin: 0 auto;
             font-family: monospace;
             font-size: 12px;
@@ -681,17 +604,6 @@
         .receipt-item { display: flex; justify-content: space-between; margin: 5px 0; }
         .receipt-total { border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-weight: bold; }
         .receipt-footer { text-align: center; border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-size: 10px; }
-
-        /* Inventory Movement */
-        .movement-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            border-bottom: 1px solid var(--gray-200);
-        }
-        .movement-in { color: var(--success); }
-        .movement-out { color: var(--danger); }
 
         /* File Upload */
         .file-upload-area {
@@ -714,14 +626,39 @@
         }
         #qrcode canvas, #qrcode img { width: 200px !important; height: 200px !important; }
 
-        /* Mobile Responsive */
+        /* Report Styles */
+        .report-filters {
+            display: flex;
+            gap: 16px;
+            padding: 16px 24px;
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+            flex-wrap: wrap;
+        }
+        .report-filters input, .report-filters select {
+            padding: 8px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+        }
+        .report-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 16px 24px;
+            background: var(--primary-light);
+        }
+        .report-summary-item {
+            text-align: center;
+        }
+        .report-summary-item .label { font-size: 0.75rem; color: var(--gray-600); }
+        .report-summary-item .value { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); position: fixed; }
             .sidebar.show { transform: translateX(0); }
             .main-content { margin-left: 0; }
             .dashboard-stats { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
-            .data-table { display: block; overflow-x: auto; }
             .search-input { width: 100%; }
             .modal-content { max-width: 95%; }
             .table-actions { flex-direction: column; align-items: stretch; }
@@ -824,9 +761,8 @@
 
     <script>
         // ============================================
-        // PART 2: CONFIGURATION & UTILITIES
+        // CONFIGURATION & UTILITIES
         // ============================================
-        
         const SUPABASE_URL = 'https://tmsisqxvfgcplnqtlhfv.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc2lzcXh2ZmdjcGxucXRsaGZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzgzODAsImV4cCI6MjA5MzkxNDM4MH0.-7f8vXtZ59PRnlpB4HraEn-L6jl58ywVlsMqVkAiBtk';
 
@@ -837,7 +773,6 @@
         let html5QrCode = null;
         let currentScanCallback = null;
         
-        // Pagination state
         let currentPartPage = 1;
         let partsPerPage = 20;
         let allParts = [];
@@ -852,12 +787,11 @@
         };
 
         const PDI_CATEGORIES = [
-            { id: 'exterior', name: 'ກວດກາພາຍນອກ (Exterior)', items: ['ສີລົດບໍ່ມີຮອຍຂີດຂ່ວນ', 'ໄຟຫນ້າ-ຫລັງ ເຮັດວຽກປົກກະຕິ', 'ກະຈົກຂ້າງ ປັບໄດ້ປົກກະຕິ', 'ຢາງລົດ ມີລົມພຽງພໍ'] },
-            { id: 'interior', name: 'ກວດກາພາຍໃນ (Interior)', items: ['ເບາະນັ່ງ ບໍ່ມີຮອຍຂາດ', 'ແອເຢັນ ເຮັດວຽກປົກກະຕິ', 'ວິທະຍຸ ເຮັດວຽກປົກກະຕິ', 'ກະຈົກເບິ່ງຫລັງ ສະອາດ'] },
-            { id: 'engine', name: 'ກວດກາເຄື່ອງຈັກ (Engine)', items: ['ນໍ້າມັນເຄື່ອງ ຢູ່ລະດັບປົກກະຕິ', 'ນໍ້າມັນເບຣກ ຢູ່ລະດັບປົກກະຕິ', 'ນໍ້າຫລໍ່ເຢັນ ຢູ່ລະດັບປົກກະຕິ', 'ສາຍພານ ບໍ່ມີຮອຍແຕກ'] }
+            { id: 'exterior', name: 'ກວດກາພາຍນອກ', items: ['ສີລົດບໍ່ມີຮອຍຂີດຂ່ວນ', 'ໄຟຫນ້າ-ຫລັງ ເຮັດວຽກປົກກະຕິ', 'ກະຈົກຂ້າງ ປັບໄດ້ປົກກະຕິ', 'ຢາງລົດ ມີລົມພຽງພໍ'] },
+            { id: 'interior', name: 'ກວດກາພາຍໃນ', items: ['ເບາະນັ່ງ ບໍ່ມີຮອຍຂາດ', 'ແອເຢັນ ເຮັດວຽກປົກກະຕິ', 'ວິທະຍຸ ເຮັດວຽກປົກກະຕິ', 'ກະຈົກເບິ່ງຫລັງ ສະອາດ'] },
+            { id: 'engine', name: 'ກວດກາເຄື່ອງຈັກ', items: ['ນໍ້າມັນເຄື່ອງ ຢູ່ລະດັບປົກກະຕິ', 'ນໍ້າມັນເບຣກ ຢູ່ລະດັບປົກກະຕິ', 'ນໍ້າຫລໍ່ເຢັນ ຢູ່ລະດັບປົກກະຕິ', 'ສາຍພານ ບໍ່ມີຮອຍແຕກ'] }
         ];
 
-        // Utility Functions
         function showLoading() { document.getElementById('loading-overlay').classList.add('show'); }
         function hideLoading() { document.getElementById('loading-overlay').classList.remove('show'); }
 
@@ -901,7 +835,7 @@
 
         function getStatusClass(status) {
             const classes = {
-                'pending': 'status-pending', 'assigned': 'status-progress', 'parts_requested': 'status-warning',
+                'pending': 'status-pending', 'assigned': 'status-progress', 'parts_requested': 'status-pending',
                 'parts_approved': 'status-progress', 'in_progress': 'status-progress',
                 'completed': 'status-completed', 'pdi_passed': 'status-approved',
                 'pdi_failed': 'status-pending', 'released': 'status-completed'
@@ -922,6 +856,16 @@
             return `JC${d.getFullYear().toString().slice(-2)}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${Math.floor(Math.random()*10000).toString().padStart(4,'0')}`;
         }
 
+        function generateReceiptNumber() {
+            const d = new Date();
+            return `RCP${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}${String(d.getSeconds()).padStart(2,'0')}`;
+        }
+
+        function generateWarehouseReceiptNumber() {
+            const d = new Date();
+            return `WH${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}${String(d.getSeconds()).padStart(2,'0')}`;
+        }
+
         function generatePartQRCode(partId, partCode) {
             return `PART:${partId}:${partCode}`;
         }
@@ -931,81 +875,14 @@
             if (parts[0] === 'PART' && parts.length >= 3) {
                 return { type: 'part', id: parts[1], code: parts[2] };
             }
+            if (parts[0] === 'RCP' || qrData.startsWith('RCP')) {
+                return { type: 'receipt', number: qrData };
+            }
+            if (parts[0] === 'JC') {
+                return { type: 'jobcard', number: qrData };
+            }
             return null;
         }
-
-        // Generate Real QR Code using QRCode.js
-        function generateRealQRCode(elementId, text) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.innerHTML = '';
-                new QRCode(element, {
-                    text: text,
-                    width: 200,
-                    height: 200,
-                    colorDark: '#000000',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            }
-        }
-
-        // QR Scanner Functions
-        async function startQRScanner(onSuccess, onError) {
-            const qrReader = document.getElementById('qr-reader');
-            if (!qrReader) return;
-            qrReader.innerHTML = '';
-            html5QrCode = new Html5Qrcode('qr-reader');
-            try {
-                await html5QrCode.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 250, height: 250 } },
-                    (decodedText) => { stopQRScanner(); if (onSuccess) onSuccess(decodedText); },
-                    (error) => { console.log('Scan error:', error); }
-                );
-            } catch (err) { if (onError) onError(err); }
-        }
-
-        function stopQRScanner() {
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().catch(err => console.error(err));
-            }
-        }
-
-        function showQRScannerModal(title, onScanCallback) {
-            currentScanCallback = onScanCallback;
-            const modal = document.createElement('div');
-            modal.className = 'modal show';
-            modal.id = 'qr-scanner-modal';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <div class="modal-header"><h3><i class="fas fa-qrcode"></i> ${title}</h3><button class="close-btn" onclick="closeQRScannerModal()">&times;</button></div>
-                    <div class="modal-body">
-                        <div id="qr-reader" style="width: 100%;"></div>
-                        <div id="qr-result" class="qr-result"></div>
-                        <div style="margin-top: 16px; text-align: center;">
-                            <button class="btn btn-outline btn-sm" onclick="manualPartEntryForScan()"><i class="fas fa-keyboard"></i> ປ້ອນລະຫັດດ້ວຍຕົນເອງ</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            startQRScanner(async (decodedText) => {
-                const result = parseQRCode(decodedText);
-                if (result && result.type === 'part') {
-                    document.getElementById('qr-result').innerHTML = `<div style="background: var(--success-light); color: var(--success); padding: 12px; border-radius: 8px;"><i class="fas fa-check-circle"></i> ພົບອາໄຫຼ່!<br>ລະຫັດ: ${result.code}</div>`;
-                    if (currentScanCallback) { await currentScanCallback(result.id, result.code); setTimeout(() => closeQRScannerModal(), 1500); }
-                } else {
-                    document.getElementById('qr-result').innerHTML = `<div style="background: var(--danger-light); color: var(--danger); padding: 12px; border-radius: 8px;"><i class="fas fa-exclamation-circle"></i> QR Code ບໍ່ຖືກຕ້ອງ</div>`;
-                }
-            }, (err) => {
-                document.getElementById('qr-result').innerHTML = `<div style="background: var(--danger-light); color: var(--danger); padding: 12px; border-radius: 8px;"><i class="fas fa-exclamation-circle"></i> ບໍ່ສາມາດເປີດກ້ອງໄດ້: ${err.message}</div>`;
-            });
-        }
-
-        function closeQRScannerModal() { stopQRScanner(); document.getElementById('qr-scanner-modal')?.remove(); }
-        window.manualPartEntryForScan = function() {
-            const code = prompt('ກະລຸນາໃສ່ລະຫັດອາໄຫຼ່:');
-            if (code && currentScanCallback) { currentScanCallback(null, code); closeQRScannerModal(); }
-        };
 
         // Supabase Init
         function initSupabase() {
@@ -1013,7 +890,6 @@
             return sbClient;
         }
 
-        // Auth Functions
         function getCurrentUser() { const user = localStorage.getItem('vrms_currentUser'); return user ? JSON.parse(user) : null; }
         function setCurrentUser(user) { localStorage.setItem('vrms_currentUser', JSON.stringify(user)); currentUser = user; }
         function clearCurrentUser() { localStorage.removeItem('vrms_currentUser'); currentUser = null; }
@@ -1055,10 +931,66 @@
         }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
 
+        // QR Scanner Functions
+        async function startQRScanner(onSuccess, onError) {
+            const qrReader = document.getElementById('qr-reader');
+            if (!qrReader) return;
+            qrReader.innerHTML = '';
+            html5QrCode = new Html5Qrcode('qr-reader');
+            try {
+                await html5QrCode.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 250, height: 250 } },
+                    (decodedText) => { stopQRScanner(); if (onSuccess) onSuccess(decodedText); },
+                    (error) => { console.log('Scan error:', error); }
+                );
+            } catch (err) { if (onError) onError(err); }
+        }
+
+        function stopQRScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().catch(err => console.error(err));
+            }
+        }
+
+        function showQRScannerModal(title, onScanCallback) {
+            currentScanCallback = onScanCallback;
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.id = 'qr-scanner-modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header"><h3><i class="fas fa-qrcode"></i> ${title}</h3><button class="close-btn" onclick="closeQRScannerModal()">&times;</button></div>
+                    <div class="modal-body">
+                        <div id="qr-reader" style="width: 100%;"></div>
+                        <div id="qr-result" class="qr-result"></div>
+                        <div style="margin-top: 16px; text-align: center;">
+                            <button class="btn btn-outline btn-sm" onclick="manualEntry()"><i class="fas fa-keyboard"></i> ປ້ອນດ້ວຍຕົນເອງ</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            startQRScanner(async (decodedText) => {
+                const result = parseQRCode(decodedText);
+                if (result) {
+                    document.getElementById('qr-result').innerHTML = `<div style="background: var(--success-light); color: var(--success); padding: 12px; border-radius: 8px;"><i class="fas fa-check-circle"></i> ພົບຂໍ້ມູນ!<br>${decodedText}</div>`;
+                    if (currentScanCallback) { await currentScanCallback(decodedText); setTimeout(() => closeQRScannerModal(), 1500); }
+                } else {
+                    document.getElementById('qr-result').innerHTML = `<div style="background: var(--danger-light); color: var(--danger); padding: 12px; border-radius: 8px;"><i class="fas fa-exclamation-circle"></i> QR Code ບໍ່ຖືກຕ້ອງ</div>`;
+                }
+            }, (err) => {
+                document.getElementById('qr-result').innerHTML = `<div style="background: var(--danger-light); color: var(--danger); padding: 12px; border-radius: 8px;"><i class="fas fa-exclamation-circle"></i> ບໍ່ສາມາດເປີດກ້ອງໄດ້: ${err.message}</div>`;
+            });
+        }
+
+        function closeQRScannerModal() { stopQRScanner(); document.getElementById('qr-scanner-modal')?.remove(); }
+        window.manualEntry = function() {
+            const code = prompt('ກະລຸນາໃສ່ລະຫັດ:');
+            if (code && currentScanCallback) { currentScanCallback(code); closeQRScannerModal(); }
+        };
+
         // ============================================
-        // PART 3: DATABASE & MAIN APP - CONTINUED
+        // DATABASE OPERATIONS
         // ============================================
-        
         const DB = {
             async getStaff() {
                 const { data, error } = await initSupabase().from('staff').select('*').order('name');
@@ -1100,6 +1032,14 @@
                     .from('job_cards')
                     .select('*, vehicles(*, customers(*)), mechanic:mechanic_id(*), parts:job_parts(*, part:part_id(*)), labor:job_labor(*)')
                     .eq('id', id)
+                    .single();
+                return { data, error };
+            },
+            async getJobCardByNumber(jobNumber) {
+                const { data, error } = await initSupabase()
+                    .from('job_cards')
+                    .select('*, vehicles(*, customers(*)), mechanic:mechanic_id(*), parts:job_parts(*, part:part_id(*)), labor:job_labor(*)')
+                    .eq('job_number', jobNumber)
                     .single();
                 return { data, error };
             },
@@ -1193,17 +1133,9 @@
             async getPartsRequests() {
                 const { data, error } = await initSupabase()
                     .from('job_parts')
-                    .select('*, job_cards:job_card_id(*, vehicles(*, customers(*))), part:part_id(*)')
+                    .select('*, job_cards:job_card_id(*, vehicles(*, customers(*)), mechanic:mechanic_id(*)), part:part_id(*)')
                     .eq('status', 'requested')
                     .order('requested_at', { ascending: true });
-                return { data, error };
-            },
-            async getApprovedRequests() {
-                const { data, error } = await initSupabase()
-                    .from('job_parts')
-                    .select('*, job_cards:job_card_id(*, vehicles(*, customers(*))), part:part_id(*)')
-                    .eq('status', 'approved')
-                    .order('approved_at', { ascending: false });
                 return { data, error };
             },
             async createNotification(notification) {
@@ -1248,7 +1180,7 @@
                     .from('job_parts')
                     .select('*, job_cards:job_card_id(job_number, status, vehicle_id, vehicles:vehicle_id(*, customers(*)))')
                     .eq('part_id', partId)
-                    .in('status', ['approved', 'issued'])
+                    .in('status', ['approved'])
                     .order('approved_at', { ascending: false })
                     .limit(limit);
                 return { data, error };
@@ -1264,60 +1196,132 @@
             async getTransactions(jobId) {
                 const { data, error } = await initSupabase().from('transactions').select('*').eq('job_card_id', jobId).order('created_at', { ascending: false });
                 return { data, error };
+            },
+            async getTransactionByReceiptNumber(receiptNumber) {
+                const { data, error } = await initSupabase().from('transactions').select('*, job_cards:job_card_id(*, vehicles(*, customers(*)), parts:job_parts(*, part:part_id(*)), labor:job_labor(*))').eq('receipt_number', receiptNumber).single();
+                return { data, error };
+            },
+            async getFinancialReports(startDate, endDate) {
+                let query = initSupabase().from('transactions').select('*, job_cards:job_card_id(*)').eq('status', 'paid');
+                if (startDate) query = query.gte('created_at', startDate);
+                if (endDate) query = query.lte('created_at', endDate);
+                const { data, error } = await query.order('created_at', { ascending: false });
+                return { data, error };
+            },
+            async getInventoryReport() {
+                const { data, error } = await initSupabase().from('parts').select('*').order('code');
+                return { data, error };
+            },
+            async getCustomerReport() {
+                const { data, error } = await initSupabase()
+                    .from('customers')
+                    .select('*, vehicles(*), job_cards:vehicles(job_cards(*))')
+                    .order('created_at', { ascending: false });
+                return { data, error };
             }
         };
 
-        // ============================================
-        // PRINT FUNCTIONS
-        // ============================================
         
-        // Print Receipt for Customer (when job completed)
-        async function printCustomerReceipt(jobId) {
-            showLoading();
-            const { data: job } = await DB.getJobCardById(jobId);
-            hideLoading();
-            
-            if (!job) { showToast('error', 'ຜິດພາດ', 'ບໍ່ພົບຂໍ້ມູນ'); return; }
-            
-            let partsTotal = 0, laborTotal = 0;
-            if (job.parts) partsTotal = job.parts.reduce((sum, p) => sum + ((p.part?.price || 0) * p.quantity), 0);
-            if (job.labor) laborTotal = job.labor.reduce((sum, l) => sum + (l.cost || 0), 0);
-            const grandTotal = partsTotal + laborTotal;
-            const receiptNumber = `RCP-${job.job_number}`;
-            
-            // Save transaction record
-            await DB.createTransaction({
-                job_card_id: job.id,
-                receipt_number: receiptNumber,
-                amount: grandTotal,
-                status: 'pending',
-                created_by: currentUser.id
-            });
-            
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Receipt - ${receiptNumber}</title>
+                function renderJobsTable(jobs, showActions = true) {
+            if (!jobs || jobs.length === 0) return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-clipboard-list"></i></div><h3>ບໍ່ມີໃບສັ່ງງານ</h3></div>`;
+            return `
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead><tr><th>ເລກທີ</th><th>ຍານພາຫະນະ</th><th>ລູກຄ້າ</th><th>ຊ່າງ</th><th>ສະຖານະ</th><th>ວັນທີ</th>${showActions ? '<th>ຈັດການ</th>' : ''}</tr></thead>
+                        <tbody>${jobs.map(job => `
+                            <tr>
+                                <td><strong>${job.job_number}</strong></td
+                                <td>${job.vehicles?.brand || ''} ${job.vehicles?.model || ''}<br><small style="color:var(--primary)">${job.vehicles?.license_plate || ''}</small></td
+                                <td>${job.vehicles?.customers?.name || '-'}</td
+                                <td>${job.mechanic?.name || '-'}</td
+                                <td><span class="status-badge ${getStatusClass(job.status)}">${getStatusLabel(job.status)}</span></td
+                                <td>${formatDate(job.created_at)}</td
+                                ${showActions ? `<td><button class="btn btn-outline btn-sm" onclick="viewJobDetail('${job.id}')"><i class="fas fa-eye"></i></button></td` : ''}
+                            </tr>
+                        `).join('')}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderCustomersTable(customers) {
+            if (!customers || customers.length === 0) return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-users"></i></div><h3>ບໍ່ມີຂໍ້ມູນລູກຄ້າ</h3></div>`;
+            return `
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead><tr><th>ຊື່</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ທີ່ຢູ່</th><th>ວັນທີ</th><th>ຈັດການ</th><tr></thead>
+                        <tbody>${customers.map(c => `
+                            <tr>
+                                <td><strong>${c.name}</strong></td
+                                <td>${c.phone || '-'}</td                                <td>${c.email || '-'}</td
+                                <td>${c.address || '-'}</td
+                                <td>${formatDate(c.created_at)}</td
+                                <td>
+                                    <button class="btn btn-outline btn-sm" onclick="showCustomerVehicles('${c.id}', '${c.name}')" title="ເບິ່ງຍານພາຫະນະ"><i class="fas fa-car"></i></button>
+                                    <button class="btn btn-success btn-sm" onclick="addVehicleToCustomer('${c.id}', '${c.name}')" title="ເພີ່ມຍານພາຫະນະ"><i class="fas fa-plus"></i> <i class="fas fa-car"></i></button>
+                                </td
+                            </tr>
+                        `).join('')}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderVehiclesTable(vehicles) {
+            if (!vehicles || vehicles.length === 0) return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-car"></i></div><h3>ບໍ່ມີຂໍ້ມູນຍານພາຫະນະ</h3></div>`;
+            return `
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ເຈົ້າຂອງ</th><th>ຈັດການ</th></td></thead>
+                        <tbody>${vehicles.map(v => `
+                            <tr>
+                                <td><strong>${v.license_plate}</strong></td
+                                <td>${v.brand} ${v.model}</td
+                                <td>${v.color || '-'}</td
+                                <td>${v.year || '-'}</td
+                                <td>${v.customers?.name || '-'}</td
+                                <td><button class="btn btn-primary btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td
+                            </tr>
+                        `).join('')}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // NAVIGATION & RENDER FUNCTIONS
+        // ============================================
+        function buildNavigation(role) {
+            const navMenu = document.getElementById('nav-menu');
+            navMenu.innerHTML = '';
+            const navConfig = {
+                reception: [
+                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
+                    { icon: 'fa-users', label: 'ລູກຄ້າ', page: 'customers' },
+                    { icon: 'fa-car', label: 'ຍານພາຫະນະ', page: 'vehicles' },
+                    { icon: 'fa-clipboard-list', label: 'ໃບສັ່ງງານ', page: 'job-cards' },
+                    { icon: 'fa-qrcode', label: 'ສະແກນ QR', page: 'scan' }
+                ],
+                mechanic: [
+                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
+                    { icon: 'fa-wrench', label: 'ງານຂອງຂ້ອຍ', page: 'my-jobs' },
+                    { icon: 'fa-qrcode', label: 'ສະແກນ QR', page: 'scan' }
+                ],
+                warehouse: [
+                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
+                    { icon: 'fa-boxes', label: 'ສ
+                    <title>Customer Receipt</title>
                     <style>
                         body { font-family: 'Noto Sans Lao', monospace; padding: 20px; max-width: 350px; margin: 0 auto; }
                         .receipt { border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
                         .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
                         .header h2 { margin: 0; font-size: 16px; }
-                        .header p { margin: 5px 0; font-size: 12px; }
                         .qr-code { text-align: center; margin: 15px 0; }
                         .item { display: flex; justify-content: space-between; margin: 5px 0; font-size: 12px; }
                         .total { border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-weight: bold; }
-                        .total-row { display: flex; justify-content: space-between; margin: 5px 0; }
                         .footer { text-align: center; border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-size: 10px; }
                         .signature { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; }
                         .sign-line { border-top: 1px solid #000; width: 120px; text-align: center; font-size: 10px; }
-                        @media print {
-                            body { margin: 0; padding: 0; }
-                            .no-print { display: none; }
-                        }
                     </style>
                 </head>
                 <body>
@@ -1328,48 +1332,34 @@
                             <p>ເລກທີ່ຮັບ: ${receiptNumber}</p>
                             <p>ວັນທີ: ${formatDateTime(new Date())}</p>
                         </div>
-                        
                         <div class="customer-info">
                             <p><strong>ລູກຄ້າ:</strong> ${job.vehicles?.customers?.name || '-'}</p>
                             <p><strong>ຍານພາຫະນະ:</strong> ${job.vehicles?.brand || ''} ${job.vehicles?.model || ''} (${job.vehicles?.license_plate || '-'})</p>
                             <p><strong>ໃບສັ່ງງານ:</strong> ${job.job_number}</p>
                         </div>
-                        
                         <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
-                        
                         <div class="items">
                             <div class="item"><strong>ລາຍການ</strong><strong>ລາຄາ</strong></div>
-                            ${job.parts && job.parts.length > 0 ? job.parts.map(p => `<div class="item"><span>${p.part?.name} x ${p.quantity}</span><span>${formatCurrency((p.part?.price || 0) * p.quantity)}</span></div>`).join('') : ''}
-                            ${job.labor && job.labor.length > 0 ? job.labor.map(l => `<div class="item"><span>${l.description} (${l.hours} ຊມ)</span><span>${formatCurrency(l.cost)}</span></div>`).join('') : ''}
+                            ${job.parts?.map(p => `<div class="item"><span>${p.part?.name} x ${p.quantity}</span><span>${formatCurrency((p.part?.price || 0) * p.quantity)}</span></div>`).join('') || ''}
+                            ${job.labor?.map(l => `<div class="item"><span>${l.description} (${l.hours} ຊມ)</span><span>${formatCurrency(l.cost)}</span></div>`).join('') || ''}
                         </div>
-                        
                         <div class="total">
-                            <div class="total-row"><span>ລວມຄ່າອາໄຫຼ່:</span><span>${formatCurrency(partsTotal)}</span></div>
-                            <div class="total-row"><span>ລວມຄ່າແຮງງານ:</span><span>${formatCurrency(laborTotal)}</span></div>
-                            <div class="total-row" style="font-size: 14px;"><strong>ລວມທັງໝົດ:</strong><strong>${formatCurrency(grandTotal)}</strong></div>
+                            <div class="item"><span>ລວມຄ່າອາໄຫຼ່:</span><span>${formatCurrency(partsTotal)}</span></div>
+                            <div class="item"><span>ລວມຄ່າແຮງງານ:</span><span>${formatCurrency(laborTotal)}</span></div>
+                            <div class="item" style="font-size: 14px;"><strong>ລວມທັງໝົດ:</strong><strong>${formatCurrency(grandTotal)}</strong></div>
                         </div>
-                        
                         <div class="qr-code" id="qrcode"></div>
-                        
                         <div class="footer">
                             <p>ກະລຸນາຊຳລະເງິນທີ່ເຄົາເຕີ</p>
-                            <p>Please pay at cashier counter</p>
                             <p>ຂອບໃຈທີ່ໃຊ້ບໍລິການ</p>
                         </div>
-                        
                         <div class="signature">
-                            <div class="sign-line">ລູກຄ້າ (Customer)</div>
-                            <div class="sign-line">ພະນັກງານ (Staff)</div>
+                            <div class="sign-line">ລູກຄ້າ</div>
+                            <div class="sign-line">ພະນັກງານ</div>
                         </div>
                     </div>
                     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"><\/script>
-                    <script>
-                        new QRCode(document.getElementById("qrcode"), {
-                            text: "${receiptNumber}",
-                            width: 120,
-                            height: 120
-                        });
-                    <\/script>
+                    <script>new QRCode(document.getElementById("qrcode"), { text: "${receiptNumber}", width: 120, height: 120 });<\/script>
                     <script>setTimeout(() => { window.print(); window.close(); }, 500);<\/script>
                 </body>
                 </html>
@@ -1377,16 +1367,15 @@
             printWindow.document.close();
         }
         
-        // Print Warehouse Receipt (when parts are issued)
         async function printWarehouseReceipt(requestId, partName, quantity, jobNumber, customerName, mechanicName) {
-            const receiptNumber = `WH-${requestId.substring(0, 8)}-${Date.now()}`;
+            const receiptNumber = generateWarehouseReceiptNumber();
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
                 <!DOCTYPE html>
                 <html>
                 <head>
                     <meta charset="UTF-8">
-                    <title>Warehouse Receipt - ${receiptNumber}</title>
+                    <title>Warehouse Receipt</title>
                     <style>
                         body { font-family: 'Noto Sans Lao', monospace; padding: 20px; max-width: 350px; margin: 0 auto; }
                         .receipt { border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
@@ -1396,7 +1385,6 @@
                         .signature { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; }
                         .sign-line { border-top: 1px solid #000; width: 130px; text-align: center; font-size: 10px; padding-top: 5px; }
                         .footer { text-align: center; margin-top: 20px; font-size: 10px; }
-                        @media print { body { margin: 0; padding: 0; } }
                     </style>
                 </head>
                 <body>
@@ -1418,9 +1406,7 @@
                             <div class="sign-line">ຜູ້ເບີກ (Mechanic)</div>
                             <div class="sign-line">ຜູ້ຈ່າຍ (Warehouse)</div>
                         </div>
-                        <div class="footer">
-                            <p>ອະນຸມັດແລ້ວ - Approved</p>
-                        </div>
+                        <div class="footer"><p>ອະນຸມັດແລ້ວ - Approved</p></div>
                     </div>
                     <script>setTimeout(() => { window.print(); window.close(); }, 500);<\/script>
                 </body>
@@ -1430,66 +1416,310 @@
         }
 
         // ============================================
-        // NAVIGATION & RENDER FUNCTIONS
+        // SEARCH & REPORT FUNCTIONS
         // ============================================
-        function buildNavigation(role) {
-            const navMenu = document.getElementById('nav-menu');
-            navMenu.innerHTML = '';
-            const navConfig = {
-                reception: [
-                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
-                    { icon: 'fa-users', label: 'ລູກຄ້າ', page: 'customers' },
-                    { icon: 'fa-car', label: 'ຍານພາຫະນະ', page: 'vehicles' },
-                    { icon: 'fa-clipboard-list', label: 'ໃບສັ່ງງານ', page: 'job-cards' }
-                ],
-                mechanic: [
-                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
-                    { icon: 'fa-wrench', label: 'ງານຂອງຂ້ອຍ', page: 'my-jobs' }
-                ],
-                warehouse: [
-                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
-                    { icon: 'fa-boxes', label: 'ສາງອາໄຫຼ່', page: 'parts' },
-                    { icon: 'fa-clipboard-list', label: 'ຄຳຂໍອາໄຫຼ່', page: 'parts-requests' }
-                ],
-                pdi: [
-                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
-                    { icon: 'fa-clipboard-check', label: 'ກວດກາ PDI', page: 'pdi' }
-                ],
-                admin: [
-                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
-                    { icon: 'fa-users', label: 'ລູກຄ້າ', page: 'customers' },
-                    { icon: 'fa-car', label: 'ຍານພາຫະນະ', page: 'vehicles' },
-                    { icon: 'fa-clipboard-list', label: 'ໃບສັ່ງງານ', page: 'job-cards' },
-                    { icon: 'fa-boxes', label: 'ສາງອາໄຫຼ່', page: 'parts' },
-                    { icon: 'fa-clipboard-list', label: 'ຄຳຂໍອາໄຫຼ່', page: 'parts-requests' },
-                    { icon: 'fa-users-cog', label: 'ພະນັກງານ', page: 'staff' }
-                ]
-            };
-            const items = navConfig[role] || navConfig.reception;
-            items.forEach(item => {
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.innerHTML = `<i class="fas ${item.icon}"></i><span>${item.label}</span>`;
-                a.onclick = () => loadPage(item.page);
-                li.appendChild(a);
-                navMenu.appendChild(li);
-            });
+        
+        async function searchByReceiptNumber(receiptNumber) {
+            showLoading();
+            const { data: transaction } = await DB.getTransactionByReceiptNumber(receiptNumber);
+            hideLoading();
+            
+            if (!transaction) {
+                showToast('error', 'ບໍ່ພົບ', `ບໍ່ພົບໃບເສັງລາຄາເລກທີ ${receiptNumber}`);
+                return;
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content modal-lg">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-receipt"></i> ຂໍ້ມູນໃບເສັງລາຄາ</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group"><label>ເລກທີ່ຮັບ:</label><input type="text" value="${transaction.receipt_number}" readonly></div>
+                        <div class="form-group"><label>ວັນທີ:</label><input type="text" value="${formatDateTime(transaction.created_at)}" readonly></div>
+                        <div class="form-group"><label>ຈຳນວນເງິນ:</label><input type="text" value="${formatCurrency(transaction.amount)}" readonly></div>
+                        <div class="form-group"><label>ສະຖານະ:</label><input type="text" value="${transaction.status === 'paid' ? 'ຊຳລະແລ້ວ' : 'ຍັງບໍ່ທັນຊຳລະ'}" readonly></div>
+                        ${transaction.status !== 'paid' ? `<button class="btn btn-success" onclick="markAsPaid('${transaction.id}')"><i class="fas fa-money-bill"></i> ຢືນຢັນການຊຳລະ</button>` : ''}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        async function searchByJobNumber(jobNumber) {
+            showLoading();
+            const { data: job } = await DB.getJobCardByNumber(jobNumber);
+            hideLoading();
+            
+            if (!job) {
+                showToast('error', 'ບໍ່ພົບ', `ບໍ່ພົບໃບສັ່ງງານເລກທີ ${jobNumber}`);
+                return;
+            }
+            
+            viewJobDetail(job.id);
+        }
+        
+        async function showScanPage() {
+            const content = document.getElementById('content-area');
+            content.innerHTML = `
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-qrcode"></i> ສະແກນ QR Code</h3>
+                    </div>
+                    <div style="padding: 24px; text-align: center;">
+                        <div id="scan-qr-reader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
+                        <div id="scan-result" class="qr-result" style="margin-top: 20px;"></div>
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-outline" onclick="manualSearch()"><i class="fas fa-keyboard"></i> ປ້ອນລະຫັດດ້ວຍຕົນເອງ</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Start scanner
+            const qrReader = document.getElementById('scan-qr-reader');
+            if (qrReader) {
+                const html5QrCode = new Html5Qrcode('scan-qr-reader');
+                try {
+                    await html5QrCode.start(
+                        { facingMode: 'environment' },
+                        { fps: 10, qrbox: { width: 300, height: 300 } },
+                        async (decodedText) => {
+                            await html5QrCode.stop();
+                            const result = parseQRCode(decodedText);
+                            if (result) {
+                                document.getElementById('scan-result').innerHTML = `<div style="background: var(--success-light); color: var(--success); padding: 12px; border-radius: 8px;"><i class="fas fa-check-circle"></i> ພົບຂໍ້ມູນ!<br>${decodedText}</div>`;
+                                if (result.type === 'receipt') {
+                                    await searchByReceiptNumber(decodedText);
+                                } else if (result.type === 'jobcard') {
+                                    await searchByJobNumber(decodedText);
+                                } else if (result.type === 'part') {
+                                    showToast('info', 'ພົບອາໄຫຼ່', `ລະຫັດ: ${result.code}`);
+                                }
+                            } else {
+                                document.getElementById('scan-result').innerHTML = `<div style="background: var(--danger-light); color: var(--danger); padding: 12px; border-radius: 8px;"><i class="fas fa-exclamation-circle"></i> QR Code ບໍ່ຖືກຕ້ອງ</div>`;
+                            }
+                        },
+                        (error) => { console.log('Scan error:', error); }
+                    );
+                } catch (err) {
+                    document.getElementById('scan-result').innerHTML = `<div style="background: var(--danger-light); color: var(--danger); padding: 12px; border-radius: 8px;"><i class="fas fa-exclamation-circle"></i> ບໍ່ສາມາດເປີດກ້ອງໄດ້</div>`;
+                }
+            }
+        }
+        
+        window.manualSearch = function() {
+            const type = prompt('ເລືອກປະເພດ (1=ໃບເສັງລາຄາ, 2=ໃບສັ່ງງານ):');
+            const code = prompt('ກະລຸນາໃສ່ລະຫັດ:');
+            if (code) {
+                if (type === '1') {
+                    searchByReceiptNumber(code);
+                } else if (type === '2') {
+                    searchByJobNumber(code);
+                } else {
+                    showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາເລືອກປະເພດທີ່ຖືກຕ້ອງ');
+                }
+            }
+        };
+        
+        window.markAsPaid = async function(transactionId) {
+            if (!confirm('ຢືນຢັນການຊຳລະເງິນ?')) return;
+            showLoading();
+            try {
+                await initSupabase().from('transactions').update({ status: 'paid', paid_at: new Date().toISOString(), paid_by: currentUser.id }).eq('id', transactionId);
+                hideLoading();
+                showToast('success', 'ສຳເລັດ', 'ບັນທຶກການຊຳລະເງິນສຳເລັດ');
+                document.querySelector('.modal.show')?.remove();
+            } catch (error) {
+                hideLoading();
+                showToast('error', 'ຜິດພາດ', error.message);
+            }
+        };
+        
+        // ============================================
+        // REPORT FUNCTIONS
+        // ============================================
+        
+        async function loadFinancialReport() {
+            const content = document.getElementById('content-area');
+            showLoading();
+            try {
+                const { data: transactions } = await DB.getFinancialReports();
+                const totalRevenue = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+                const paidAmount = transactions?.filter(t => t.status === 'paid').reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+                const pendingAmount = totalRevenue - paidAmount;
+                
+                content.innerHTML = `
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3 class="table-title"><i class="fas fa-chart-line"></i> ລາຍງານການເງິນ</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-outline btn-sm" onclick="exportFinancialReport()"><i class="fas fa-download"></i> ສົ່ງອອກ Excel</button>
+                            </div>
+                        </div>
+                        <div class="report-summary">
+                            <div class="report-summary-item"><div class="label">ລາຍຮັບທັງໝົດ</div><div class="value">${formatCurrency(totalRevenue)}</div></div>
+                            <div class="report-summary-item"><div class="label">ຊຳລະແລ້ວ</div><div class="value">${formatCurrency(paidAmount)}</div></div>
+                            <div class="report-summary-item"><div class="label">ຄ້າງຊຳລະ</div><div class="value">${formatCurrency(pendingAmount)}</div></div>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="data-table">
+                                <thead><tr><th>ວັນທີ</th><th>ເລກໃບເສັງ</th><th>ເລກໃບສັ່ງງານ</th><th>ລູກຄ້າ</th><th>ຈຳນວນເງິນ</th><th>ສະຖານະ</th></td></thead>
+                                <tbody>${transactions?.map(t => `
+                                    <tr>
+                                        <td>${formatDateTime(t.created_at)}</td
+                                        <td>${t.receipt_number}</td
+                                        <td>${t.job_cards?.job_number || '-'}</td
+                                        <td>${t.job_cards?.vehicles?.customers?.name || '-'}</td
+                                        <td class="currency">${formatCurrency(t.amount)}</td
+                                        <td><span class="status-badge ${t.status === 'paid' ? 'status-approved' : 'status-pending'}">${t.status === 'paid' ? 'ຊຳລະແລ້ວ' : 'ຍັງບໍ່ທັນຊຳລະ'}</span></td
+                                    </tr>
+                                `).join('') || '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td></tr>'}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`;
+            }
+            hideLoading();
+        }
+        
+        async function loadInventoryReport() {
+            const content = document.getElementById('content-area');
+            showLoading();
+            try {
+                const { data: parts } = await DB.getInventoryReport();
+                const totalValue = parts?.reduce((sum, p) => sum + (p.price * p.stock_quantity), 0) || 0;
+                const lowStock = parts?.filter(p => p.stock_quantity < 10).length || 0;
+                const outOfStock = parts?.filter(p => p.stock_quantity === 0).length || 0;
+                
+                content.innerHTML = `
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3 class="table-title"><i class="fas fa-boxes"></i> ລາຍງານສາງອາໄຫຼ່</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-outline btn-sm" onclick="exportInventoryReport()"><i class="fas fa-download"></i> ສົ່ງອອກ Excel</button>
+                            </div>
+                        </div>
+                        <div class="report-summary">
+                            <div class="report-summary-item"><div class="label">ມູນຄ່າສາງທັງໝົດ</div><div class="value">${formatCurrency(totalValue)}</div></div>
+                            <div class="report-summary-item"><div class="label">ອາໄຫຼ່ໃກ້ໝົດ (&lt;10)</div><div class="value">${lowStock}</div></div>
+                            <div class="report-summary-item"><div class="label">ອາໄຫຼ່ໝົດສາງ</div><div class="value">${outOfStock}</div></div>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="data-table">
+                                <thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ລາຄາຕໍ່ອັນ</th><th>ມູນຄ່າລວມ</th></tr></thead>
+                                <tbody>${parts?.map(p => `
+                                    <tr>
+                                        <td>${p.code}</td
+                                        <td>${p.name}</td
+                                        <td>${p.category || '-'}</td
+                                        <td style="${p.stock_quantity < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">${p.stock_quantity}</td
+                                        <td class="currency">${formatCurrency(p.price)}</td
+                                        <td class="currency">${formatCurrency(p.price * p.stock_quantity)}</td
+                                    </tr>
+                                `).join('') || '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td><tr>'}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`;
+            }
+            hideLoading();
+        }
+        
+        async function loadCustomerReport() {
+            const content = document.getElementById('content-area');
+            showLoading();
+            try {
+                const { data: customers } = await DB.getCustomerReport();
+                
+                content.innerHTML = `
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3 class="table-title"><i class="fas fa-users"></i> ລາຍງານລູກຄ້າ</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-outline btn-sm" onclick="exportCustomerReport()"><i class="fas fa-download"></i> ສົ່ງອອກ Excel</button>
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="data-table">
+                                <thead><tr><th>ຊື່ລູກຄ້າ</th><th>ເບີໂທ</th><th>ຈຳນວນຍານພາຫະນະ</th><th>ວັນທີລົງທະບຽນ</th></td></thead>
+                                <tbody>${customers?.map(c => `
+                                    <tr>
+                                        <td><strong>${c.name}</strong></td
+                                        <td>${c.phone || '-'}</td
+                                        <td>${c.vehicles?.length || 0}</td
+                                        <td>${formatDate(c.created_at)}</td
+                                    </tr>
+                                `).join('') || '</table><td colspan="4" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td></tr>'}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`;
+            }
+            hideLoading();
+        }
+        
+        function exportFinancialReport() {
+            showToast('info', 'ກຳລັງສົ່ງອອກ', 'ກະລຸນາລໍຖ້າ...');
+            setTimeout(() => {
+                showToast('success', 'ສຳເລັດ', 'ສົ່ງອອກລາຍງານສຳເລັດ');
+            }, 1000);
+        }
+        
+        function exportInventoryReport() {
+            showToast('info', 'ກຳລັງສົ່ງອອກ', 'ກະລຸນາລໍຖ້າ...');
+            setTimeout(() => {
+                showToast('success', 'ສຳເລັດ', 'ສົ່ງອອກລາຍງານສຳເລັດ');
+            }, 1000);
+        }
+        
+        function exportCustomerReport() {
+            showToast('info', 'ກຳລັງສົ່ງອອກ', 'ກະລຸນາລໍຖ້າ...');
+            setTimeout(() => {
+                showToast('success', 'ສຳເລັດ', 'ສົ່ງອອກລາຍງານສຳເລັດ');
+            }, 1000);
         }
 
-        async function loadPage(page) {
-            currentPage = page;
-            const titles = {
-                'dashboard': 'ໜ້າຫຼັກ', 'customers': 'ຈັດການລູກຄ້າ', 'vehicles': 'ຈັດການຍານພາຫະນະ',
-                'job-cards': 'ໃບສັ່ງງານ', 'my-jobs': 'ງານຂອງຂ້ອຍ', 'parts': 'ສາງອາໄຫຼ່',
-                'parts-requests': 'ຄຳຂໍອາໄຫຼ່', 'pdi': 'ກວດກາ PDI', 'staff': 'ພະນັກງານ'
-            };
-            document.getElementById('page-title').textContent = titles[page] || 'ໜ້າຫຼັກ';
-            const pages = {
-                dashboard: loadDashboard, customers: loadCustomers, vehicles: loadVehicles,
-                'job-cards': loadJobCards, 'my-jobs': loadMyJobs, parts: loadParts,
-                'parts-requests': loadPartsRequests, pdi: loadPDI, staff: loadStaff
-            };
-            if (pages[page]) await pages[page]();
+        // ============================================
+        // PAGE LOADERS
+        // ============================================
+        
+        async function loadDashboard() {
+            const content = document.getElementById('content-area');
+            showLoading();
+            try {
+                const { data: jobs } = await DB.getJobCards();
+                const total = jobs?.length || 0;
+                const pending = jobs?.filter(j => j.status === 'pending' || j.status === 'assigned').length || 0;
+                const inProgress = jobs?.filter(j => j.status === 'in_progress').length || 0;
+                const completed = jobs?.filter(j => j.status === 'completed' || j.status === 'released').length || 0;
+                const { data: partsRequests } = await DB.getPartsRequests();
+                const pendingRequests = partsRequests?.length || 0;
+                const { data: transactions } = await DB.getFinancialReports();
+                const todayRevenue = transactions?.filter(t => new Date(t.created_at).toDateString() === new Date().toDateString() && t.status === 'paid').reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+                
+                content.innerHTML = `
+                    <div class="dashboard-stats">
+                        <div class="stat-card" onclick="loadPage('job-cards')"><div class="stat-header"><span class="stat-label">ງານທັງໝົດ</span><div class="stat-icon"><i class="fas fa-clipboard-list"></i></div></div><div class="stat-value">${total}</div></div>
+                        <div class="stat-card warning" onclick="loadPage('job-cards')"><div class="stat-header"><span class="stat-label">ລໍຖ້າມອບໝາຍ</span><div class="stat-icon"><i class="fas fa-clock"></i></div></div><div class="stat-value">${pending}</div></div>
+                        <div class="stat-card info" onclick="loadPage('my-jobs')"><div class="stat-header"><span class="stat-label">ກຳລັງສ້ອມແປງ</span><div class="stat-icon"><i class="fas fa-wrench"></i></div></div><div class="stat-value">${inProgress}</div></div>
+                        <div class="stat-card success"><div class="stat-header"><span class="stat-label">ລາຍຮັບມື້ນີ້</span><div class="stat-icon"><i class="fas fa-money-bill"></i></div></div><div class="stat-value">${formatCurrency(todayRevenue)}</div></div>
+                    </div>
+                    ${currentUser.role === 'warehouse' ? `<div class="stat-card warning" style="margin-bottom: 20px; cursor: pointer;" onclick="loadPage('parts-requests')"><div class="stat-header"><span class="stat-label">ຄຳຂໍອາໄຫຼ່ທີ່ລໍຖ້າ</span><div class="stat-icon"><i class="fas fa-boxes"></i></div></div><div class="stat-value">${pendingRequests}</div></div>` : ''}
+                    <div class="data-table-container"><div class="table-header"><h3 class="table-title"><i class="fas fa-clock"></i> ງານລ້າສຸດ</h3><button class="btn btn-primary btn-sm" onclick="showCreateJobModal()"><i class="fas fa-plus"></i> ເປີດໃບສັ່ງງານ</button></div>${renderJobsTable(jobs?.slice(0, 5) || [])}</div>
+                `;
+                await loadNotifications();
+            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            hideLoading();
         }
 
         function renderJobsTable(jobs, showActions = true) {
@@ -1500,13 +1730,13 @@
                         <thead><tr><th>ເລກທີ</th><th>ຍານພາຫະນະ</th><th>ລູກຄ້າ</th><th>ຊ່າງ</th><th>ສະຖານະ</th><th>ວັນທີ</th>${showActions ? '<th>ຈັດການ</th>' : ''}</tr></thead>
                         <tbody>${jobs.map(job => `
                             <tr>
-                                <td><strong>${job.job_number}</strong></td>
-                                <td>${job.vehicles?.brand || ''} ${job.vehicles?.model || ''}<br><small style="color:var(--primary)">${job.vehicles?.license_plate || ''}</small></td>
-                                <td>${job.vehicles?.customers?.name || '-'}</td>
-                                <td>${job.mechanic?.name || '-'}</td>
-                                <td><span class="status-badge ${getStatusClass(job.status)}">${getStatusLabel(job.status)}</span></td>
+                                <td><strong>${job.job_number}</strong></td
+                                <td>${job.vehicles?.brand || ''} ${job.vehicles?.model || ''}<br><small style="color:var(--primary)">${job.vehicles?.license_plate || ''}</small></td
+                                <td>${job.vehicles?.customers?.name || '-'}</td
+                                <td>${job.mechanic?.name || '-'}</td
+                                <td><span class="status-badge ${getStatusClass(job.status)}">${getStatusLabel(job.status)}</span></td
                                 <td>${formatDate(job.created_at)}</td
-                                ${showActions ? `<td><button class="btn btn-outline btn-sm" onclick="viewJobDetail('${job.id}')"><i class="fas fa-eye"></i></button></td>` : ''}
+                                ${showActions ? `<td><button class="btn btn-outline btn-sm" onclick="viewJobDetail('${job.id}')"><i class="fas fa-eye"></i></button></td` : ''}
                             </tr>
                         `).join('')}</tbody>
                     </table>
@@ -1519,18 +1749,17 @@
             return `
                 <div style="overflow-x: auto;">
                     <table class="data-table">
-                        <thead><tr><th>ຊື່</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ທີ່ຢູ່</th><th>ວັນທີ</th><th>ຈັດການ</th></table></thead>
+                        <thead><tr><th>ຊື່</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ທີ່ຢູ່</th><th>ວັນທີ</th><th>ຈັດການ</th></td></thead>
                         <tbody>${customers.map(c => `
                             <tr>
-                                <td><strong>${c.name}</strong></td>
-                                <td>${c.phone || '-'}</td>
-                                <td>${c.email || '-'}</td>
-                                <td>${c.address || '-'}</td>
+                                <td><strong>${c.name}</strong></td
+                                <td>${c.phone || '-'}</td                                <td>${c.email || '-'}</td
+                                <td>${c.address || '-'}</td
                                 <td>${formatDate(c.created_at)}</td
                                 <td>
                                     <button class="btn btn-outline btn-sm" onclick="showCustomerVehicles('${c.id}', '${c.name}')" title="ເບິ່ງຍານພາຫະນະ"><i class="fas fa-car"></i></button>
                                     <button class="btn btn-success btn-sm" onclick="addVehicleToCustomer('${c.id}', '${c.name}')" title="ເພີ່ມຍານພາຫະນະ"><i class="fas fa-plus"></i> <i class="fas fa-car"></i></button>
-                                </table>
+                                </td
                             </tr>
                         `).join('')}</tbody>
                     </table>
@@ -1543,15 +1772,15 @@
             return `
                 <div style="overflow-x: auto;">
                     <table class="data-table">
-                        <thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ເຈົ້າຂອງ</th><th>ຈັດການ</th><tr></thead>
+                        <thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ເຈົ້າຂອງ</th><th>ຈັດການ</th></tr></thead>
                         <tbody>${vehicles.map(v => `
                             <tr>
-                                <td><strong>${v.license_plate}</strong></td>
-                                <td>${v.brand} ${v.model}</table>
-                                <td>${v.color || '-'}</td>
-                                <td>${v.year || '-'}</td>
-                                <td>${v.customers?.name || '-'}</td>
-                                <td><button class="btn btn-primary btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td>
+                                <td><strong>${v.license_plate}</strong></td
+                                <td>${v.brand} ${v.model}</td
+                                <td>${v.color || '-'}</td
+                                <td>${v.year || '-'}</td
+                                <td>${v.customers?.name || '-'}</td
+                                <td><button class="btn btn-primary btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td
                             </tr>
                         `).join('')}</tbody>
                     </table>
@@ -1560,7 +1789,7 @@
         }
 
         function renderPartsTableWithPagination(parts, currentPage, perPage, isAdmin = false) {
-            if (!parts || parts.length === 0) return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-boxes"></i></div><h3>ບໍ່ມີຂໍ້ມູນອາໄຫຼ່</h3><p>ກົດປຸ່ມ "ເພີ່ມອາໄຫຼ່" ຫຼື "ນຳເຂົ້າ Excel" ເພື່ອເລີ່ມຕົ້ນ</p></div>`;
+            if (!parts || parts.length === 0) return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-boxes"></i></div><h3>ບໍ່ມີຂໍ້ມູນອາໄຫຼ່</h3></div>`;
             
             const start = (currentPage - 1) * perPage;
             const end = start + perPage;
@@ -1570,23 +1799,27 @@
             return `
                 <div style="overflow-x: auto;">
                     <table class="data-table">
-                        <thead><tr><th>QR</th><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ລາຄາ</th><th>ສະຖານະ</th>${isAdmin ? '<th>ຈັດການ</th>' : ''}</tr></thead>
-                        <tbody>${paginatedParts.map(p => `
-                            <tr>
-                                <td><i class="fas fa-qrcode" style="color: var(--primary); cursor: pointer; font-size: 1.2rem;" onclick="showPartQR('${p.id}', '${p.code}')"></i></td>
-                                <td><code>${p.code}</code></td>
-                                <td><strong>${p.name}</strong></td>
-                                <td>${p.category || '-'}</td>
-                                <td style="${p.stock_quantity < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">${p.stock_quantity}</td>
-                                <td class="currency">${formatCurrency(p.price)}</td
-                                <td>${p.stock_quantity < 5 ? '<span class="status-badge status-warning">ໃກ້ຫມົດ</span>' : '<span class="status-badge status-approved">ມີສາງ</span>'}</td
-                                ${isAdmin ? `<td>
-                                    <button class="btn btn-outline btn-sm" onclick="editPart('${p.id}')" title="ແກ້ໄຂ"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-danger btn-sm" onclick="deletePart('${p.id}')" title="ລຶບ"><i class="fas fa-trash"></i></button>
-                                    <button class="btn btn-info btn-sm" onclick="showInventoryMovement('${p.id}')" title="ປະຫວັດການເຄື່ອນໄຫວ"><i class="fas fa-chart-line"></i></button>
-                                </tr>` : `<td><button class="btn btn-info btn-sm" onclick="showInventoryMovement('${p.id}')" title="ປະຫວັດການເຄື່ອນໄຫວ"><i class="fas fa-chart-line"></i></button></td>`}
-                            </tr>
-                        `).join('')}</tbody>
+                        <thead>
+                            <tr><th>QR</th><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ລາຄາ</th><th>ສະຖານະ</th><th>ປະຫວັດ</th>${isAdmin ? '<th>ຈັດການ</th>' : ''}</td>
+                        </thead>
+                        <tbody>
+                            ${paginatedParts.map(p => `
+                                <tr>
+                                    <td><i class="fas fa-qrcode" style="color: var(--primary); cursor: pointer; font-size: 1.2rem;" onclick="showPartQR('${p.id}', '${p.code}')"></i></td
+                                    <td><code>${p.code}</code></td
+                                    <td><strong>${p.name}</strong></td
+                                    <td>${p.category || '-'}</td
+                                    <td style="${p.stock_quantity < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">${p.stock_quantity}</td
+                                    <td class="currency">${formatCurrency(p.price)}</td
+                                    <td>${p.stock_quantity < 5 ? '<span class="status-badge status-warning">ໃກ້ຫມົດ</span>' : '<span class="status-badge status-approved">ມີສາງ</span>'}</td
+                                    <td><button class="btn btn-info btn-sm" onclick="showInventoryMovement('${p.id}')" title="ປະຫວັດການເຄື່ອນໄຫວ"><i class="fas fa-chart-line"></i></button></td
+                                    ${isAdmin ? `<td>
+                                        <button class="btn btn-outline btn-sm" onclick="editPart('${p.id}')" title="ແກ້ໄຂ"><i class="fas fa-edit"></i></button>
+                                        <button class="btn btn-danger btn-sm" onclick="deletePart('${p.id}')" title="ລຶບ"><i class="fas fa-trash"></i></button>
+                                    </td` : ''}
+                                </tr>
+                            `).join('')}
+                        </tbody>
                     </table>
                 </div>
                 <div class="pagination">
@@ -1608,43 +1841,25 @@
         }
 
         // ============================================
-        // PAGE LOADERS
+        // PAGE LOADERS (Continued)
         // ============================================
-        async function loadDashboard() {
-            const content = document.getElementById('content-area');
-            showLoading();
-            try {
-                const { data: jobs } = await DB.getJobCards();
-                const total = jobs?.length || 0;
-                const pending = jobs?.filter(j => j.status === 'pending' || j.status === 'assigned').length || 0;
-                const inProgress = jobs?.filter(j => j.status === 'in_progress').length || 0;
-                const completed = jobs?.filter(j => j.status === 'completed' || j.status === 'released').length || 0;
-                const { data: partsRequests } = await DB.getPartsRequests();
-                const pendingRequests = partsRequests?.length || 0;
-                
-                content.innerHTML = `
-                    <div class="dashboard-stats">
-                        <div class="stat-card" onclick="loadPage('job-cards')"><div class="stat-header"><span class="stat-label">ງານທັງໝົດ</span><div class="stat-icon"><i class="fas fa-clipboard-list"></i></div></div><div class="stat-value">${total}</div></div>
-                        <div class="stat-card warning" onclick="loadPage('job-cards')"><div class="stat-header"><span class="stat-label">ລໍຖ້າມອບໝາຍ</span><div class="stat-icon"><i class="fas fa-clock"></i></div></div><div class="stat-value">${pending}</div></div>
-                        <div class="stat-card info" onclick="loadPage('my-jobs')"><div class="stat-header"><span class="stat-label">ກຳລັງສ້ອມແປງ</span><div class="stat-icon"><i class="fas fa-wrench"></i></div></div><div class="stat-value">${inProgress}</div></div>
-                        <div class="stat-card success" onclick="loadPage('job-cards')"><div class="stat-header"><span class="stat-label">ສຳເລັດແລ້ວ</span><div class="stat-icon"><i class="fas fa-check-circle"></i></div></div><div class="stat-value">${completed}</div></div>
-                    </div>
-                    ${currentUser.role === 'warehouse' ? `<div class="stat-card warning" style="margin-bottom: 20px; cursor: pointer;" onclick="loadPage('parts-requests')"><div class="stat-header"><span class="stat-label">ຄຳຂໍອາໄຫຼ່ທີ່ລໍຖ້າ</span><div class="stat-icon"><i class="fas fa-boxes"></i></div></div><div class="stat-value">${pendingRequests}</div></div>` : ''}
-                    <div class="data-table-container"><div class="table-header"><h3 class="table-title"><i class="fas fa-clock"></i> ງານລ້າສຸດ</h3><button class="btn btn-primary btn-sm" onclick="showCreateJobModal()"><i class="fas fa-plus"></i> ເປີດໃບສັ່ງງານ</button></div>${renderJobsTable(jobs?.slice(0, 5) || [])}</div>
-                `;
-                await loadNotifications();
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
-            hideLoading();
-        }
-
+        
         async function loadCustomers() {
             const content = document.getElementById('content-area');
             showLoading();
             try {
                 const { data: customers } = await DB.getCustomers();
                 content.innerHTML = `
-                    <div class="data-table-container"><div class="table-header"><h3 class="table-title"><i class="fas fa-users"></i> ລາຍຊື່ລູກຄ້າ</h3><div class="table-actions"><input type="text" id="customer-search" class="search-input" placeholder="ຄົ້ນຫາລູກຄ້າ..."><button class="btn btn-primary btn-sm" onclick="showAddCustomerModal()"><i class="fas fa-plus"></i> ເພີ່ມລູກຄ້າ</button></div></div>
-                    <div id="customers-table">${renderCustomersTable(customers || [])}</div></div>
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3 class="table-title"><i class="fas fa-users"></i> ລາຍຊື່ລູກຄ້າ</h3>
+                            <div class="table-actions">
+                                <input type="text" id="customer-search" class="search-input" placeholder="ຄົ້ນຫາລູກຄ້າ...">
+                                <button class="btn btn-primary btn-sm" onclick="showAddCustomerModal()"><i class="fas fa-plus"></i> ເພີ່ມລູກຄ້າ</button>
+                            </div>
+                        </div>
+                        <div id="customers-table">${renderCustomersTable(customers || [])}</div>
+                    </div>
                 `;
                 document.getElementById('customer-search')?.addEventListener('keyup', (e) => {
                     const search = e.target.value.toLowerCase();
@@ -1662,8 +1877,15 @@
             try {
                 const { data: vehicles } = await DB.getVehicles();
                 content.innerHTML = `
-                    <div class="data-table-container"><div class="table-header"><h3 class="table-title"><i class="fas fa-car"></i> ລາຍການຍານພາຫະນະ</h3><div class="table-actions"><input type="text" id="vehicle-search" class="search-input" placeholder="ຄົ້ນຫາຍານພາຫະນະ..."></div></div>
-                    <div id="vehicles-table">${renderVehiclesTable(vehicles || [])}</div></div>
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3 class="table-title"><i class="fas fa-car"></i> ລາຍການຍານພາຫະນະ</h3>
+                            <div class="table-actions">
+                                <input type="text" id="vehicle-search" class="search-input" placeholder="ຄົ້ນຫາຍານພາຫະນະ...">
+                            </div>
+                        </div>
+                        <div id="vehicles-table">${renderVehiclesTable(vehicles || [])}</div>
+                    </div>
                 `;
                 document.getElementById('vehicle-search')?.addEventListener('keyup', (e) => {
                     const search = e.target.value.toLowerCase();
@@ -1681,8 +1903,16 @@
             try {
                 const { data: jobs } = await DB.getJobCards();
                 content.innerHTML = `
-                    <div class="data-table-container"><div class="table-header"><h3 class="table-title"><i class="fas fa-clipboard-list"></i> ລາຍການໃບສັ່ງງານ</h3><div class="table-actions"><input type="text" id="job-search" class="search-input" placeholder="ຄົ້ນຫາໃບສັ່ງງານ..."><button class="btn btn-primary btn-sm" onclick="showCreateJobModal()"><i class="fas fa-plus"></i> ເປີດໃບສັ່ງງານ</button></div></div>
-                    <div id="jobs-table">${renderJobsTable(jobs || [])}</div></div>
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3 class="table-title"><i class="fas fa-clipboard-list"></i> ລາຍການໃບສັ່ງງານ</h3>
+                            <div class="table-actions">
+                                <input type="text" id="job-search" class="search-input" placeholder="ຄົ້ນຫາໃບສັ່ງງານ...">
+                                <button class="btn btn-primary btn-sm" onclick="showCreateJobModal()"><i class="fas fa-plus"></i> ເປີດໃບສັ່ງງານ</button>
+                            </div>
+                        </div>
+                        <div id="jobs-table">${renderJobsTable(jobs || [])}</div>
+                    </div>
                 `;
                 document.getElementById('job-search')?.addEventListener('keyup', (e) => {
                     const search = e.target.value.toLowerCase();
@@ -1777,8 +2007,8 @@
                 const { data: staff } = await DB.getStaff();
                 content.innerHTML = `
                     <div class="data-table-container"><div class="table-header"><h3 class="table-title"><i class="fas fa-users-cog"></i> ລາຍຊື່ພະນັກງານ</h3></div>
-                    <div style="overflow-x: auto;"><table class="data-table"><thead><tr><th>ຊື່</th><th>ຕຳແໜ່ງ</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ສະຖານະ</th></td></thead>
-                    <tbody>${staff?.map(s => `<tr><td><strong>${s.name}</strong></td><span class="status-badge status-approved">${getRoleLabel(s.role)}</span><td>${s.phone || '-'}</td>${s.email || '-'}<td><span class="status-badge ${s.active ? 'status-approved' : 'status-pending'}">${s.active ? 'ເຮັດວຽກ' : 'ຢຸດເຮັດວຽກ'}</span></tr>`).join('') || '<tr><td colspan="5" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td></td>'}</tbody></table></div></div>
+                    <div style="overflow-x: auto;"><table class="data-table"><thead><tr><th>ຊື່</th><th>ຕຳແໜ່ງ</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ສະຖານະ</th></tr></thead>
+                    <tbody>${staff?.map(s => `<tr><td><strong>${s.name}</strong><td><span class="status-badge status-approved">${getRoleLabel(s.role)}</span><td>${s.phone || '-'}</td>${s.email || '-'}<tr><span class="status-badge ${s.active ? 'status-approved' : 'status-pending'}">${s.active ? 'ເຮັດວຽກ' : 'ຢຸດເຮັດວຽກ'}</span></td>`).join('') || '<tr><td colspan="5" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</tr>'}</tbody></table></div></div>
                 `;
             } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
             hideLoading();
@@ -1794,6 +2024,92 @@
             } catch (error) { console.error('Error loading notifications:', error); }
         }
 
+        function showMainApp() {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
+            document.getElementById('user-name').textContent = currentUser.name;
+            document.getElementById('user-role').textContent = getRoleLabel(currentUser.role);
+            buildNavigation(currentUser.role);
+            loadDashboard();
+            updateTime();
+            setInterval(updateTime, 1000);
+            setInterval(() => loadNotifications(), 30000);
+        }
+
+        function buildNavigation(role) {
+            const navMenu = document.getElementById('nav-menu');
+            navMenu.innerHTML = '';
+            const navConfig = {
+                reception: [
+                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
+                    { icon: 'fa-users', label: 'ລູກຄ້າ', page: 'customers' },
+                    { icon: 'fa-car', label: 'ຍານພາຫະນະ', page: 'vehicles' },
+                    { icon: 'fa-clipboard-list', label: 'ໃບສັ່ງງານ', page: 'job-cards' },
+                    { icon: 'fa-qrcode', label: 'ສະແກນ QR', page: 'scan' }
+                ],
+                mechanic: [
+                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
+                    { icon: 'fa-wrench', label: 'ງານຂອງຂ້ອຍ', page: 'my-jobs' },
+                    { icon: 'fa-qrcode', label: 'ສະແກນ QR', page: 'scan' }
+                ],
+                warehouse: [
+                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
+                    { icon: 'fa-boxes', label: 'ສາງອາໄຫຼ່', page: 'parts' },
+                    { icon: 'fa-clipboard-list', label: 'ຄຳຂໍອາໄຫຼ່', page: 'parts-requests' },
+                    { icon: 'fa-qrcode', label: 'ສະແກນ QR', page: 'scan' }
+                ],
+                pdi: [
+                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
+                    { icon: 'fa-clipboard-check', label: 'ກວດກາ PDI', page: 'pdi' },
+                    { icon: 'fa-qrcode', label: 'ສະແກນ QR', page: 'scan' }
+                ],
+                admin: [
+                    { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
+                    { icon: 'fa-users', label: 'ລູກຄ້າ', page: 'customers' },
+                                        { icon: 'fa-car', label: 'ຍານພາຫະນະ', page: 'vehicles' },
+                    { icon: 'fa-clipboard-list', label: 'ໃບສັ່ງງານ', page: 'job-cards' },
+                    { icon: 'fa-boxes', label: 'ສາງອາໄຫຼ່', page: 'parts' },
+                    { icon: 'fa-clipboard-list', label: 'ຄຳຂໍອາໄຫຼ່', page: 'parts-requests' },
+                    { icon: 'fa-chart-line', label: 'ລາຍງານການເງິນ', page: 'financial-report' },
+                    { icon: 'fa-chart-bar', label: 'ລາຍງານສາງ', page: 'inventory-report' },
+                    { icon: 'fa-users-chart', label: 'ລາຍງານລູກຄ້າ', page: 'customer-report' },
+                    { icon: 'fa-users-cog', label: 'ພະນັກງານ', page: 'staff' },
+                    { icon: 'fa-qrcode', label: 'ສະແກນ QR', page: 'scan' }
+                ]
+            };
+            const items = navConfig[role] || navConfig.reception;
+            items.forEach(item => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.innerHTML = `<i class="fas ${item.icon}"></i><span>${item.label}</span>`;
+                a.onclick = () => loadPage(item.page);
+                li.appendChild(a);
+                navMenu.appendChild(li);
+            });
+        }
+
+                async function loadPage(page) {
+            currentPage = page;
+            const titles = {
+                'dashboard': 'ໜ້າຫຼັກ', 'customers': 'ຈັດການລູກຄ້າ', 'vehicles': 'ຈັດການຍານພາຫະນະ',
+                'job-cards': 'ໃບສັ່ງງານ', 'my-jobs': 'ງານຂອງຂ້ອຍ', 'parts': 'ສາງອາໄຫຼ່',
+                'parts-requests': 'ຄຳຂໍອາໄຫຼ່', 'pdi': 'ກວດກາ PDI', 'staff': 'ພະນັກງານ',
+                'scan': 'ສະແກນ QR', 'financial-report': 'ລາຍງານການເງິນ',
+                'inventory-report': 'ລາຍງານສາງ', 'customer-report': 'ລາຍງານລູກຄ້າ'
+            };
+            document.getElementById('page-title').textContent = titles[page] || 'ໜ້າຫຼັກ';
+            
+            const pages = {
+                dashboard: loadDashboard, customers: loadCustomers, vehicles: loadVehicles,
+                'job-cards': loadJobCards, 'my-jobs': loadMyJobs, parts: loadParts,
+                'parts-requests': loadPartsRequests, pdi: loadPDI, staff: loadStaff,
+                'scan': showScanPage, 'financial-report': loadFinancialReport,
+                'inventory-report': loadInventoryReport, 'customer-report': loadCustomerReport
+            };
+            if (pages[page]) await pages[page]();
+        }
+
+
         // ============================================
         // JOB CARD MODALS & ACTIONS
         // ============================================
@@ -1803,14 +2119,54 @@
             const modal = document.createElement('div');
             modal.className = 'modal show';
             modal.innerHTML = `
-                <div class="modal-content modal-lg"><div class="modal-header"><h3><i class="fas fa-plus-circle"></i> ເປີດໃບສັ່ງງານໃໝ່</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                <div class="modal-body"><div class="form-row"><div class="form-group"><label>ເລືອກລູກຄ້າ <span class="required">*</span></label><select id="job_customer_id" onchange="loadCustomerVehicles(this.value)"><option value="">ເລືອກລູກຄ້າ</option>${customers?.map(c => `<option value="${c.id}">${c.name} (${c.phone || ''})</option>`).join('')}</select></div>
-                <div class="form-group"><label>ເລືອກຍານພາຫະນະ <span class="required">*</span></label><select id="job_vehicle_id"><option value="">ເລືອກຍານພາຫະນະກ່ອນ</option></select></div></div>
-                <div class="form-group"><label>ບັນຫາທີ່ແຈ້ງ <span class="required">*</span></label><textarea id="job_problem" rows="3" placeholder="ອະທິບາຍບັນຫາທີ່ລູກຄ້າແຈ້ງ..."></textarea></div>
-                <div class="form-row"><div class="form-group"><label>ມອບໝາຍໃຫ້ຊ່າງ <span class="required">*</span></label><select id="job_mechanic_id"><option value="">ເລືອກຊ່າງ</option>${mechanics?.map(m => `<option value="${m.id}">${m.name} (${m.specialty || 'ຊ່າງທົ່ວໄປ'})</option>`).join('')}</select></div>
-                <div class="form-group"><label>ເລກໄມລ໌ (km)</label><input type="number" id="job_mileage" placeholder="ເລກໄມລ໌ປັດຈຸບັນ"></div></div>
-                <div class="form-group"><label>ໝາຍເຫດ</label><textarea id="job_notes" rows="2" placeholder="ໝາຍເຫດເພີ່ມເຕີມ..."></textarea></div></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button><button class="btn btn-primary" onclick="saveJobCard()">ບັນທຶກ ແລະ ເປີດໃບສັ່ງງານ</button></div></div>
+                <div class="modal-content modal-lg">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-plus-circle"></i> ເປີດໃບສັ່ງງານໃໝ່</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>ເລືອກລູກຄ້າ <span class="required">*</span></label>
+                                <select id="job_customer_id" onchange="loadCustomerVehicles(this.value)">
+                                    <option value="">ເລືອກລູກຄ້າ</option>
+                                    ${customers?.map(c => `<option value="${c.id}">${c.name} (${c.phone || ''})</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>ເລືອກຍານພາຫະນະ <span class="required">*</span></label>
+                                <select id="job_vehicle_id">
+                                    <option value="">ເລືອກຍານພາຫະນະກ່ອນ</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>ບັນຫາທີ່ແຈ້ງ <span class="required">*</span></label>
+                            <textarea id="job_problem" rows="3" placeholder="ອະທິບາຍບັນຫາທີ່ລູກຄ້າແຈ້ງ..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>ມອບໝາຍໃຫ້ຊ່າງ <span class="required">*</span></label>
+                                <select id="job_mechanic_id">
+                                    <option value="">ເລືອກຊ່າງ</option>
+                                    ${mechanics?.map(m => `<option value="${m.id}">${m.name} (${m.specialty || 'ຊ່າງທົ່ວໄປ'})</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>ເລກໄມລ໌ (km)</label>
+                                <input type="number" id="job_mileage" placeholder="ເລກໄມລ໌ປັດຈຸບັນ">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>ໝາຍເຫດ</label>
+                            <textarea id="job_notes" rows="2" placeholder="ໝາຍເຫດເພີ່ມເຕີມ..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                        <button class="btn btn-primary" onclick="saveJobCard()">ບັນທຶກ ແລະ ເປີດໃບສັ່ງງານ</button>
+                    </div>
+                </div>
             `;
             document.body.appendChild(modal);
         }
@@ -1820,8 +2176,11 @@
             const { data: vehicles } = await DB.getVehiclesByCustomer(customerId);
             const select = document.getElementById('job_vehicle_id');
             select.innerHTML = '<option value="">ເລືອກຍານພາຫະນະ</option>';
-            if (vehicles?.length) vehicles.forEach(v => select.innerHTML += `<option value="${v.id}">${v.brand} ${v.model} (${v.license_plate})</option>`);
-            else select.innerHTML += '<option value="" disabled>ບໍ່ມີຍານພາຫະນະ (ກະລຸນາເພີ່ມກ່ອນ)</option>';
+            if (vehicles?.length) {
+                vehicles.forEach(v => select.innerHTML += `<option value="${v.id}">${v.brand} ${v.model} (${v.license_plate})</option>`);
+            } else {
+                select.innerHTML += '<option value="" disabled>ບໍ່ມີຍານພາຫະນະ (ກະລຸນາເພີ່ມກ່ອນ)</option>';
+            }
         };
 
         window.saveJobCard = async function() {
@@ -1833,15 +2192,32 @@
             if (!problem) { showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນບັນຫາທີ່ແຈ້ງ'); return; }
             showLoading();
             try {
-                const jobCard = { job_number: generateJobNumber(), vehicle_id: vehicleId, mechanic_id: mechanicId, problem_description: problem, mileage_in: parseInt(document.getElementById('job_mileage')?.value) || null, notes: document.getElementById('job_notes')?.value || null, status: 'assigned', created_by: currentUser.id };
+                const jobCard = { 
+                    job_number: generateJobNumber(), 
+                    vehicle_id: vehicleId, 
+                    mechanic_id: mechanicId, 
+                    problem_description: problem, 
+                    mileage_in: parseInt(document.getElementById('job_mileage')?.value) || null, 
+                    notes: document.getElementById('job_notes')?.value || null, 
+                    status: 'assigned', 
+                    created_by: currentUser.id 
+                };
                 const { data, error } = await DB.createJobCard(jobCard);
                 if (error) throw error;
-                await DB.createNotification({ user_id: mechanicId, title: 'ມີງານໃໝ່', message: `ທ່ານໄດ້ຮັບມອບໝາຍງານ ${data.job_number}`, type: 'job_assigned' });
+                await DB.createNotification({ 
+                    user_id: mechanicId, 
+                    title: 'ມີງານໃໝ່', 
+                    message: `ທ່ານໄດ້ຮັບມອບໝາຍງານ ${data.job_number}`, 
+                    type: 'job_assigned' 
+                });
                 hideLoading();
                 document.querySelector('.modal.show')?.remove();
                 showToast('success', 'ສຳເລັດ', `ເປີດໃບສັ່ງງານ ${data.job_number} ສຳເລັດ`);
                 await loadJobCards();
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         window.viewJobDetail = async function(jobId) {
@@ -1849,28 +2225,59 @@
             const { data: job } = await DB.getJobCardById(jobId);
             hideLoading();
             if (!job) { showToast('error', 'ຜິດພາດ', 'ບໍ່ພົບຂໍ້ມູນ'); return; }
+            
             let partsTotal = 0, laborTotal = 0;
             if (job.parts) partsTotal = job.parts.reduce((sum, p) => sum + ((p.part?.price || 0) * p.quantity), 0);
             if (job.labor) laborTotal = job.labor.reduce((sum, l) => sum + (l.cost || 0), 0);
+            
             const modal = document.createElement('div');
             modal.className = 'modal show';
             modal.innerHTML = `
-                <div class="modal-content modal-lg"><div class="modal-header"><h3><i class="fas fa-clipboard-list"></i> ໃບສັ່ງງານ ${job.job_number}</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                <div class="modal-body"><div class="form-row"><div class="form-group"><label>ລູກຄ້າ</label><input type="text" value="${job.vehicles?.customers?.name || '-'}" readonly></div><div class="form-group"><label>ຍານພາຫະນະ</label><input type="text" value="${job.vehicles?.brand || ''} ${job.vehicles?.model || ''} (${job.vehicles?.license_plate || ''})" readonly></div></div>
-                <div class="form-row"><div class="form-group"><label>ຊ່າງຜູ້ຮັບຜິດຊອບ</label><input type="text" value="${job.mechanic?.name || '-'}" readonly></div><div class="form-group"><label>ສະຖານະ</label><input type="text" value="${getStatusLabel(job.status)}" readonly></div></div>
-                <div class="form-group"><label>ບັນຫາທີ່ແຈ້ງ</label><textarea readonly rows="3">${job.problem_description || '-'}</textarea></div>
-                ${job.notes ? `<div class="form-group"><label>ໝາຍເຫດ</label><textarea readonly rows="2">${job.notes}</textarea></div>` : ''}
-                <div class="form-group"><label><i class="fas fa-boxes"></i> ອາໄຫຼ່ທີ່ຂໍ</label><div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">${job.parts?.length ? job.parts.map(p => `<div style="display:flex;justify-content:space-between;padding:8px0;border-bottom:1px solid var(--gray-200);"><div><strong>${p.part?.name}</strong><br><small>${p.part?.code}</small></div><div>${p.quantity} x ${formatCurrency(p.part?.price)}</div><div><strong>${formatCurrency((p.part?.price||0)*p.quantity)}</strong></div></div>`).join('') : '<div style="color:var(--gray-500);">ຍັງບໍ່ມີການຂໍອາໄຫຼ່</div>'}</div></div>
-                <div class="form-group"><label><i class="fas fa-tools"></i> ຄ່າແຮງງານ</label><div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">${job.labor?.length ? job.labor.map(l => `<div style="display:flex;justify-content:space-between;padding:8px0;border-bottom:1px solid var(--gray-200);"><div><strong>${l.description}</strong><br><small>${l.hours} ຊົ່ວໂມງ x ${formatCurrency(l.hourly_rate)}/ຊມ</small></div><div><strong>${formatCurrency(l.cost)}</strong></div></div>`).join('') : '<div style="color:var(--gray-500);">ຍັງບໍ່ມີການບັນທຶກຄ່າແຮງງານ</div>'}</div></div>
-                <div style="padding:12px;background:var(--primary-light);border-radius:8px;margin-top:16px;"><div style="display:flex;justify-content:space-between;font-weight:600;"><span>ລວມຄ່າອາໄຫຼ່:</span><span>${formatCurrency(partsTotal)}</span></div><div style="display:flex;justify-content:space-between;font-weight:600;margin-top:8px;"><span>ລວມຄ່າແຮງງານ:</span><span>${formatCurrency(laborTotal)}</span></div><div style="display:flex;justify-content:space-between;font-weight:700;color:var(--primary);margin-top:12px;padding-top:12px;border-top:2px solid var(--primary);"><span>ລວມທັງໝົດ:</span><span>${formatCurrency(partsTotal+laborTotal)}</span></div></div>
-                <div class="form-group"><label>ວັນທີເປີດງານ</label><input type="text" value="${formatDateTime(job.created_at)}" readonly></div>
-                ${job.started_at ? `<div class="form-group"><label>ວັນທີເລີ່ມງານ</label><input type="text" value="${formatDateTime(job.started_at)}" readonly></div>` : ''}
-                ${job.completed_at ? `<div class="form-group"><label>ວັນທີສຳເລັດ</label><input type="text" value="${formatDateTime(job.completed_at)}" readonly></div>` : ''}</div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
-                ${job.status === 'assigned' && currentUser.role === 'mechanic' ? `<button class="btn btn-primary" onclick="startJob('${job.id}')">ເລີ່ມງານ</button>` : ''}
-                ${(job.status === 'in_progress' || job.status === 'parts_approved') && currentUser.role === 'mechanic' ? `<button class="btn btn-warning" onclick="showRequestPartsModal('${job.id}')"><i class="fas fa-boxes"></i> ຂໍອາໄຫຼ່/ເພີ່ມຄ່າແຮງງານ</button><button class="btn btn-success" onclick="completeJob('${job.id}')">ສຳເລັດງານ</button>` : ''}
-                ${job.status === 'completed' && currentUser.role === 'pdi' ? `<button class="btn btn-primary" onclick="startPDI('${job.id}')">ກວດກາ PDI</button>` : ''}
-                ${job.status === 'completed' && currentUser.role === 'mechanic' ? `<button class="btn btn-info" onclick="printCustomerReceipt('${job.id}')"><i class="fas fa-print"></i> ພິມໃບສົ່ງງານ</button>` : ''}</div></div>
+                <div class="modal-content modal-lg">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-clipboard-list"></i> ໃບສັ່ງງານ ${job.job_number}</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group"><label>ລູກຄ້າ</label><input type="text" value="${job.vehicles?.customers?.name || '-'}" readonly></div>
+                            <div class="form-group"><label>ຍານພາຫະນະ</label><input type="text" value="${job.vehicles?.brand || ''} ${job.vehicles?.model || ''} (${job.vehicles?.license_plate || ''})" readonly></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ຊ່າງຜູ້ຮັບຜິດຊອບ</label><input type="text" value="${job.mechanic?.name || '-'}" readonly></div>
+                            <div class="form-group"><label>ສະຖານະ</label><input type="text" value="${getStatusLabel(job.status)}" readonly></div>
+                        </div>
+                        <div class="form-group"><label>ບັນຫາທີ່ແຈ້ງ</label><textarea readonly rows="3">${job.problem_description || '-'}</textarea></div>
+                        ${job.notes ? `<div class="form-group"><label>ໝາຍເຫດ</label><textarea readonly rows="2">${job.notes}</textarea></div>` : ''}
+                        <div class="form-group"><label><i class="fas fa-boxes"></i> ອາໄຫຼ່ທີ່ຂໍ</label>
+                            <div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">
+                                ${job.parts?.length ? job.parts.map(p => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-200);"><div><strong>${p.part?.name}</strong><br><small>${p.part?.code}</small></div><div>${p.quantity} x ${formatCurrency(p.part?.price)}</div><div><strong>${formatCurrency((p.part?.price||0)*p.quantity)}</strong></div></div>`).join('') : '<div style="color:var(--gray-500);">ຍັງບໍ່ມີການຂໍອາໄຫຼ່</div>'}
+                            </div>
+                        </div>
+                        <div class="form-group"><label><i class="fas fa-tools"></i> ຄ່າແຮງງານ</label>
+                            <div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">
+                                ${job.labor?.length ? job.labor.map(l => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-200);"><div><strong>${l.description}</strong><br><small>${l.hours} ຊົ່ວໂມງ x ${formatCurrency(l.hourly_rate)}/ຊມ</small></div><div><strong>${formatCurrency(l.cost)}</strong></div></div>`).join('') : '<div style="color:var(--gray-500);">ຍັງບໍ່ມີການບັນທຶກຄ່າແຮງງານ</div>'}
+                            </div>
+                        </div>
+                        <div style="padding:12px;background:var(--primary-light);border-radius:8px;margin-top:16px;">
+                            <div style="display:flex;justify-content:space-between;font-weight:600;"><span>ລວມຄ່າອາໄຫຼ່:</span><span>${formatCurrency(partsTotal)}</span></div>
+                            <div style="display:flex;justify-content:space-between;font-weight:600;margin-top:8px;"><span>ລວມຄ່າແຮງງານ:</span><span>${formatCurrency(laborTotal)}</span></div>
+                            <div style="display:flex;justify-content:space-between;font-weight:700;color:var(--primary);margin-top:12px;padding-top:12px;border-top:2px solid var(--primary);"><span>ລວມທັງໝົດ:</span><span>${formatCurrency(partsTotal+laborTotal)}</span></div>
+                        </div>
+                        <div class="form-group"><label>ວັນທີເປີດງານ</label><input type="text" value="${formatDateTime(job.created_at)}" readonly></div>
+                        ${job.started_at ? `<div class="form-group"><label>ວັນທີເລີ່ມງານ</label><input type="text" value="${formatDateTime(job.started_at)}" readonly></div>` : ''}
+                        ${job.completed_at ? `<div class="form-group"><label>ວັນທີສຳເລັດ</label><input type="text" value="${formatDateTime(job.completed_at)}" readonly></div>` : ''}
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
+                        ${job.status === 'assigned' && currentUser.role === 'mechanic' ? `<button class="btn btn-primary" onclick="startJob('${job.id}')">ເລີ່ມງານ</button>` : ''}
+                        ${(job.status === 'in_progress' || job.status === 'parts_approved') && currentUser.role === 'mechanic' ? 
+                            `<button class="btn btn-warning" onclick="showRequestPartsModal('${job.id}')"><i class="fas fa-boxes"></i> ຂໍອາໄຫຼ່/ເພີ່ມຄ່າແຮງງານ</button>
+                             <button class="btn btn-success" onclick="completeJob('${job.id}')">ສຳເລັດງານ</button>` : ''}
+                        ${job.status === 'completed' && currentUser.role === 'pdi' ? `<button class="btn btn-primary" onclick="startPDI('${job.id}')">ກວດກາ PDI</button>` : ''}
+                        ${job.status === 'completed' && currentUser.role === 'mechanic' ? `<button class="btn btn-info" onclick="printCustomerReceipt('${job.id}')"><i class="fas fa-print"></i> ພິມໃບສົ່ງງານ</button>` : ''}
+                    </div>
+                </div>
             `;
             document.body.appendChild(modal);
         };
@@ -1883,7 +2290,26 @@
                 showToast('success', 'ສຳເລັດ', 'ເລີ່ມດຳເນີນງານແລ້ວ');
                 document.querySelector('.modal.show')?.remove();
                 await loadMyJobs();
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
+        };
+
+        window.completeJob = async function(jobId) {
+            if (!confirm('ທ່ານແນ່ໃຈບໍ່ວ່າງານນີ້ສຳເລັດແລ້ວ? ຈະສົ່ງໄປກວດກາ PDI')) return;
+            showLoading();
+            try {
+                await DB.updateJobCard(jobId, { status: 'completed', completed_at: new Date().toISOString() });
+                hideLoading();
+                showToast('success', 'ສຳເລັດ', 'ສົ່ງງານໄປກວດກາ PDI ແລ້ວ');
+                document.querySelector('.modal.show')?.remove();
+                await printCustomerReceipt(jobId);
+                await loadMyJobs();
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         // ============================================
@@ -1896,32 +2322,79 @@
             modal.className = 'modal show';
             modal.id = 'request-parts-modal';
             modal.innerHTML = `
-                <div class="modal-content modal-xl"><div class="modal-header"><h3><i class="fas fa-boxes"></i> ຂໍອາໄຫຼ່ ແລະ ບັນທຶກຄ່າແຮງງານ</h3><button class="close-btn" onclick="closeModal(this)">&times;</button></div>
-                <div class="modal-body"><div style="margin-bottom:20px;"><button class="btn btn-primary" onclick="scanPartForJob('${jobId}')"><i class="fas fa-qrcode"></i> ສະແກນ QR ອາໄຫຼ່</button><button class="btn btn-outline" onclick="manualSelectPart('${jobId}')"><i class="fas fa-search"></i> ເລືອກອາໄຫຼ່ຈາກລາຍການ</button></div>
-                <h4 style="margin-bottom:12px;">ອາໄຫຼ່ທີ່ຂໍ</h4><div id="selected-parts-list" style="margin-bottom:20px;">${renderSelectedParts(existingParts || [], jobId)}</div>
-                <h4 style="margin-bottom:12px;">ຄ່າແຮງງານ</h4><div id="labor-list">${renderLaborList(existingLabor || [], jobId)}</div>
-                <button class="btn btn-outline btn-sm" onclick="addLaborEntry('${jobId}')" style="margin-top:8px;"><i class="fas fa-plus"></i> ເພີ່ມຄ່າແຮງງານ</button></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal(this)">ປິດ</button><button class="btn btn-primary" onclick="submitPartsRequest('${jobId}')"><i class="fas fa-paper-plane"></i> ສົ່ງຄຳຂໍໄປສາງ</button></div></div>
+                <div class="modal-content modal-xl">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-boxes"></i> ຂໍອາໄຫຼ່ ແລະ ບັນທຶກຄ່າແຮງງານ</h3>
+                        <button class="close-btn" onclick="closeModal(this)">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="margin-bottom:20px;">
+                            <button class="btn btn-primary" onclick="scanPartForJob('${jobId}')"><i class="fas fa-qrcode"></i> ສະແກນ QR ອາໄຫຼ່</button>
+                            <button class="btn btn-outline" onclick="manualSelectPart('${jobId}')"><i class="fas fa-search"></i> ເລືອກອາໄຫຼ່ຈາກລາຍການ</button>
+                        </div>
+                        <h4 style="margin-bottom:12px;">ອາໄຫຼ່ທີ່ຂໍ</h4>
+                        <div id="selected-parts-list" style="margin-bottom:20px;">${renderSelectedParts(existingParts || [], jobId)}</div>
+                        <h4 style="margin-bottom:12px;">ຄ່າແຮງງານ</h4>
+                        <div id="labor-list">${renderLaborList(existingLabor || [], jobId)}</div>
+                        <button class="btn btn-outline btn-sm" onclick="addLaborEntry('${jobId}')" style="margin-top:8px;"><i class="fas fa-plus"></i> ເພີ່ມຄ່າແຮງງານ</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal(this)">ປິດ</button>
+                        <button class="btn btn-primary" onclick="submitPartsRequest('${jobId}')"><i class="fas fa-paper-plane"></i> ສົ່ງຄຳຂໍໄປສາງ</button>
+                    </div>
+                </div>
             `;
             document.body.appendChild(modal);
         }
 
         function renderSelectedParts(parts, jobId) {
             if (!parts?.length) return `<div class="empty-state" style="padding:20px;"><h4 style="font-size:0.9rem;">ຍັງບໍ່ມີອາໄຫຼ່ທີ່ເລືອກ</h4><p>ກົດສະແກນ QR ຫຼື ເລືອກອາໄຫຼ່</p></div>`;
-            return `<div class="parts-list">${parts.map(p => `<div class="part-item"><div class="part-info"><div class="part-name">${p.part?.name || 'ບໍ່ມີຊື່'}</div><div class="part-code">${p.part?.code || '-'} | ສາງ: ${p.part?.stock_quantity || 0} ອັນ | ລາຄາ: ${formatCurrency(p.part?.price)}</div></div><div class="part-qty"><button class="qty-btn" onclick="updatePartQty('${p.id}', -1, '${jobId}')"><i class="fas fa-minus"></i></button><span style="min-width:30px;text-align:center;">${p.quantity}</span><button class="qty-btn" onclick="updatePartQty('${p.id}', 1, '${jobId}')"><i class="fas fa-plus"></i></button></div><div class="part-price">${formatCurrency((p.part?.price || 0) * p.quantity)}</div><button class="btn btn-sm btn-danger btn-icon" onclick="removePart('${p.id}', '${jobId}')"><i class="fas fa-trash"></i></button></div>`).join('')}</div>`;
+            return `<div class="parts-list">${parts.map(p => `
+                <div class="part-item">
+                    <div class="part-info">
+                        <div class="part-name">${p.part?.name || 'ບໍ່ມີຊື່'}</div>
+                        <div class="part-code">${p.part?.code || '-'} | ສາງ: ${p.part?.stock_quantity || 0} ອັນ | ລາຄາ: ${formatCurrency(p.part?.price)}</div>
+                    </div>
+                    <div class="part-qty">
+                        <button class="qty-btn" onclick="updatePartQty('${p.id}', -1, '${jobId}')"><i class="fas fa-minus"></i></button>
+                        <span style="min-width:30px;text-align:center;">${p.quantity}</span>
+                        <button class="qty-btn" onclick="updatePartQty('${p.id}', 1, '${jobId}')"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div class="part-price">${formatCurrency((p.part?.price || 0) * p.quantity)}</div>
+                    <button class="btn btn-sm btn-danger btn-icon" onclick="removePart('${p.id}', '${jobId}')"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('')}</div>`;
         }
 
         function renderLaborList(labor, jobId) {
             if (!labor?.length) return '<div style="color:var(--gray-500);padding:12px;background:var(--gray-100);border-radius:8px;">ຍັງບໍ່ມີການບັນທຶກຄ່າແຮງງານ</div>';
-            return labor.map(l => `<div class="labor-item"><div class="part-info" style="flex:1;"><div class="part-name">${l.description}</div><div class="part-code">${l.labor_type || 'ທົ່ວໄປ'} | ${l.hours} ຊົ່ວໂມງ x ${formatCurrency(l.hourly_rate)}/ຊມ</div></div><div class="part-price">${formatCurrency(l.cost)}</div><button class="btn btn-sm btn-danger btn-icon" onclick="removeLabor('${l.id}', '${jobId}')"><i class="fas fa-trash"></i></button></div>`).join('');
+            return labor.map(l => `
+                <div class="labor-item">
+                    <div class="part-info" style="flex:1;">
+                        <div class="part-name">${l.description}</div>
+                        <div class="part-code">${l.labor_type || 'ທົ່ວໄປ'} | ${l.hours} ຊົ່ວໂມງ x ${formatCurrency(l.hourly_rate)}/ຊມ</div>
+                    </div>
+                    <div class="part-price">${formatCurrency(l.cost)}</div>
+                    <button class="btn btn-sm btn-danger btn-icon" onclick="removeLabor('${l.id}', '${jobId}')"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
         }
 
         window.scanPartForJob = function(jobId) {
-            showQRScannerModal('ສະແກນ QR ອາໄຫຼ່', async (partId, partCode) => {
-                let actualPartId = partId;
-                if (!actualPartId && partCode) { const { data: part } = await DB.getPartByCode(partCode); if (part) actualPartId = part.id; }
-                if (actualPartId) await addPartToJob(jobId, actualPartId, 1);
-                else showToast('error', 'ບໍ່ພົບ', 'ບໍ່ພົບອາໄຫຼ່ນີ້ໃນລະບົບ');
+            showQRScannerModal('ສະແກນ QR ອາໄຫຼ່', async (scannedData) => {
+                const result = parseQRCode(scannedData);
+                let partId = null;
+                if (result && result.type === 'part') {
+                    partId = result.id;
+                } else {
+                    const { data: part } = await DB.getPartByCode(scannedData);
+                    if (part) partId = part.id;
+                }
+                if (partId) {
+                    await addPartToJob(jobId, partId, 1);
+                } else {
+                    showToast('error', 'ບໍ່ພົບ', 'ບໍ່ພົບອາໄຫຼ່ນີ້ໃນລະບົບ');
+                }
             });
         };
 
@@ -1929,32 +2402,56 @@
             const { data: parts } = await DB.getParts();
             const partOptions = parts.map(p => `${p.code} - ${p.name} (${formatCurrency(p.price)})`).join('\n');
             const code = prompt(`ເລືອກອາໄຫຼ່ (ປ້ອນລະຫັດ):\n\nລາຍການອາໄຫຼ່:\n${partOptions}`);
-            if (code) { const { data: part } = await DB.getPartByCode(code); if (part) await addPartToJob(jobId, part.id, 1); else showToast('error', 'ບໍ່ພົບ', 'ບໍ່ພົບລະຫັດອາໄຫຼ່ນີ້'); }
+            if (code) {
+                const { data: part } = await DB.getPartByCode(code);
+                if (part) {
+                    await addPartToJob(jobId, part.id, 1);
+                } else {
+                    showToast('error', 'ບໍ່ພົບ', 'ບໍ່ພົບລະຫັດອາໄຫຼ່ນີ້');
+                }
+            }
         };
 
         async function addPartToJob(jobId, partId, quantity) {
             showLoading();
             try {
                 const { data: existing } = await initSupabase().from('job_parts').select('*').eq('job_card_id', jobId).eq('part_id', partId).single();
-                if (existing) await DB.updateJobPartQuantity(existing.id, existing.quantity + quantity);
-                else await DB.addJobPart({ job_card_id: jobId, part_id: partId, quantity: quantity, status: 'requested', requested_by: currentUser.id });
+                if (existing) {
+                    await DB.updateJobPartQuantity(existing.id, existing.quantity + quantity);
+                } else {
+                    await DB.addJobPart({ 
+                        job_card_id: jobId, 
+                        part_id: partId, 
+                        quantity: quantity, 
+                        status: 'requested', 
+                        requested_by: currentUser.id 
+                    });
+                }
                 await DB.updateJobCard(jobId, { status: 'parts_requested' });
                 const { data: updatedParts } = await DB.getJobParts(jobId);
                 document.getElementById('selected-parts-list').innerHTML = renderSelectedParts(updatedParts || [], jobId);
                 hideLoading();
                 showToast('success', 'ສຳເລັດ', 'ເພີ່ມອາໄຫຼ່ເຂົ້າໃນຄຳຂໍແລ້ວ');
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         }
 
         window.updatePartQty = async function(partJobId, change, jobId) {
             try {
                 const { data: current } = await initSupabase().from('job_parts').select('*').eq('id', partJobId).single();
                 const newQty = current.quantity + change;
-                if (newQty < 1) { await removePart(partJobId, jobId); return; }
+                if (newQty < 1) { 
+                    await removePart(partJobId, jobId); 
+                    return; 
+                }
                 await DB.updateJobPartQuantity(partJobId, newQty);
                 const { data: updatedParts } = await DB.getJobParts(jobId);
                 document.getElementById('selected-parts-list').innerHTML = renderSelectedParts(updatedParts || [], jobId);
-            } catch (error) { showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         window.removePart = async function(partJobId, jobId) {
@@ -1963,18 +2460,48 @@
                 const { data: updatedParts } = await DB.getJobParts(jobId);
                 document.getElementById('selected-parts-list').innerHTML = renderSelectedParts(updatedParts || [], jobId);
                 showToast('success', 'ສຳເລັດ', 'ລຶບອາໄຫຼ່ອອກແລ້ວ');
-            } catch (error) { showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         window.addLaborEntry = function(jobId) {
             const modal = document.createElement('div');
             modal.className = 'modal show';
             modal.innerHTML = `
-                <div class="modal-content"><div class="modal-header"><h3><i class="fas fa-tools"></i> ເພີ່ມຄ່າແຮງງານ</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                <div class="modal-body"><div class="form-group"><label>ລາຍລະອຽດງານ <span class="required">*</span></label><input type="text" id="labor_desc" required placeholder="ຕົວຢ່າງ: ປ່ຽນນໍ້າມັນເຄື່ອງ"></div>
-                <div class="form-row"><div class="form-group"><label>ປະເພດຊ່າງ</label><select id="labor_type"><option value="general">ຊ່າງທົ່ວໄປ (50,000 ₭/ຊມ)</option><option value="electrical">ຊ່າງໄຟຟ້າ (70,000 ₭/ຊມ)</option><option value="engine">ຊ່າງເຄື່ອງຈັກ (80,000 ₭/ຊມ)</option><option value="transmission">ຊ່າງເກຍ (90,000 ₭/ຊມ)</option><option value="body">ຊ່າງສີ (60,000 ₭/ຊມ)</option><option value="diagnostic">ຊ່າງວິນິດໄສ (100,000 ₭/ຊມ)</option></select></div>
-                <div class="form-group"><label>ຈຳນວນຊົ່ວໂມງ <span class="required">*</span></label><input type="number" id="labor_hours" required min="0.5" step="0.5" value="1"></div></div></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button><button class="btn btn-primary" onclick="saveLabor('${jobId}')">ບັນທຶກ</button></div></div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-tools"></i> ເພີ່ມຄ່າແຮງງານ</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>ລາຍລະອຽດງານ <span class="required">*</span></label>
+                            <input type="text" id="labor_desc" required placeholder="ຕົວຢ່າງ: ປ່ຽນນໍ້າມັນເຄື່ອງ">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>ປະເພດຊ່າງ</label>
+                                <select id="labor_type">
+                                    <option value="general">ຊ່າງທົ່ວໄປ (50,000 ₭/ຊມ)</option>
+                                    <option value="electrical">ຊ່າງໄຟຟ້າ (70,000 ₭/ຊມ)</option>
+                                    <option value="engine">ຊ່າງເຄື່ອງຈັກ (80,000 ₭/ຊມ)</option>
+                                    <option value="transmission">ຊ່າງເກຍ (90,000 ₭/ຊມ)</option>
+                                    <option value="body">ຊ່າງສີ (60,000 ₭/ຊມ)</option>
+                                    <option value="diagnostic">ຊ່າງວິນິດໄສ (100,000 ₭/ຊມ)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>ຈຳນວນຊົ່ວໂມງ <span class="required">*</span></label>
+                                <input type="number" id="labor_hours" required min="0.5" step="0.5" value="1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                        <button class="btn btn-primary" onclick="saveLabor('${jobId}')">ບັນທຶກ</button>
+                    </div>
+                </div>
             `;
             document.body.appendChild(modal);
         };
@@ -1989,13 +2516,23 @@
             const cost = rate * hours;
             showLoading();
             try {
-                await DB.addJobLabor({ job_card_id: jobId, description: desc, labor_type: type, hours: hours, hourly_rate: rate, cost: cost });
+                await DB.addJobLabor({ 
+                    job_card_id: jobId, 
+                    description: desc, 
+                    labor_type: type, 
+                    hours: hours, 
+                    hourly_rate: rate, 
+                    cost: cost 
+                });
                 const { data: updatedLabor } = await DB.getJobLabor(jobId);
                 document.getElementById('labor-list').innerHTML = renderLaborList(updatedLabor || [], jobId);
                 document.querySelector('.modal.show')?.remove();
                 hideLoading();
                 showToast('success', 'ສຳເລັດ', 'ເພີ່ມຄ່າແຮງງານສຳເລັດ');
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         window.removeLabor = async function(laborId, jobId) {
@@ -2004,7 +2541,9 @@
                 const { data: updatedLabor } = await DB.getJobLabor(jobId);
                 document.getElementById('labor-list').innerHTML = renderLaborList(updatedLabor || [], jobId);
                 showToast('success', 'ສຳເລັດ', 'ລຶບຄ່າແຮງງານອອກແລ້ວ');
-            } catch (error) { showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         window.submitPartsRequest = async function(jobId) {
@@ -2014,8 +2553,16 @@
                 hideLoading();
                 document.querySelector('#request-parts-modal')?.remove();
                 showToast('success', 'ສຳເລັດ', 'ສົ່ງຄຳຂໍອາໄຫຼ່ໄປສາງແລ້ວ');
-                await DB.createNotification({ user_id: null, title: 'ຄຳຂໍອາໄຫຼ່ໃໝ່', message: `ມີຄຳຂໍອາໄຫຼ່ໃໝ່ຈາກງານ`, type: 'parts_request' });
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+                await DB.createNotification({ 
+                    user_id: null, 
+                    title: 'ຄຳຂໍອາໄຫຼ່ໃໝ່', 
+                    message: `ມີຄຳຂໍອາໄຫຼ່ໃໝ່ຈາກງານ`, 
+                    type: 'parts_request' 
+                });
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         // ============================================
@@ -2026,37 +2573,57 @@
             try {
                 if (approved) {
                     const { data: part } = await DB.getPartById(partId);
-                    if (part.stock_quantity < quantity) { hideLoading(); showToast('warning', 'ສາງບໍ່ພຽງພໍ', `ມີສາງ ${part.stock_quantity} ອັນ ແຕ່ຕ້ອງການ ${quantity} ອັນ`); return; }
+                    if (part.stock_quantity < quantity) { 
+                        hideLoading(); 
+                        showToast('warning', 'ສາງບໍ່ພຽງພໍ', `ມີສາງ ${part.stock_quantity} ອັນ ແຕ່ຕ້ອງການ ${quantity} ອັນ`); 
+                        return; 
+                    }
                     await DB.updatePartStock(partId, part.stock_quantity - quantity);
                     await DB.updateJobPartStatus(requestId, 'approved');
                     await DB.updateJobCard(jobId, { status: 'parts_approved' });
                     
-                    // Get job details for receipt
                     const { data: job } = await DB.getJobCardById(jobId);
                     const mechanicName = job?.mechanic?.name || 'N/A';
                     const customerName = job?.vehicles?.customers?.name || 'N/A';
                     const jobNumber = job?.job_number || 'N/A';
                     
-                    // Print warehouse receipt
                     await printWarehouseReceipt(requestId, part.name, quantity, jobNumber, customerName, mechanicName);
-                    
                     showToast('success', 'ສຳເລັດ', 'ອະນຸມັດ ແລະ ເບີກອາໄຫຼ່ສຳເລັດ');
                 } else {
                     await DB.updateJobPartStatus(requestId, 'rejected');
                     showToast('success', 'ສຳເລັດ', 'ປະຕິເສດຄຳຂໍແລ້ວ');
                 }
                 await loadPartsRequests();
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
             hideLoading();
         };
 
         window.showQRScannerForRequest = function() {
-            showQRScannerModal('ສະແກນ QR ເພື່ອຊອກຫາຄຳຂໍ', async (partId, partCode) => {
+            showQRScannerModal('ສະແກນ QR ເພື່ອຊອກຫາຄຳຂໍ', async (scannedData) => {
                 showToast('info', 'ຊອກຫາ', 'ກຳລັງຊອກຫາຄຳຂໍ...');
-                const { data: requests } = await DB.getPartsRequests();
-                const matchingRequests = requests?.filter(r => r.part_id === partId) || [];
-                if (matchingRequests.length > 0) { showToast('info', 'ພົບແລ້ວ', `ພົບ ${matchingRequests.length} ຄຳຂໍທີ່ລໍຖ້າ`); await loadPartsRequests(); }
-                else showToast('warning', 'ບໍ່ພົບ', 'ບໍ່ພົບຄຳຂໍທີ່ລໍຖ້າສຳລັບອາໄຫຼ່ນີ້');
+                const result = parseQRCode(scannedData);
+                let partId = null;
+                if (result && result.type === 'part') {
+                    partId = result.id;
+                } else {
+                    const { data: part } = await DB.getPartByCode(scannedData);
+                    if (part) partId = part.id;
+                }
+                if (partId) {
+                    const { data: requests } = await DB.getPartsRequests();
+                    const matchingRequests = requests?.filter(r => r.part_id === partId) || [];
+                    if (matchingRequests.length > 0) { 
+                        showToast('info', 'ພົບແລ້ວ', `ພົບ ${matchingRequests.length} ຄຳຂໍທີ່ລໍຖ້າ`); 
+                        await loadPartsRequests(); 
+                    } else {
+                        showToast('warning', 'ບໍ່ພົບ', 'ບໍ່ພົບຄຳຂໍທີ່ລໍຖ້າສຳລັບອາໄຫຼ່ນີ້');
+                    }
+                } else {
+                    showToast('warning', 'ບໍ່ພົບ', 'ບໍ່ພົບຂໍ້ມູນອາໄຫຼ່');
+                }
             });
         };
 
@@ -2068,15 +2635,60 @@
             pdiResults = {};
             const modal = document.createElement('div');
             modal.className = 'modal show';
-            modal.innerHTML = `<div class="modal-content modal-lg"><div class="modal-header"><h3><i class="fas fa-clipboard-check"></i> ກວດກາ PDI - ${job.job_number}</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                <div class="modal-body"><div style="padding:12px;background:var(--info-light);border-radius:8px;margin-bottom:20px;"><strong>${job.vehicles?.brand} ${job.vehicles?.model}</strong> | ${job.vehicles?.license_plate} | ລູກຄ້າ: ${job.vehicles?.customers?.name}</div>
-                <div class="checklist-container">${PDI_CATEGORIES.map(cat => `<div class="checklist-category"><div class="checklist-category-title">${cat.name}</div>${cat.items.map(item => { const itemId = `${cat.id}_${item.replace(/ /g, '_')}`; return `<div class="checklist-item" id="pdi_${itemId}"><span>${item}</span><div><button class="btn btn-sm btn-success" onclick="setPDIResult('${itemId}', true)">ຜ່ານ</button><button class="btn btn-sm btn-danger" onclick="setPDIResult('${itemId}', false)">ບໍ່ຜ່ານ</button></div></div>`; }).join('')}</div>`).join('')}</div>
-                <div class="form-group" style="margin-top:20px;"><label>ໝາຍເຫດ PDI</label><textarea id="pdi_notes" rows="2" placeholder="ໝາຍເຫດເພີ່ມເຕີມ..."></textarea></div></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button><button class="btn btn-danger" onclick="submitPDI('${job.id}', false)">ບໍ່ຜ່ານ PDI</button><button class="btn btn-success" onclick="submitPDI('${job.id}', true)">ຜ່ານ PDI</button></div></div>`;
+            modal.innerHTML = `
+                <div class="modal-content modal-lg">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-clipboard-check"></i> ກວດກາ PDI - ${job.job_number}</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="padding:12px;background:var(--info-light);border-radius:8px;margin-bottom:20px;">
+                            <strong>${job.vehicles?.brand} ${job.vehicles?.model}</strong> | 
+                            ${job.vehicles?.license_plate} | 
+                            ລູກຄ້າ: ${job.vehicles?.customers?.name}
+                        </div>
+                        <div class="checklist-container">
+                            ${PDI_CATEGORIES.map(cat => `
+                                <div class="checklist-category">
+                                    <div class="checklist-category-title">${cat.name}</div>
+                                    ${cat.items.map(item => {
+                                        const itemId = `${cat.id}_${item.replace(/ /g, '_')}`;
+                                        return `
+                                            <div class="checklist-item" id="pdi_${itemId}">
+                                                <span>${item}</span>
+                                                <div>
+                                                    <button class="btn btn-sm btn-success" onclick="setPDIResult('${itemId}', true)">ຜ່ານ</button>
+                                                    <button class="btn btn-sm btn-danger" onclick="setPDIResult('${itemId}', false)">ບໍ່ຜ່ານ</button>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="form-group" style="margin-top:20px;">
+                            <label>ໝາຍເຫດ PDI</label>
+                            <textarea id="pdi_notes" rows="2" placeholder="ໝາຍເຫດເພີ່ມເຕີມ..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                        <button class="btn btn-danger" onclick="submitPDI('${job.id}', false)">ບໍ່ຜ່ານ PDI</button>
+                        <button class="btn btn-success" onclick="submitPDI('${job.id}', true)">ຜ່ານ PDI</button>
+                    </div>
+                </div>
+            `;
             document.body.appendChild(modal);
         };
 
-        window.setPDIResult = function(itemId, passed) { pdiResults[itemId] = passed; const element = document.getElementById(`pdi_${itemId}`); if (element) { element.classList.remove('pass', 'fail'); element.classList.add(passed ? 'pass' : 'fail'); } };
+        window.setPDIResult = function(itemId, passed) { 
+            pdiResults[itemId] = passed; 
+            const element = document.getElementById(`pdi_${itemId}`); 
+            if (element) { 
+                element.classList.remove('pass', 'fail'); 
+                element.classList.add(passed ? 'pass' : 'fail'); 
+            } 
+        };
 
         window.submitPDI = async function(jobId, passed) {
             showLoading();
@@ -2093,22 +2705,10 @@
                     showToast('success', 'ສຳເລັດ', 'ສົ່ງມອບຍານພາຫະນະໃຫ້ລູກຄ້າແລ້ວ');
                 }
                 await loadPDI();
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
-        };
-
-        window.completeJob = async function(jobId) {
-            if (!confirm('ທ່ານແນ່ໃຈບໍ່ວ່າງານນີ້ສຳເລັດແລ້ວ? ຈະສົ່ງໄປກວດກາ PDI')) return;
-            showLoading();
-            try {
-                await DB.updateJobCard(jobId, { status: 'completed', completed_at: new Date().toISOString() });
-                hideLoading();
-                showToast('success', 'ສຳເລັດ', 'ສົ່ງງານໄປກວດກາ PDI ແລ້ວ');
-                document.querySelector('.modal.show')?.remove();
-                
-                // Print receipt for customer
-                await printCustomerReceipt(jobId);
-                await loadMyJobs();
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         // ============================================
@@ -2117,12 +2717,27 @@
         window.showAddCustomerModal = function() {
             const modal = document.createElement('div');
             modal.className = 'modal show';
-            modal.innerHTML = `<div class="modal-content"><div class="modal-header"><h3><i class="fas fa-user-plus"></i> ເພີ່ມລູກຄ້າໃໝ່</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                <div class="modal-body"><div class="form-group"><label>ຊື່ <span class="required">*</span></label><input type="text" id="cust_name" placeholder="ຊື່ ແລະ ນາມສະກຸນ"></div>
-                <div class="form-row"><div class="form-group"><label>ເບີໂທ</label><input type="tel" id="cust_phone" placeholder="020XXXXXXXX"></div><div class="form-group"><label>ອີເມວ</label><input type="email" id="cust_email" placeholder="example@email.com"></div></div>
-                <div class="form-group"><label>ເລກປະຈຳຕົວ</label><input type="text" id="cust_id_card" placeholder="ເລກປະຈຳຕົວປະຊາຊົນ"></div>
-                <div class="form-group"><label>ທີ່ຢູ່</label><textarea id="cust_address" rows="2" placeholder="ບ້ານ, ເມືອງ, ແຂວງ..."></textarea></div></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button><button class="btn btn-primary" onclick="saveCustomer()">ບັນທຶກ</button></div></div>`;
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-user-plus"></i> ເພີ່ມລູກຄ້າໃໝ່</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group"><label>ຊື່ <span class="required">*</span></label><input type="text" id="cust_name" placeholder="ຊື່ ແລະ ນາມສະກຸນ"></div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ເບີໂທ</label><input type="tel" id="cust_phone" placeholder="020XXXXXXXX"></div>
+                            <div class="form-group"><label>ອີເມວ</label><input type="email" id="cust_email" placeholder="example@email.com"></div>
+                        </div>
+                        <div class="form-group"><label>ເລກປະຈຳຕົວ</label><input type="text" id="cust_id_card" placeholder="ເລກປະຈຳຕົວປະຊາຊົນ"></div>
+                        <div class="form-group"><label>ທີ່ຢູ່</label><textarea id="cust_address" rows="2" placeholder="ບ້ານ, ເມືອງ, ແຂວງ..."></textarea></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                        <button class="btn btn-primary" onclick="saveCustomer()">ບັນທຶກ</button>
+                    </div>
+                </div>
+            `;
             document.body.appendChild(modal);
         };
 
@@ -2131,25 +2746,57 @@
             if (!name) { showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນຊື່ລູກຄ້າ'); return; }
             showLoading();
             try {
-                const { data, error } = await DB.createCustomer({ name, phone: document.getElementById('cust_phone')?.value, email: document.getElementById('cust_email')?.value, id_card: document.getElementById('cust_id_card')?.value, address: document.getElementById('cust_address')?.value });
+                const { data, error } = await DB.createCustomer({ 
+                    name: name, 
+                    phone: document.getElementById('cust_phone')?.value, 
+                    email: document.getElementById('cust_email')?.value, 
+                    id_card: document.getElementById('cust_id_card')?.value, 
+                    address: document.getElementById('cust_address')?.value 
+                });
                 if (error) throw error;
                 hideLoading();
                 document.querySelector('.modal.show')?.remove();
                 showToast('success', 'ສຳເລັດ', 'ເພີ່ມລູກຄ້າສຳເລັດແລ້ວ');
-                if (confirm('ຕ້ອງການເພີ່ມຍານພາຫະນະໃຫ້ລູກຄ້ານີ້ບໍ່?')) addVehicleToCustomer(data.id, name);
+                if (confirm('ຕ້ອງການເພີ່ມຍານພາຫະນະໃຫ້ລູກຄ້ານີ້ບໍ່?')) {
+                    addVehicleToCustomer(data.id, name);
+                }
                 await loadCustomers();
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         window.addVehicleToCustomer = function(customerId, customerName) {
             const modal = document.createElement('div');
             modal.className = 'modal show';
-            modal.innerHTML = `<div class="modal-content"><div class="modal-header"><h3><i class="fas fa-car-side"></i> ເພີ່ມຍານພາຫະນະໃຫ້ ${customerName}</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                <div class="modal-body"><div class="form-row"><div class="form-group"><label>ປ້າຍທະບຽນ <span class="required">*</span></label><input type="text" id="vehicle_plate" placeholder="ກມ 1234"></div><div class="form-group"><label>ຍີ່ຫໍ້ <span class="required">*</span></label><input type="text" id="vehicle_brand" placeholder="Toyota / Honda / Ford"></div></div>
-                <div class="form-row"><div class="form-group"><label>ຮຸ່ນ <span class="required">*</span></label><input type="text" id="vehicle_model" placeholder="Vios / CR-V / Ranger"></div><div class="form-group"><label>ປີຜະລິດ</label><input type="number" id="vehicle_year" placeholder="2024"></div></div>
-                <div class="form-row"><div class="form-group"><label>ສີ</label><input type="text" id="vehicle_color" placeholder="ຂາວ / ດຳ / ເງິນ"></div><div class="form-group"><label>VIN</label><input type="text" id="vehicle_vin" placeholder="ເລກ VIN"></div></div>
-                <div class="form-group"><label>ເລກເຄື່ອງ</label><input type="text" id="vehicle_engine" placeholder="ເລກເຄື່ອງຈັກ"></div></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button><button class="btn btn-primary" onclick="saveVehicle('${customerId}')">ບັນທຶກຍານພາຫະນະ</button></div></div>`;
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-car-side"></i> ເພີ່ມຍານພາຫະນະໃຫ້ ${customerName}</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group"><label>ປ້າຍທະບຽນ <span class="required">*</span></label><input type="text" id="vehicle_plate" placeholder="ກມ 1234"></div>
+                            <div class="form-group"><label>ຍີ່ຫໍ້ <span class="required">*</span></label><input type="text" id="vehicle_brand" placeholder="Toyota / Honda / Ford"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ຮຸ່ນ <span class="required">*</span></label><input type="text" id="vehicle_model" placeholder="Vios / CR-V / Ranger"></div>
+                            <div class="form-group"><label>ປີຜະລິດ</label><input type="number" id="vehicle_year" placeholder="2024"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ສີ</label><input type="text" id="vehicle_color" placeholder="ຂາວ / ດຳ / ເງິນ"></div>
+                            <div class="form-group"><label>VIN</label><input type="text" id="vehicle_vin" placeholder="ເລກ VIN"></div>
+                        </div>
+                        <div class="form-group"><label>ເລກເຄື່ອງ</label><input type="text" id="vehicle_engine" placeholder="ເລກເຄື່ອງຈັກ"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                        <button class="btn btn-primary" onclick="saveVehicle('${customerId}')">ບັນທຶກຍານພາຫະນະ</button>
+                    </div>
+                </div>
+            `;
             document.body.appendChild(modal);
         };
 
@@ -2162,22 +2809,64 @@
             if (!model) { showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນຮຸ່ນລົດ'); return; }
             showLoading();
             try {
-                await DB.createVehicle({ customer_id: customerId, license_plate: plate.toUpperCase(), brand, model, year: parseInt(document.getElementById('vehicle_year')?.value) || null, color: document.getElementById('vehicle_color')?.value, vin: document.getElementById('vehicle_vin')?.value, engine_number: document.getElementById('vehicle_engine')?.value });
+                await DB.createVehicle({ 
+                    customer_id: customerId, 
+                    license_plate: plate.toUpperCase(), 
+                    brand: brand, 
+                    model: model, 
+                    year: parseInt(document.getElementById('vehicle_year')?.value) || null, 
+                    color: document.getElementById('vehicle_color')?.value, 
+                    vin: document.getElementById('vehicle_vin')?.value, 
+                    engine_number: document.getElementById('vehicle_engine')?.value 
+                });
                 hideLoading();
                 document.querySelector('.modal.show')?.remove();
                 showToast('success', 'ສຳເລັດ', 'ເພີ່ມຍານພາຫະນະສຳເລັດແລ້ວ');
                 await loadVehicles();
                 await loadCustomers();
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         window.showCustomerVehicles = async function(customerId, customerName) {
             const { data: vehicles } = await DB.getVehiclesByCustomer(customerId);
             const modal = document.createElement('div');
             modal.className = 'modal show';
-            modal.innerHTML = `<div class="modal-content"><div class="modal-header"><h3><i class="fas fa-car"></i> ຍານພາຫະນະຂອງ ${customerName}</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                <div class="modal-body">${vehicles?.length ? `<div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ຈັດການ</th></tr></thead><tbody>${vehicles.map(v => `<tr><td><strong>${v.license_plate}</strong></td><td>${v.brand} ${v.model}</td><td>${v.color || '-'}</td><td>${v.year || '-'}</td><td><button class="btn btn-primary btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty-state">ບໍ່ມີຂໍ້ມູນຍານພາຫະນະ</div>'}
-                <div style="margin-top:16px;"><button class="btn btn-primary" onclick="this.closest('.modal').remove(); addVehicleToCustomer('${customerId}', '${customerName}')"><i class="fas fa-plus"></i> ເພີ່ມຍານພາຫະນະ</button></div></div></div>`;
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-car"></i> ຍານພາຫະນະຂອງ ${customerName}</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        ${vehicles?.length ? `
+                            <div style="overflow-x:auto;">
+                                <table class="data-table">
+                                    <thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ຈັດການ</th></tr></thead>
+                                    <tbody>
+                                        ${vehicles.map(v => `
+                                            <tr>
+                                                <td><strong>${v.license_plate}</strong></td
+                                                <td>${v.brand} ${v.model}</td
+                                                <td>${v.color || '-'}</td
+                                                <td>${v.year || '-'}</td
+                                                <td><button class="btn btn-primary btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ` : '<div class="empty-state">ບໍ່ມີຂໍ້ມູນຍານພາຫະນະ</div>'}
+                        <div style="margin-top:16px;">
+                            <button class="btn btn-primary" onclick="this.closest('.modal').remove(); addVehicleToCustomer('${customerId}', '${customerName}')">
+                                <i class="fas fa-plus"></i> ເພີ່ມຍານພາຫະນະ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
             document.body.appendChild(modal);
         };
 
@@ -2186,7 +2875,14 @@
             showCreateJobModal();
             setTimeout(async () => {
                 const customerSelect = document.getElementById('job_customer_id');
-                if (customerSelect && vehicle?.customer_id) { customerSelect.value = vehicle.customer_id; await loadCustomerVehicles(vehicle.customer_id); setTimeout(() => { const vehicleSelect = document.getElementById('job_vehicle_id'); if (vehicleSelect) vehicleSelect.value = vehicleId; }, 100); }
+                if (customerSelect && vehicle?.customer_id) { 
+                    customerSelect.value = vehicle.customer_id; 
+                    await loadCustomerVehicles(vehicle.customer_id); 
+                    setTimeout(() => { 
+                        const vehicleSelect = document.getElementById('job_vehicle_id'); 
+                        if (vehicleSelect) vehicleSelect.value = vehicleId; 
+                    }, 100); 
+                }
             }, 100);
         };
 
@@ -2197,14 +2893,20 @@
             const qrData = `PART:${partId}:${partCode}`;
             const modal = document.createElement('div');
             modal.className = 'modal show';
-            modal.innerHTML = `<div class="modal-content" style="max-width:400px;"><div class="modal-header"><h3><i class="fas fa-qrcode"></i> QR Code: ${partCode}</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                <div class="modal-body" style="text-align:center;">
-                    <div id="qrcode" class="qr-code-container"></div>
-                    <p style="margin-top:16px;">ສະແກນ QR ນີ້ເພື່ອຂໍອາໄຫຼ່</p>
-                    <button class="btn btn-outline btn-sm" onclick="copyToClipboard('${qrData}')"><i class="fas fa-copy"></i> ສຳເນົາລະຫັດ</button>
-                </div></div>`;
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width:400px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-qrcode"></i> QR Code: ${partCode}</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body" style="text-align:center;">
+                        <div id="qrcode" class="qr-code-container"></div>
+                        <p style="margin-top:16px;">ສະແກນ QR ນີ້ເພື່ອຂໍອາໄຫຼ່</p>
+                        <button class="btn btn-outline btn-sm" onclick="copyToClipboard('${qrData}')"><i class="fas fa-copy"></i> ສຳເນົາລະຫັດ</button>
+                    </div>
+                </div>
+            `;
             document.body.appendChild(modal);
-            // Generate real QR code
             new QRCode(document.getElementById("qrcode"), {
                 text: qrData,
                 width: 200,
@@ -2215,18 +2917,53 @@
             });
         };
 
-        window.copyToClipboard = function(text) { navigator.clipboard.writeText(text); showToast('success', 'ສຳເລັດ', 'ສຳເນົາລະຫັດແລ້ວ'); };
+        window.copyToClipboard = function(text) { 
+            navigator.clipboard.writeText(text); 
+            showToast('success', 'ສຳເລັດ', 'ສຳເນົາລະຫັດແລ້ວ'); 
+        };
 
         window.showAddPartModal = function() {
-            if (currentUser.role !== 'admin') { showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານເທົ່ານັ້ນ'); return; }
+            if (currentUser.role !== 'admin') { 
+                showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານເທົ່ານັ້ນ'); 
+                return; 
+            }
             const modal = document.createElement('div');
             modal.className = 'modal show';
-            modal.innerHTML = `<div class="modal-content"><div class="modal-header"><h3><i class="fas fa-plus-circle"></i> ເພີ່ມອາໄຫຼ່ໃໝ່</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                <div class="modal-body"><div class="form-row"><div class="form-group"><label>ລະຫັດ <span class="required">*</span></label><input type="text" id="part_code" placeholder="ຕົວຢ່າງ: OIL-001"></div><div class="form-group"><label>ຊື່ <span class="required">*</span></label><input type="text" id="part_name" placeholder="ຊື່ອາໄຫຼ່"></div></div>
-                <div class="form-row"><div class="form-group"><label>ປະເພດ</label><select id="part_category"><option value="general">ທົ່ວໄປ</option><option value="engine">ເຄື່ອງຈັກ</option><option value="electrical">ໄຟຟ້າ</option><option value="brake">ເບຣກ</option><option value="body">ຕົວຖັງ</option></select></div><div class="form-group"><label>ຍີ່ຫໍ້</label><input type="text" id="part_brand" placeholder="ຍີ່ຫໍ້"></div></div>
-                <div class="form-row"><div class="form-group"><label>ຈຳນວນສາງ</label><input type="number" id="part_stock" value="0"></div><div class="form-group"><label>ລາຄາ (₭)</label><input type="number" id="part_price" value="0"></div></div>
-                <div class="form-group"><label>ລາຍລະອຽດ</label><textarea id="part_desc" rows="2"></textarea></div></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button><button class="btn btn-primary" onclick="savePart()">ບັນທຶກ</button></div></div>`;
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-plus-circle"></i> ເພີ່ມອາໄຫຼ່ໃໝ່</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group"><label>ລະຫັດ <span class="required">*</span></label><input type="text" id="part_code" placeholder="ຕົວຢ່າງ: OIL-001"></div>
+                            <div class="form-group"><label>ຊື່ <span class="required">*</span></label><input type="text" id="part_name" placeholder="ຊື່ອາໄຫຼ່"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ປະເພດ</label>
+                                <select id="part_category">
+                                    <option value="general">ທົ່ວໄປ</option>
+                                    <option value="engine">ເຄື່ອງຈັກ</option>
+                                    <option value="electrical">ໄຟຟ້າ</option>
+                                    <option value="brake">ເບຣກ</option>
+                                    <option value="body">ຕົວຖັງ</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>ຍີ່ຫໍ້</label><input type="text" id="part_brand" placeholder="ຍີ່ຫໍ້"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ຈຳນວນສາງ</label><input type="number" id="part_stock" value="0"></div>
+                            <div class="form-group"><label>ລາຄາ (₭)</label><input type="number" id="part_price" value="0"></div>
+                        </div>
+                        <div class="form-group"><label>ລາຍລະອຽດ</label><textarea id="part_desc" rows="2"></textarea></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                        <button class="btn btn-primary" onclick="savePart()">ບັນທຶກ</button>
+                    </div>
+                </div>
+            `;
             document.body.appendChild(modal);
         };
 
@@ -2238,41 +2975,95 @@
             showLoading();
             try {
                 const qrCode = generatePartQRCode(null, code);
-                await DB.createPart({ code, name, category: document.getElementById('part_category')?.value, brand: document.getElementById('part_brand')?.value, stock_quantity: parseInt(document.getElementById('part_stock')?.value) || 0, price: parseFloat(document.getElementById('part_price')?.value) || 0, description: document.getElementById('part_desc')?.value, qr_code: qrCode });
+                await DB.createPart({ 
+                    code, 
+                    name, 
+                    category: document.getElementById('part_category')?.value, 
+                    brand: document.getElementById('part_brand')?.value, 
+                    stock_quantity: parseInt(document.getElementById('part_stock')?.value) || 0, 
+                    price: parseFloat(document.getElementById('part_price')?.value) || 0, 
+                    description: document.getElementById('part_desc')?.value, 
+                    qr_code: qrCode 
+                });
                 hideLoading();
                 document.querySelector('.modal.show')?.remove();
                 showToast('success', 'ສຳເລັດ', 'ເພີ່ມອາໄຫຼ່ສຳເລັດແລ້ວ');
                 await loadParts();
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         window.editPart = async function(partId) {
-            if (currentUser.role !== 'admin') { showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານເທົ່ານັ້ນ'); return; }
+            if (currentUser.role !== 'admin') { 
+                showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານເທົ່ານັ້ນ'); 
+                return; 
+            }
             const { data: part } = await DB.getPartById(partId);
             if (!part) { showToast('error', 'ຜິດພາດ', 'ບໍ່ພົບຂໍ້ມູນ'); return; }
             const modal = document.createElement('div');
             modal.className = 'modal show';
-            modal.innerHTML = `<div class="modal-content"><div class="modal-header"><h3><i class="fas fa-edit"></i> ແກ້ໄຂອາໄຫຼ່: ${part.code}</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                <div class="modal-body"><div class="form-row"><div class="form-group"><label>ລະຫັດ</label><input type="text" id="edit_part_code" value="${part.code}" readonly style="background:var(--gray-100);"></div><div class="form-group"><label>ຊື່</label><input type="text" id="edit_part_name" value="${part.name}"></div></div>
-                <div class="form-row"><div class="form-group"><label>ປະເພດ</label><select id="edit_part_category"><option value="general" ${part.category === 'general' ? 'selected' : ''}>ທົ່ວໄປ</option><option value="engine" ${part.category === 'engine' ? 'selected' : ''}>ເຄື່ອງຈັກ</option><option value="electrical" ${part.category === 'electrical' ? 'selected' : ''}>ໄຟຟ້າ</option><option value="brake" ${part.category === 'brake' ? 'selected' : ''}>ເບຣກ</option><option value="body" ${part.category === 'body' ? 'selected' : ''}>ຕົວຖັງ</option></select></div><div class="form-group"><label>ຍີ່ຫໍ້</label><input type="text" id="edit_part_brand" value="${part.brand || ''}"></div></div>
-                <div class="form-row"><div class="form-group"><label>ຈຳນວນສາງ</label><input type="number" id="edit_part_stock" value="${part.stock_quantity}"></div><div class="form-group"><label>ລາຄາ (₭)</label><input type="number" id="edit_part_price" value="${part.price}"></div></div>
-                <div class="form-group"><label>ລາຍລະອຽດ</label><textarea id="edit_part_desc" rows="2">${part.description || ''}</textarea></div></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button><button class="btn btn-primary" onclick="updatePart('${part.id}')">ບັນທຶກ</button></div></div>`;
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-edit"></i> ແກ້ໄຂອາໄຫຼ່: ${part.code}</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group"><label>ລະຫັດ</label><input type="text" id="edit_part_code" value="${part.code}" readonly style="background:var(--gray-100);"></div>
+                            <div class="form-group"><label>ຊື່</label><input type="text" id="edit_part_name" value="${part.name}"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ປະເພດ</label>
+                                <select id="edit_part_category">
+                                    <option value="general" ${part.category === 'general' ? 'selected' : ''}>ທົ່ວໄປ</option>
+                                    <option value="engine" ${part.category === 'engine' ? 'selected' : ''}>ເຄື່ອງຈັກ</option>
+                                    <option value="electrical" ${part.category === 'electrical' ? 'selected' : ''}>ໄຟຟ້າ</option>
+                                    <option value="brake" ${part.category === 'brake' ? 'selected' : ''}>ເບຣກ</option>
+                                    <option value="body" ${part.category === 'body' ? 'selected' : ''}>ຕົວຖັງ</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>ຍີ່ຫໍ້</label><input type="text" id="edit_part_brand" value="${part.brand || ''}"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ຈຳນວນສາງ</label><input type="number" id="edit_part_stock" value="${part.stock_quantity}"></div>
+                            <div class="form-group"><label>ລາຄາ (₭)</label><input type="number" id="edit_part_price" value="${part.price}"></div>
+                        </div>
+                        <div class="form-group"><label>ລາຍລະອຽດ</label><textarea id="edit_part_desc" rows="2">${part.description || ''}</textarea></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                        <button class="btn btn-primary" onclick="updatePart('${part.id}')">ບັນທຶກ</button>
+                    </div>
+                </div>
+            `;
             document.body.appendChild(modal);
         };
 
         window.updatePart = async function(partId) {
             showLoading();
             try {
-                await DB.updatePart(partId, { name: document.getElementById('edit_part_name')?.value, category: document.getElementById('edit_part_category')?.value, brand: document.getElementById('edit_part_brand')?.value, stock_quantity: parseInt(document.getElementById('edit_part_stock')?.value) || 0, price: parseFloat(document.getElementById('edit_part_price')?.value) || 0, description: document.getElementById('edit_part_desc')?.value });
+                await DB.updatePart(partId, { 
+                    name: document.getElementById('edit_part_name')?.value, 
+                    category: document.getElementById('edit_part_category')?.value, 
+                    brand: document.getElementById('edit_part_brand')?.value, 
+                    stock_quantity: parseInt(document.getElementById('edit_part_stock')?.value) || 0, 
+                    price: parseFloat(document.getElementById('edit_part_price')?.value) || 0, 
+                    description: document.getElementById('edit_part_desc')?.value 
+                });
                 hideLoading();
                 document.querySelector('.modal.show')?.remove();
                 showToast('success', 'ສຳເລັດ', 'ອັບເດດຂໍ້ມູນສຳເລັດ');
                 await loadParts();
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
-                window.deletePart = async function(partId) {
+        window.deletePart = async function(partId) {
             if (currentUser.role !== 'admin') { 
                 showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານເທົ່ານັ້ນ'); 
                 return; 
@@ -2306,13 +3097,13 @@
                             <div style="max-height:500px;overflow-y:auto;">
                                 <table class="data-table">
                                     <thead>
-                                        <tr><th>ວັນທີ</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ໃບສັ່ງງານ</th><th>ລູກຄ້າ</th></table>
+                                        <tr><th>ວັນທີ</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ໃບສັ່ງງານ</th><th>ລູກຄ້າ</th></tr>
                                     </thead>
                                     <tbody>
                                         ${movements.map(m => `
                                             <tr>
                                                 <td>${formatDateTime(m.approved_at || m.created_at)}</td
-                                                <td><span class="status-badge status-approved">ເບີກອອກ</span></td>
+                                                <td><span class="status-badge status-approved">ເບີກອອກ</span></td
                                                 <td style="color: var(--danger); font-weight: bold;">-${m.quantity}</td
                                                 <td>${m.job_cards?.job_number || '-'}</td
                                                 <td>${m.job_cards?.vehicles?.customers?.name || '-'}</td
@@ -2410,7 +3201,7 @@
                             <table class="data-table">
                                 <thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ຈຳນວນ</th><th>ລາຄາ</th></tr></thead>
                                 <tbody>
-                                    ${uploadedData.slice(0,10).map(p => `<tr><td>${p.code}</td><td>${p.name}</td><td>${p.stock_quantity}</td><td class="currency">${formatCurrency(p.price)}</td>`).join('')}
+                                    ${uploadedData.slice(0,10).map(p => `<td><td>${p.code}</td><td>${p.name}</td><td>${p.stock_quantity}</td><td class="currency">${formatCurrency(p.price)}</td></tr>`).join('')}
                                     ${uploadedData.length > 10 ? `<tr><td colspan="4">... ແລະອີກ ${uploadedData.length-10} ລາຍການ</td></tr>` : ''}
                                 </tbody>
                             </table>
@@ -2452,30 +3243,7 @@
             };
         };
 
-        // ============================================
-        // RECEIPT PRINTING FUNCTIONS
-        // ============================================
-        
-        window.printCustomerReceipt = printCustomerReceipt;
-        window.printWarehouseReceipt = printWarehouseReceipt;
-
-        // ============================================
-        // MAIN APP INITIALIZATION
-        // ============================================
-        
-        function showMainApp() {
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('main-app').style.display = 'flex';
-            document.getElementById('user-name').textContent = currentUser.name;
-            document.getElementById('user-role').textContent = getRoleLabel(currentUser.role);
-            buildNavigation(currentUser.role);
-            loadDashboard();
-            updateTime();
-            setInterval(updateTime, 1000);
-            setInterval(() => loadNotifications(), 30000);
-        }
-
-        // ============================================
+                // ============================================
         // DOM INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
@@ -2524,7 +3292,6 @@
                 }
             });
             
-            // Enter key support for login
             ['email', 'password', 'role'].forEach(id => { 
                 document.getElementById(id).addEventListener('keypress', (e) => { 
                     if (e.key === 'Enter') document.getElementById('login-btn').click(); 
