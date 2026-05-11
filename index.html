@@ -2366,6 +2366,51 @@ function clearAdvancedSearch() {
     hideLoading();
 }
 
+// ============================================
+// ADD VIRTUAL SCROLL TABLE CLASS HERE
+// ============================================
+
+class VirtualScrollTable {
+    constructor(container, items, rowHeight = 48, renderWindow = 20) {
+        this.container = container;
+        this.items = items;
+        this.rowHeight = rowHeight;
+        this.renderWindow = renderWindow;
+        this.scrollTop = 0;
+        this.init();
+    }
+    
+    init() {
+        this.container.style.overflowY = 'auto';
+        this.container.style.position = 'relative';
+        this.container.style.height = `${this.rowHeight * this.renderWindow}px`;
+        this.container.addEventListener('scroll', () => this.onScroll());
+        this.render();
+    }
+    
+    onScroll() {
+        this.scrollTop = this.container.scrollTop;
+        this.render();
+    }
+    
+    render() {
+        const startIdx = Math.floor(this.scrollTop / this.rowHeight);
+        const endIdx = Math.min(startIdx + this.renderWindow, this.items.length);
+        // Render only visible rows
+        // You would implement the actual rendering logic here
+        const visibleItems = this.items.slice(startIdx, endIdx);
+        // ... render visibleItems to DOM
+    }
+}
+
+// Optional: Add a helper function to use virtual scrolling on any table
+function applyVirtualScroll(tableId, data, rowHeight = 48) {
+    const container = document.getElementById(tableId);
+    if (!container) return;
+    const virtualScroll = new VirtualScrollTable(container, data, rowHeight);
+    return virtualScroll;
+}
+        
         // ============================================
         // JOB CARD MODALS & ACTIONS (Simplified)
         // ============================================
