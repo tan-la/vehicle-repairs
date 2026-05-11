@@ -326,7 +326,7 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 12px;
-            min-width: 600px;
+            min-width: 500px;
         }
         .table-title { font-size: 1.125rem; font-weight: 600; }
         .table-actions { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -334,7 +334,7 @@
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px;
+            min-width: 500px;
         }
         .data-table th, .data-table td {
             padding: 12px 16px;
@@ -364,11 +364,6 @@
             background: white;
             border-radius: 6px;
             cursor: pointer;
-        }
-        .pagination button.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
         }
 
         .status-badge {
@@ -587,11 +582,6 @@
             font-family: monospace;
             font-size: 12px;
         }
-        .receipt-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
-        .receipt-item { display: flex; justify-content: space-between; margin: 5px 0; }
-        .receipt-total { border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-weight: bold; }
-        .receipt-footer { text-align: center; border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-size: 10px; }
-
         .file-upload-area {
             border: 2px dashed var(--gray-300);
             border-radius: 12px;
@@ -611,19 +601,6 @@
         }
         #qrcode canvas, #qrcode img { width: 200px !important; height: 200px !important; }
 
-        .report-filters {
-            display: flex;
-            gap: 16px;
-            padding: 16px 24px;
-            background: var(--gray-50);
-            border-bottom: 1px solid var(--gray-200);
-            flex-wrap: wrap;
-        }
-        .report-filters input, .report-filters select {
-            padding: 8px 12px;
-            border: 1px solid var(--gray-300);
-            border-radius: 8px;
-        }
         .report-summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -631,9 +608,7 @@
             padding: 16px 24px;
             background: var(--primary-light);
         }
-        .report-summary-item {
-            text-align: center;
-        }
+        .report-summary-item { text-align: center; }
         .report-summary-item .label { font-size: 0.75rem; color: var(--gray-600); }
         .report-summary-item .value { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
 
@@ -854,16 +829,13 @@
         }
 
         function parseQRCode(qrData) {
-            const parts = qrData.split(':');
-            if (parts[0] === 'PART' && parts.length >= 3) {
+            if (!qrData) return null;
+            if (qrData.startsWith('PART:')) {
+                const parts = qrData.split(':');
                 return { type: 'part', id: parts[1], code: parts[2] };
             }
-            if (qrData.startsWith('RCP')) {
-                return { type: 'receipt', number: qrData };
-            }
-            if (qrData.startsWith('JC')) {
-                return { type: 'jobcard', number: qrData };
-            }
+            if (qrData.startsWith('RCP')) return { type: 'receipt', number: qrData };
+            if (qrData.startsWith('JC')) return { type: 'jobcard', number: qrData };
             return null;
         }
 
@@ -1009,14 +981,14 @@
             async getJobCards() {
                 const { data, error } = await initSupabase()
                     .from('job_cards')
-                    .select('*, vehicles(*, customers(*)), mechanic:mechanic_id(*)')
+                    .select('*, vehicles(license_plate, brand, model, customers(name, phone)), mechanic:mechanic_id(name, specialty)')
                     .order('created_at', { ascending: false });
                 return { data, error };
             },
             async getJobCardById(id) {
                 const { data, error } = await initSupabase()
                     .from('job_cards')
-                    .select('*, vehicles(*, customers(*)), mechanic:mechanic_id(*), parts:job_parts(*, part:part_id(*)), labor:job_labor(*)')
+                    .select('*, vehicles(license_plate, brand, model, customers(*)), mechanic:mechanic_id(*), parts:job_parts(*, part:part_id(*)), labor:job_labor(*)')
                     .eq('id', id)
                     .single();
                 return { data, error };
@@ -1024,7 +996,7 @@
             async getJobCardByNumber(jobNumber) {
                 const { data, error } = await initSupabase()
                     .from('job_cards')
-                    .select('*, vehicles(*, customers(*)), mechanic:mechanic_id(*), parts:job_parts(*, part:part_id(*)), labor:job_labor(*)')
+                    .select('*, vehicles(license_plate, brand, model, customers(*)), mechanic:mechanic_id(*), parts:job_parts(*, part:part_id(*)), labor:job_labor(*)')
                     .eq('job_number', jobNumber)
                     .single();
                 return { data, error };
@@ -1040,7 +1012,7 @@
             async getJobCardsByMechanic(mechanicId) {
                 const { data, error } = await initSupabase()
                     .from('job_cards')
-                    .select('*, vehicles(*, customers(*))')
+                    .select('*, vehicles(license_plate, brand, model, customers(name, phone))')
                     .eq('mechanic_id', mechanicId)
                     .order('created_at', { ascending: false });
                 return { data, error };
@@ -1048,7 +1020,7 @@
             async getPendingPDIJobs() {
                 const { data, error } = await initSupabase()
                     .from('job_cards')
-                    .select('*, vehicles(*, customers(*)), mechanic:mechanic_id(*)')
+                    .select('*, vehicles(license_plate, brand, model, customers(name, phone)), mechanic:mechanic_id(name)')
                     .eq('status', 'completed')
                     .order('completed_at', { ascending: false });
                 return { data, error };
@@ -1119,7 +1091,7 @@
             async getPartsRequests() {
                 const { data, error } = await initSupabase()
                     .from('job_parts')
-                    .select('*, job_cards:job_card_id(*, vehicles(*, customers(*)), mechanic:mechanic_id(*)), part:part_id(*)')
+                    .select('*, job_cards:job_card_id(job_number, vehicles(license_plate, customers(name))), part:part_id(*)')
                     .eq('status', 'requested')
                     .order('requested_at', { ascending: true });
                 return { data, error };
@@ -1164,7 +1136,7 @@
             async getInventoryMovements(partId, limit = 100) {
                 const { data, error } = await initSupabase()
                     .from('job_parts')
-                    .select('*, job_cards:job_card_id(job_number, status, vehicle_id, vehicles:vehicle_id(*, customers(*)))')
+                    .select('*, job_cards:job_card_id(job_number, vehicles(license_plate, customers(name)))')
                     .eq('part_id', partId)
                     .in('status', ['approved'])
                     .order('approved_at', { ascending: false })
@@ -1179,16 +1151,12 @@
                 const { data, error } = await initSupabase().from('transactions').insert([transaction]).select().single();
                 return { data, error };
             },
-            async getTransactions(jobId) {
-                const { data, error } = await initSupabase().from('transactions').select('*').eq('job_card_id', jobId).order('created_at', { ascending: false });
-                return { data, error };
-            },
             async getTransactionByReceiptNumber(receiptNumber) {
                 const { data, error } = await initSupabase().from('transactions').select('*, job_cards:job_card_id(*)').eq('receipt_number', receiptNumber).single();
                 return { data, error };
             },
             async getFinancialReports() {
-                const { data, error } = await initSupabase().from('transactions').select('*, job_cards:job_card_id(*)').eq('status', 'paid').order('created_at', { ascending: false });
+                const { data, error } = await initSupabase().from('transactions').select('*, job_cards:job_card_id(*)').order('created_at', { ascending: false });
                 return { data, error };
             },
             async getInventoryReport() {
@@ -1206,74 +1174,126 @@
         // ============================================
         
         function renderJobsTable(jobs, showActions = true) {
-            if (!jobs || jobs.length === 0) return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-clipboard-list"></i></div><h3>ບໍ່ມີໃບສັ່ງງານ</h3></div>`;
+            if (!jobs || jobs.length === 0) {
+                return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-clipboard-list"></i></div><h3>ບໍ່ມີໃບສັ່ງງານ</h3><p>ກົດປຸ່ມ "ເປີດໃບສັ່ງງານ" ເພື່ອສ້າງໃບສັ່ງງານໃໝ່</p></div>';
+            }
+            
             return `
                 <div style="overflow-x: auto;">
                     <table class="data-table">
-                        <thead><tr><th>ເລກທີ</th><th>ຍານພາຫະນະ</th><th>ລູກຄ້າ</th><th>ຊ່າງ</th><th>ສະຖານະ</th><th>ວັນທີ</th>${showActions ? '<th>ຈັດການ</th>' : ''}</td></thead>
-                        <tbody>${jobs.map(job => `
+                        <thead>
                             <tr>
-                                <td><strong>${job.job_number}</strong></td
-                                <td>${job.vehicles?.brand || ''} ${job.vehicles?.model || ''}<br><small style="color:var(--primary)">${job.vehicles?.license_plate || ''}</small></td
-                                <td>${job.vehicles?.customers?.name || '-'}</td
-                                <td>${job.mechanic?.name || '-'}</td
-                                <td><span class="status-badge ${getStatusClass(job.status)}">${getStatusLabel(job.status)}</span></td
-                                <td>${formatDate(job.created_at)}</td
-                                ${showActions ? `<td><button class="btn btn-outline btn-sm" onclick="viewJobDetail('${job.id}')"><i class="fas fa-eye"></i></button></td` : ''}
+                                <th>ເລກທີ</th>
+                                <th>ຍານພາຫະນະ</th>
+                                <th>ລູກຄ້າ</th>
+                                <th>ຊ່າງ</th>
+                                <th>ສະຖານະ</th>
+                                <th>ວັນທີ</th>
+                                ${showActions ? '<th>ຈັດການ</th>' : ''}
                             </tr>
-                        `).join('')}</tbody>
+                        </thead>
+                        <tbody>
+                            ${jobs.map(job => {
+                                const vehicleInfo = job.vehicles ? `${job.vehicles.brand || ''} ${job.vehicles.model || ''}`.trim() : '-';
+                                const plateInfo = job.vehicles?.license_plate ? `<br><small style="color:var(--primary)">${job.vehicles.license_plate}</small>` : '';
+                                const customerName = job.vehicles?.customers?.name || '-';
+                                const mechanicName = job.mechanic?.name || '-';
+                                
+                                return `
+                                    <tr>
+                                        <td><strong>${job.job_number}</strong></td>
+                                        <td>${vehicleInfo}${plateInfo}</td>
+                                        <td>${customerName}</td>
+                                        <td>${mechanicName}</td>
+                                        <td><span class="status-badge ${getStatusClass(job.status)}">${getStatusLabel(job.status)}</span></td>
+                                        <td>${formatDate(job.created_at)}</td>
+                                        ${showActions ? `<td><button class="btn btn-outline btn-sm" onclick="viewJobDetail('${job.id}')"><i class="fas fa-eye"></i></button></td>` : ''}
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
                     </table>
                 </div>
             `;
         }
 
         function renderCustomersTable(customers) {
-            if (!customers || customers.length === 0) return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-users"></i></div><h3>ບໍ່ມີຂໍ້ມູນລູກຄ້າ</h3></div>`;
+            if (!customers || customers.length === 0) {
+                return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-users"></i></div><h3>ບໍ່ມີຂໍ້ມູນລູກຄ້າ</h3><p>ກົດປຸ່ມ "ເພີ່ມລູກຄ້າ" ເພື່ອເລີ່ມຕົ້ນ</p></div>';
+            }
+            
             return `
                 <div style="overflow-x: auto;">
                     <table class="data-table">
-                        <thead><tr><th>ຊື່</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ທີ່ຢູ່</th><th>ວັນທີ</th><th>ຈັດການ</th></tr></thead>
-                        <tbody>${customers.map(c => `
+                        <thead>
                             <tr>
-                                <td><strong>${c.name}</strong></td
-                                <td>${c.phone || '-'}</td
-                                <td>${c.email || '-'}</td
-                                <td>${c.address || '-'}</td
-                                <td>${formatDate(c.created_at)}</td
-                                <td>
-                                    <button class="btn btn-outline btn-sm" onclick="showCustomerVehicles('${c.id}', '${c.name}')" title="ເບິ່ງຍານພາຫະນະ"><i class="fas fa-car"></i></button>
-                                    <button class="btn btn-success btn-sm" onclick="addVehicleToCustomer('${c.id}', '${c.name}')" title="ເພີ່ມຍານພາຫະນະ"><i class="fas fa-plus"></i> <i class="fas fa-car"></i></button>
-                                </td
+                                <th>ຊື່</th>
+                                <th>ເບີໂທ</th>
+                                <th>ອີເມວ</th>
+                                <th>ທີ່ຢູ່</th>
+                                <th>ວັນທີ</th>
+                                <th>ຈັດການ</th>
                             </tr>
-                        `).join('')}</tbody>
+                        </thead>
+                        <tbody>
+                            ${customers.map(c => `
+                                <tr>
+                                    <td><strong>${c.name}</strong></td>
+                                    <td>${c.phone || '-'}</td>
+                                    <td>${c.email || '-'}</td>
+                                    <td>${c.address || '-'}</td>
+                                    <td>${formatDate(c.created_at)}</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm" onclick="showCustomerVehicles('${c.id}', '${c.name}')" title="ເບິ່ງຍານພາຫະນະ"><i class="fas fa-car"></i></button>
+                                        <button class="btn btn-success btn-sm" onclick="addVehicleToCustomer('${c.id}', '${c.name}')" title="ເພີ່ມຍານພາຫະນະ"><i class="fas fa-plus"></i> <i class="fas fa-car"></i></button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
                     </table>
                 </div>
             `;
         }
 
         function renderVehiclesTable(vehicles) {
-            if (!vehicles || vehicles.length === 0) return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-car"></i></div><h3>ບໍ່ມີຂໍ້ມູນຍານພາຫະນະ</h3></div>`;
+            if (!vehicles || vehicles.length === 0) {
+                return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-car"></i></div><h3>ບໍ່ມີຂໍ້ມູນຍານພາຫະນະ</h3></div>';
+            }
+            
             return `
                 <div style="overflow-x: auto;">
                     <table class="data-table">
-                        <thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ເຈົ້າຂອງ</th><th>ຈັດການ</th></tr></thead>
-                        <tbody>${vehicles.map(v => `
-                            <td>
-                                <td><strong>${v.license_plate}</strong></td
-                                <td>${v.brand} ${v.model}</td
-                                <td>${v.color || '-'}</td
-                                <td>${v.year || '-'}</td
-                                <td>${v.customers?.name || '-'}</td
-                                <td><button class="btn btn-primary btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td
+                        <thead>
+                            <tr>
+                                <th>ປ້າຍທະບຽນ</th>
+                                <th>ຍີ່ຫໍ້/ຮຸ່ນ</th>
+                                <th>ສີ</th>
+                                <th>ປີ</th>
+                                <th>ເຈົ້າຂອງ</th>
+                                <th>ຈັດການ</th>
                             </tr>
-                        `).join('')}</tbody>
+                        </thead>
+                        <tbody>
+                            ${vehicles.map(v => `
+                                <tr>
+                                    <td><strong>${v.license_plate}</strong></td>
+                                    <td>${v.brand} ${v.model}</td>
+                                    <td>${v.color || '-'}</td>
+                                    <td>${v.year || '-'}</td>
+                                    <td>${v.customers?.name || '-'}</td>
+                                    <td><button class="btn btn-primary btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
                     </table>
                 </div>
             `;
         }
 
         function renderPartsTableWithPagination(parts, currentPage, perPage, isAdmin = false) {
-            if (!parts || parts.length === 0) return `<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-boxes"></i></div><h3>ບໍ່ມີຂໍ້ມູນອາໄຫຼ່</h3></div>`;
+            if (!parts || parts.length === 0) {
+                return '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-boxes"></i></div><h3>ບໍ່ມີຂໍ້ມູນອາໄຫຼ່</h3><p>ກົດປຸ່ມ "ເພີ່ມອາໄຫຼ່" ຫຼື "ນຳເຂົ້າ Excel" ເພື່ອເລີ່ມຕົ້ນ</p></div>';
+            }
             
             const start = (currentPage - 1) * perPage;
             const end = start + perPage;
@@ -1284,23 +1304,35 @@
                 <div style="overflow-x: auto;">
                     <table class="data-table">
                         <thead>
-                            <tr><th>QR</th><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ລາຄາ</th><th>ສະຖານະ</th><th>ປະຫວັດ</th>${isAdmin ? '<th>ຈັດການ</th>' : ''}</tr>
+                            <tr>
+                                <th>QR</th>
+                                <th>ລະຫັດ</th>
+                                <th>ຊື່</th>
+                                <th>ປະເພດ</th>
+                                <th>ຈຳນວນ</th>
+                                <th>ລາຄາ</th>
+                                <th>ສະຖານະ</th>
+                                <th>ປະຫວັດ</th>
+                                ${isAdmin ? '<th>ຈັດການ</th>' : ''}
+                            </tr>
                         </thead>
                         <tbody>
                             ${paginatedParts.map(p => `
                                 <tr>
-                                    <td><i class="fas fa-qrcode" style="color: var(--primary); cursor: pointer; font-size: 1.2rem;" onclick="showPartQR('${p.id}', '${p.code}')"></i></td
-                                    <td><code>${p.code}</code></td
-                                    <td><strong>${p.name}</strong></td
-                                    <td>${p.category || '-'}</td
-                                    <td style="${p.stock_quantity < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">${p.stock_quantity}</td
-                                    <td class="currency">${formatCurrency(p.price)}</td
-                                    <td>${p.stock_quantity < 5 ? '<span class="status-badge status-warning">ໃກ້ຫມົດ</span>' : '<span class="status-badge status-approved">ມີສາງ</span>'}</td
-                                    <td><button class="btn btn-info btn-sm" onclick="showInventoryMovement('${p.id}')" title="ປະຫວັດການເຄື່ອນໄຫວ"><i class="fas fa-chart-line"></i></button></td
-                                    ${isAdmin ? `<td>
-                                        <button class="btn btn-outline btn-sm" onclick="editPart('${p.id}')" title="ແກ້ໄຂ"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-danger btn-sm" onclick="deletePart('${p.id}')" title="ລຶບ"><i class="fas fa-trash"></i></button>
-                                    </td` : ''}
+                                    <td><i class="fas fa-qrcode" style="color: var(--primary); cursor: pointer; font-size: 1.2rem;" onclick="showPartQR('${p.id}', '${p.code}')"></i></td>
+                                    <td><code>${p.code}</code></td>
+                                    <td><strong>${p.name}</strong></td>
+                                    <td>${p.category || '-'}</td>
+                                    <td style="${p.stock_quantity < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">${p.stock_quantity}</td>
+                                    <td class="currency">${formatCurrency(p.price)}</td>
+                                    <td>${p.stock_quantity < 5 ? '<span class="status-badge status-warning">ໃກ້ຫມົດ</span>' : '<span class="status-badge status-approved">ມີສາງ</span>'}</td>
+                                    <td><button class="btn btn-info btn-sm" onclick="showInventoryMovement('${p.id}')" title="ປະຫວັດການເຄື່ອນໄຫວ"><i class="fas fa-chart-line"></i></button></td>
+                                    ${isAdmin ? `
+                                        <td>
+                                            <button class="btn btn-outline btn-sm" onclick="editPart('${p.id}')" title="ແກ້ໄຂ"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-danger btn-sm" onclick="deletePart('${p.id}')" title="ລຶບ"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    ` : ''}
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -1564,7 +1596,9 @@
                     <div class="data-table-container"><div class="table-header"><h3 class="table-title"><i class="fas fa-clock"></i> ງານລ້າສຸດ</h3><button class="btn btn-primary btn-sm" onclick="showCreateJobModal()"><i class="fas fa-plus"></i> ເປີດໃບສັ່ງງານ</button></div>${renderJobsTable(jobs?.slice(0, 5) || [])}</div>
                 `;
                 await loadNotifications();
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -1591,7 +1625,9 @@
                         row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
                     });
                 });
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -1617,7 +1653,9 @@
                         row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
                     });
                 });
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -1644,7 +1682,9 @@
                         row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
                     });
                 });
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -1654,7 +1694,9 @@
             try {
                 const { data: jobs } = await DB.getJobCardsByMechanic(currentUser.id);
                 content.innerHTML = `<div class="data-table-container"><div class="table-header"><h3 class="table-title"><i class="fas fa-wrench"></i> ງານທີ່ໄດ້ຮັບມອບໝາຍ</h3></div>${renderJobsTable(jobs || [])}</div>`;
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -1672,8 +1714,10 @@
                             <h3 class="table-title"><i class="fas fa-boxes"></i> ສາງອາໄຫຼ່</h3>
                             <div class="table-actions">
                                 <input type="text" id="part-search" class="search-input" placeholder="ຄົ້ນຫາອາໄຫຼ່...">
-                                ${isAdmin ? `<button class="btn btn-outline btn-sm" onclick="showBulkUploadModal()"><i class="fas fa-file-excel"></i> ນຳເຂົ້າ Excel</button>
-                                <button class="btn btn-primary btn-sm" onclick="showAddPartModal()"><i class="fas fa-plus"></i> ເພີ່ມອາໄຫຼ່</button>` : ''}
+                                ${isAdmin ? `
+                                    <button class="btn btn-outline btn-sm" onclick="showBulkUploadModal()"><i class="fas fa-file-excel"></i> ນຳເຂົ້າ Excel</button>
+                                    <button class="btn btn-primary btn-sm" onclick="showAddPartModal()"><i class="fas fa-plus"></i> ເພີ່ມອາໄຫຼ່</button>
+                                ` : ''}
                             </div>
                         </div>
                         <div id="parts-table-container">${renderPartsTableWithPagination(allParts, currentPartPage, partsPerPage, isAdmin)}</div>
@@ -1684,7 +1728,9 @@
                     const filtered = allParts.filter(p => p.code.toLowerCase().includes(search) || p.name.toLowerCase().includes(search));
                     document.getElementById('parts-table-container').innerHTML = renderPartsTableWithPagination(filtered, 1, partsPerPage, isAdmin);
                 });
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -1703,14 +1749,31 @@
                         <div class="table-header"><h3 class="table-title"><i class="fas fa-clipboard-list"></i> ຄຳຂໍອາໄຫຼ່ຈາກຊ່າງ</h3><div class="table-actions"><button class="btn btn-outline btn-sm" onclick="showQRScannerForRequest()"><i class="fas fa-qrcode"></i> ສະແກນ QR ເບິ່ງຄຳຂໍ</button></div></div>
                         <div style="display: flex; flex-direction: column; gap: 16px; padding: 16px;">${requests.map(req => `
                             <div class="part-item" style="flex-direction: column; align-items: flex-start;">
-                                <div style="display: flex; justify-content: space-between; width: 100%;"><div class="part-info"><div class="part-name">${req.part?.name || 'ບໍ່ມີຊື່'}</div><div class="part-code">ລະຫັດ: ${req.part?.code || '-'} | ຈຳນວນ: ${req.quantity}</div></div><div class="part-price">${formatCurrency((req.part?.price || 0) * req.quantity)}</div></div>
-                                <div style="display: flex; gap: 8px; margin-top: 8px; width: 100%;"><div style="flex: 1; font-size: 0.75rem; color: var(--gray-500);">ໃບສັ່ງງານ: ${req.job_cards?.job_number || '-'}<br>ຍານພາຫະນະ: ${req.job_cards?.vehicles?.license_plate || '-'}<br>ລູກຄ້າ: ${req.job_cards?.vehicles?.customers?.name || '-'}<br>ຊ່າງ: ${req.job_cards?.mechanic?.name || '-'}</div>
-                                <div style="display: flex; gap: 8px;"><button class="btn btn-success btn-sm" onclick="approvePartRequest('${req.id}', true, ${req.quantity}, '${req.part_id}', '${req.job_card_id}')"><i class="fas fa-check"></i> ອະນຸມັດ</button><button class="btn btn-danger btn-sm" onclick="approvePartRequest('${req.id}', false)"><i class="fas fa-times"></i> ປະຕິເສດ</button></div></div>
+                                <div style="display: flex; justify-content: space-between; width: 100%;">
+                                    <div class="part-info">
+                                        <div class="part-name">${req.part?.name || 'ບໍ່ມີຊື່'}</div>
+                                        <div class="part-code">ລະຫັດ: ${req.part?.code || '-'} | ຈຳນວນ: ${req.quantity}</div>
+                                    </div>
+                                    <div class="part-price">${formatCurrency((req.part?.price || 0) * req.quantity)}</div>
+                                </div>
+                                <div style="display: flex; gap: 8px; margin-top: 8px; width: 100%;">
+                                    <div style="flex: 1; font-size: 0.75rem; color: var(--gray-500);">
+                                        ໃບສັ່ງງານ: ${req.job_cards?.job_number || '-'}<br>
+                                        ຍານພາຫະນະ: ${req.job_cards?.vehicles?.license_plate || '-'}<br>
+                                        ລູກຄ້າ: ${req.job_cards?.vehicles?.customers?.name || '-'}
+                                    </div>
+                                    <div style="display: flex; gap: 8px;">
+                                        <button class="btn btn-success btn-sm" onclick="approvePartRequest('${req.id}', true, ${req.quantity}, '${req.part_id}', '${req.job_card_id}')"><i class="fas fa-check"></i> ອະນຸມັດ</button>
+                                        <button class="btn btn-danger btn-sm" onclick="approvePartRequest('${req.id}', false)"><i class="fas fa-times"></i> ປະຕິເສດ</button>
+                                    </div>
+                                </div>
                             </div>
                         `).join('')}</div>
                     </div>
                 `;
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -1720,7 +1783,9 @@
             try {
                 const { data: jobs } = await DB.getPendingPDIJobs();
                 content.innerHTML = `<div class="data-table-container"><div class="table-header"><h3 class="table-title"><i class="fas fa-clipboard-check"></i> ຍານພາຫະນະລໍຖ້າກວດກາ PDI</h3></div>${renderJobsTable(jobs || [], true)}</div>`;
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -1731,10 +1796,27 @@
                 const { data: staff } = await DB.getStaff();
                 content.innerHTML = `
                     <div class="data-table-container"><div class="table-header"><h3 class="table-title"><i class="fas fa-users-cog"></i> ລາຍຊື່ພະນັກງານ</h3></div>
-                    <div style="overflow-x: auto;"><table class="data-table"><thead><tr><th>ຊື່</th><th>ຕຳແໜ່ງ</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ສະຖານະ</th></td></thead>
-                    <tbody>${staff?.map(s => `<tr><td><strong>${s.name}</strong><td><span class="status-badge status-approved">${getRoleLabel(s.role)}</span><td>${s.phone || '-'}</td>${s.email || '-'}<td><span class="status-badge ${s.active ? 'status-approved' : 'status-pending'}">${s.active ? 'ເຮັດວຽກ' : 'ຢຸດເຮັດວຽກ'}</span></td>`).join('') || '<tr><td colspan="5" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</td>'}</tbody></table></div></div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead><tr><th>ຊື່</th><th>ຕຳແໜ່ງ</th><th>ເບີໂທ</th><th>ອີເມວ</th><th>ສະຖານະ</th></tr></thead>
+                            <tbody>
+                                ${staff?.map(s => `
+                                    <tr>
+                                        <td><strong>${s.name}</strong></td>
+                                        <td><span class="status-badge status-approved">${getRoleLabel(s.role)}</span></td>
+                                        <td>${s.phone || '-'}</td>
+                                        <td>${s.email || '-'}</td>
+                                        <td><span class="status-badge ${s.active ? 'status-approved' : 'status-pending'}">${s.active ? 'ເຮັດວຽກ' : 'ຢຸດເຮັດວຽກ'}</span></td>
+                                    </tr>
+                                `).join('') || '<tr><td colspan="5" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 `;
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -1762,22 +1844,28 @@
                         </div>
                         <div style="overflow-x: auto;">
                             <table class="data-table">
-                                <thead><tr><th>ວັນທີ</th><th>ເລກໃບເສັງ</th><th>ເລກໃບສັ່ງງານ</th><th>ລູກຄ້າ</th><th>ຈຳນວນເງິນ</th><th>ສະຖານະ</th></tr></thead>
-                                <tbody>${transactions?.map(t => `
-                                    <tr>
-                                        <td>${formatDateTime(t.created_at)}</td
-                                        <td>${t.receipt_number}</td
-                                        <td>${t.job_cards?.job_number || '-'}</td
-                                        <td>${t.job_cards?.vehicles?.customers?.name || '-'}</td
-                                        <td class="currency">${formatCurrency(t.amount)}</td
-                                        <td><span class="status-badge ${t.status === 'paid' ? 'status-approved' : 'status-pending'}">${t.status === 'paid' ? 'ຊຳລະແລ້ວ' : 'ຍັງບໍ່ທັນຊຳລະ'}</span></td
-                                    </tr>
-                                `).join('') || '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</tr>'}</tbody>
-                            <table>
+                                <thead>
+                                    <tr><th>ວັນທີ</th><th>ເລກໃບເສັງ</th><th>ເລກໃບສັ່ງງານ</th><th>ລູກຄ້າ</th><th>ຈຳນວນເງິນ</th><th>ສະຖານະ</th></tr>
+                                </thead>
+                                <tbody>
+                                    ${transactions?.map(t => `
+                                        <tr>
+                                            <td>${formatDateTime(t.created_at)}</td
+                                            <td>${t.receipt_number}</td
+                                            <td>${t.job_cards?.job_number || '-'}</td
+                                            <td>${t.job_cards?.vehicles?.customers?.name || '-'}</td
+                                            <td class="currency">${formatCurrency(t.amount)}</td
+                                            <td><span class="status-badge ${t.status === 'paid' ? 'status-approved' : 'status-pending'}">${t.status === 'paid' ? 'ຊຳລະແລ້ວ' : 'ຍັງບໍ່ທັນຊຳລະ'}</span></td
+                                        </tr>
+                                    `).join('') || '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</tr>'}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 `;
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -1805,22 +1893,28 @@
                         </div>
                         <div style="overflow-x: auto;">
                             <table class="data-table">
-                                <thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ລາຄາຕໍ່ອັນ</th><th>ມູນຄ່າລວມ</th></table></thead>
-                                <tbody>${parts?.map(p => `
-                                    <tr>
-                                        <td>${p.code}</td
-                                        <td>${p.name}</td
-                                        <td>${p.category || '-'}</td
-                                        <td style="${p.stock_quantity < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">${p.stock_quantity}</td
-                                        <td class="currency">${formatCurrency(p.price)}</td
-                                        <td class="currency">${formatCurrency(p.price * p.stock_quantity)}</td
-                                    </tr>
-                                `).join('') || '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</tr>'}</tbody>
+                                <thead>
+                                    <tr><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ລາຄາຕໍ່ອັນ</th><th>ມູນຄ່າລວມ</th></td>
+                                </thead>
+                                <tbody>
+                                    ${parts?.map(p => `
+                                        <tr>
+                                            <td>${p.code}</td
+                                            <td>${p.name}</td
+                                            <td>${p.category || '-'}</td
+                                            <td style="${p.stock_quantity < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">${p.stock_quantity}</td
+                                            <td class="currency">${formatCurrency(p.price)}</td
+                                            <td class="currency">${formatCurrency(p.price * p.stock_quantity)}</td
+                                        </tr>
+                                    `).join('') || '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</tr>'}
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 `;
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -1840,20 +1934,26 @@
                         </div>
                         <div style="overflow-x: auto;">
                             <table class="data-table">
-                                <thead><td><th>ຊື່ລູກຄ້າ</th><th>ເບີໂທ</th><th>ຈຳນວນຍານພາຫະນະ</th><th>ວັນທີລົງທະບຽນ</th></tr></thead>
-                                <tbody>${customers?.map(c => `
-                                    <tr>
-                                        <td><strong>${c.name}</strong></td
-                                        <td>${c.phone || '-'}</td
-                                        <td>${c.vehicles?.length || 0}</td
-                                        <td>${formatDate(c.created_at)}</td
-                                    </tr>
-                                `).join('') || '<tr><td colspan="4" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</tr>'}</tbody>
+                                <thead>
+                                    <tr><th>ຊື່ລູກຄ້າ</th><th>ເບີໂທ</th><th>ຈຳນວນຍານພາຫະນະ</th><th>ວັນທີລົງທະບຽນ</th></tr>
+                                </thead>
+                                <tbody>
+                                    ${customers?.map(c => `
+                                        <tr>
+                                            <td><strong>${c.name}</strong></td>
+                                            <td>${c.phone || '-'}</td>
+                                            <td>${c.vehicles?.length || 0}</td>
+                                            <td>${formatDate(c.created_at)}</td
+                                        </tr>
+                                    `).join('') || '<td><td colspan="4" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</tr>'}
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 `;
-            } catch (error) { content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; }
+            } catch (error) { 
+                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+            }
             hideLoading();
         }
 
@@ -2002,8 +2102,9 @@
             showToast('info', 'ກຳລັງສົ່ງອອກ', 'ກະລຸນາລໍຖ້າ...');
             setTimeout(() => { showToast('success', 'ສຳເລັດ', 'ສົ່ງອອກລາຍງານສຳເລັດ'); }, 1000);
         }
+
         // ============================================
-        // JOB CARD MODALS & ACTIONS
+        // JOB CARD MODALS & ACTIONS (Simplified)
         // ============================================
         
         async function showCreateJobModal() {
@@ -2123,19 +2224,17 @@
                         <div class="form-row"><div class="form-group"><label>ຊ່າງຜູ້ຮັບຜິດຊອບ</label><input type="text" value="${job.mechanic?.name || '-'}" readonly></div><div class="form-group"><label>ສະຖານະ</label><input type="text" value="${getStatusLabel(job.status)}" readonly></div></div>
                         <div class="form-group"><label>ບັນຫາທີ່ແຈ້ງ</label><textarea readonly rows="3">${job.problem_description || '-'}</textarea></div>
                         ${job.notes ? `<div class="form-group"><label>ໝາຍເຫດ</label><textarea readonly rows="2">${job.notes}</textarea></div>` : ''}
-                        <div class="form-group"><label><i class="fas fa-boxes"></i> ອາໄຫຼ່ທີ່ຂໍ</label><div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">${job.parts?.length ? job.parts.map(p => `<div style="display:flex;justify-content:space-between;padding:8px0;border-bottom:1px solid var(--gray-200);"><div><strong>${p.part?.name}</strong><br><small>${p.part?.code}</small></div><div>${p.quantity} x ${formatCurrency(p.part?.price)}</div><div><strong>${formatCurrency((p.part?.price||0)*p.quantity)}</strong></div></div>`).join('') : '<div style="color:var(--gray-500);">ຍັງບໍ່ມີການຂໍອາໄຫຼ່</div>'}</div></div>
-                        <div class="form-group"><label><i class="fas fa-tools"></i> ຄ່າແຮງງານ</label><div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">${job.labor?.length ? job.labor.map(l => `<div style="display:flex;justify-content:space-between;padding:8px0;border-bottom:1px solid var(--gray-200);"><div><strong>${l.description}</strong><br><small>${l.hours} ຊົ່ວໂມງ x ${formatCurrency(l.hourly_rate)}/ຊມ</small></div><div><strong>${formatCurrency(l.cost)}</strong></div></div>`).join('') : '<div style="color:var(--gray-500);">ຍັງບໍ່ມີການບັນທຶກຄ່າແຮງງານ</div>'}</div></div>
-                        <div style="padding:12px;background:var(--primary-light);border-radius:8px;margin-top:16px;"><div style="display:flex;justify-content:space-between;font-weight:600;"><span>ລວມຄ່າອາໄຫຼ່:</span><span>${formatCurrency(partsTotal)}</span></div><div style="display:flex;justify-content:space-between;font-weight:600;margin-top:8px;"><span>ລວມຄ່າແຮງງານ:</span><span>${formatCurrency(laborTotal)}</span></div><div style="display:flex;justify-content:space-between;font-weight:700;color:var(--primary);margin-top:12px;padding-top:12px;border-top:2px solid var(--primary);"><span>ລວມທັງໝົດ:</span><span>${formatCurrency(partsTotal+laborTotal)}</span></div></div>
-                        <div class="form-group"><label>ວັນທີເປີດງານ</label><input type="text" value="${formatDateTime(job.created_at)}" readonly></div>
-                        ${job.started_at ? `<div class="form-group"><label>ວັນທີເລີ່ມງານ</label><input type="text" value="${formatDateTime(job.started_at)}" readonly></div>` : ''}
-                        ${job.completed_at ? `<div class="form-group"><label>ວັນທີສຳເລັດ</label><input type="text" value="${formatDateTime(job.completed_at)}" readonly></div>` : ''}
+                        <div class="form-group"><label>ອາໄຫຼ່ທີ່ຂໍ</label><div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">${job.parts?.length ? job.parts.map(p => `<div style="display:flex;justify-content:space-between;padding:8px0;"><div><strong>${p.part?.name}</strong><br><small>${p.part?.code}</small></div><div>${p.quantity} x ${formatCurrency(p.part?.price)}</div><div><strong>${formatCurrency((p.part?.price||0)*p.quantity)}</strong></div></div>`).join('') : '<div>ຍັງບໍ່ມີການຂໍອາໄຫຼ່</div>'}</div></div>
+                        <div class="form-group"><label>ຄ່າແຮງງານ</label><div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">${job.labor?.length ? job.labor.map(l => `<div style="display:flex;justify-content:space-between;padding:8px0;"><div><strong>${l.description}</strong><br><small>${l.hours} ຊມ x ${formatCurrency(l.hourly_rate)}/ຊມ</small></div><div><strong>${formatCurrency(l.cost)}</strong></div></div>`).join('') : '<div>ຍັງບໍ່ມີການບັນທຶກຄ່າແຮງງານ</div>'}</div></div>
+                        <div style="padding:12px;background:var(--primary-light);border-radius:8px;margin-top:16px;"><div><span>ລວມຄ່າອາໄຫຼ່:</span><span>${formatCurrency(partsTotal)}</span></div><div><span>ລວມຄ່າແຮງງານ:</span><span>${formatCurrency(laborTotal)}</span></div><div><strong>ລວມທັງໝົດ: ${formatCurrency(partsTotal+laborTotal)}</strong></div></div>
+                        <div><label>ວັນທີເປີດງານ</label><input type="text" value="${formatDateTime(job.created_at)}" readonly></div>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
                         ${job.status === 'assigned' && currentUser.role === 'mechanic' ? `<button class="btn btn-primary" onclick="startJob('${job.id}')">ເລີ່ມງານ</button>` : ''}
-                        ${(job.status === 'in_progress' || job.status === 'parts_approved') && currentUser.role === 'mechanic' ? `<button class="btn btn-warning" onclick="showRequestPartsModal('${job.id}')"><i class="fas fa-boxes"></i> ຂໍອາໄຫຼ່/ເພີ່ມຄ່າແຮງງານ</button><button class="btn btn-success" onclick="completeJob('${job.id}')">ສຳເລັດງານ</button>` : ''}
+                        ${(job.status === 'in_progress' || job.status === 'parts_approved') && currentUser.role === 'mechanic' ? `<button class="btn btn-warning" onclick="showRequestPartsModal('${job.id}')">ຂໍອາໄຫຼ່/ເພີ່ມຄ່າແຮງງານ</button><button class="btn btn-success" onclick="completeJob('${job.id}')">ສຳເລັດງານ</button>` : ''}
                         ${job.status === 'completed' && currentUser.role === 'pdi' ? `<button class="btn btn-primary" onclick="startPDI('${job.id}')">ກວດກາ PDI</button>` : ''}
-                        ${job.status === 'completed' && currentUser.role === 'mechanic' ? `<button class="btn btn-info" onclick="printCustomerReceipt('${job.id}')"><i class="fas fa-print"></i> ພິມໃບສົ່ງງານ</button>` : ''}
+                        ${job.status === 'completed' && currentUser.role === 'mechanic' ? `<button class="btn btn-info" onclick="printCustomerReceipt('${job.id}')">ພິມໃບສົ່ງງານ</button>` : ''}
                     </div>
                 </div>
             `;
@@ -2180,9 +2279,14 @@
                 <div class="modal-content modal-xl">
                     <div class="modal-header"><h3><i class="fas fa-boxes"></i> ຂໍອາໄຫຼ່ ແລະ ບັນທຶກຄ່າແຮງງານ</h3><button class="close-btn" onclick="closeModal(this)">&times;</button></div>
                     <div class="modal-body">
-                        <div style="margin-bottom:20px;"><button class="btn btn-primary" onclick="scanPartForJob('${jobId}')"><i class="fas fa-qrcode"></i> ສະແກນ QR ອາໄຫຼ່</button><button class="btn btn-outline" onclick="manualSelectPart('${jobId}')"><i class="fas fa-search"></i> ເລືອກອາໄຫຼ່ຈາກລາຍການ</button></div>
-                        <h4 style="margin-bottom:12px;">ອາໄຫຼ່ທີ່ຂໍ</h4><div id="selected-parts-list">${renderSelectedParts(existingParts || [], jobId)}</div>
-                        <h4 style="margin-bottom:12px;">ຄ່າແຮງງານ</h4><div id="labor-list">${renderLaborList(existingLabor || [], jobId)}</div>
+                        <div style="margin-bottom:20px;">
+                            <button class="btn btn-primary" onclick="scanPartForJob('${jobId}')"><i class="fas fa-qrcode"></i> ສະແກນ QR ອາໄຫຼ່</button>
+                            <button class="btn btn-outline" onclick="manualSelectPart('${jobId}')"><i class="fas fa-search"></i> ເລືອກອາໄຫຼ່ຈາກລາຍການ</button>
+                        </div>
+                        <h4 style="margin-bottom:12px;">ອາໄຫຼ່ທີ່ຂໍ</h4>
+                        <div id="selected-parts-list" style="margin-bottom:20px;">${renderSelectedParts(existingParts || [], jobId)}</div>
+                        <h4 style="margin-bottom:12px;">ຄ່າແຮງງານ</h4>
+                        <div id="labor-list">${renderLaborList(existingLabor || [], jobId)}</div>
                         <button class="btn btn-outline btn-sm" onclick="addLaborEntry('${jobId}')"><i class="fas fa-plus"></i> ເພີ່ມຄ່າແຮງງານ</button>
                     </div>
                     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal(this)">ປິດ</button><button class="btn btn-primary" onclick="submitPartsRequest('${jobId}')">ສົ່ງຄຳຂໍໄປສາງ</button></div>
@@ -2192,21 +2296,25 @@
         }
 
         function renderSelectedParts(parts, jobId) {
-            if (!parts?.length) return `<div class="empty-state" style="padding:20px;"><h4>ຍັງບໍ່ມີອາໄຫຼ່ທີ່ເລືອກ</h4></div>`;
+            if (!parts?.length) return `<div class="empty-state" style="padding:20px;"><h4>ຍັງບໍ່ມີອາໄຫຼ່ທີ່ເລືອກ</h4><p>ກົດສະແກນ QR ຫຼື ເລືອກອາໄຫຼ່</p></div>`;
             return `<div class="parts-list">${parts.map(p => `
-                <div class="part-item"><div class="part-info"><div class="part-name">${p.part?.name || 'ບໍ່ມີຊື່'}</div><div class="part-code">${p.part?.code || '-'} | ສາງ: ${p.part?.stock_quantity || 0} | ລາຄາ: ${formatCurrency(p.part?.price)}</div></div>
-                <div class="part-qty"><button class="qty-btn" onclick="updatePartQty('${p.id}', -1, '${jobId}')"><i class="fas fa-minus"></i></button><span>${p.quantity}</span><button class="qty-btn" onclick="updatePartQty('${p.id}', 1, '${jobId}')"><i class="fas fa-plus"></i></button></div>
-                <div class="part-price">${formatCurrency((p.part?.price || 0) * p.quantity)}</div>
-                <button class="btn btn-sm btn-danger btn-icon" onclick="removePart('${p.id}', '${jobId}')"><i class="fas fa-trash"></i></button></div>
+                <div class="part-item">
+                    <div class="part-info"><div class="part-name">${p.part?.name || 'ບໍ່ມີຊື່'}</div><div class="part-code">${p.part?.code || '-'} | ສາງ: ${p.part?.stock_quantity || 0} | ລາຄາ: ${formatCurrency(p.part?.price)}</div></div>
+                    <div class="part-qty"><button class="qty-btn" onclick="updatePartQty('${p.id}', -1, '${jobId}')"><i class="fas fa-minus"></i></button><span>${p.quantity}</span><button class="qty-btn" onclick="updatePartQty('${p.id}', 1, '${jobId}')"><i class="fas fa-plus"></i></button></div>
+                    <div class="part-price">${formatCurrency((p.part?.price || 0) * p.quantity)}</div>
+                    <button class="btn btn-sm btn-danger btn-icon" onclick="removePart('${p.id}', '${jobId}')"><i class="fas fa-trash"></i></button>
+                </div>
             `).join('')}</div>`;
         }
 
         function renderLaborList(labor, jobId) {
-            if (!labor?.length) return '<div style="color:var(--gray-500);padding:12px;background:var(--gray-100);">ຍັງບໍ່ມີການບັນທຶກຄ່າແຮງງານ</div>';
+            if (!labor?.length) return '<div style="color:var(--gray-500);padding:12px;background:var(--gray-100);border-radius:8px;">ຍັງບໍ່ມີການບັນທຶກຄ່າແຮງງານ</div>';
             return labor.map(l => `
-                <div class="labor-item"><div class="part-info"><div class="part-name">${l.description}</div><div class="part-code">${l.labor_type || 'ທົ່ວໄປ'} | ${l.hours} ຊມ x ${formatCurrency(l.hourly_rate)}/ຊມ</div></div>
-                <div class="part-price">${formatCurrency(l.cost)}</div>
-                <button class="btn btn-sm btn-danger btn-icon" onclick="removeLabor('${l.id}', '${jobId}')"><i class="fas fa-trash"></i></button></div>
+                <div class="labor-item">
+                    <div class="part-info" style="flex:1;"><div class="part-name">${l.description}</div><div class="part-code">${l.labor_type || 'ທົ່ວໄປ'} | ${l.hours} ຊມ x ${formatCurrency(l.hourly_rate)}/ຊມ</div></div>
+                    <div class="part-price">${formatCurrency(l.cost)}</div>
+                    <button class="btn btn-sm btn-danger btn-icon" onclick="removeLabor('${l.id}', '${jobId}')"><i class="fas fa-trash"></i></button>
+                </div>
             `).join('');
         }
 
@@ -2223,7 +2331,8 @@
 
         window.manualSelectPart = async function(jobId) {
             const { data: parts } = await DB.getParts();
-            const code = prompt(`ເລືອກອາໄຫຼ່ (ປ້ອນລະຫັດ):\n${parts.map(p => `${p.code} - ${p.name}`).join('\n')}`);
+            const partOptions = parts.map(p => `${p.code} - ${p.name} (${formatCurrency(p.price)})`).join('\n');
+            const code = prompt(`ເລືອກອາໄຫຼ່ (ປ້ອນລະຫັດ):\n\n${partOptions}`);
             if (code) { const { data: part } = await DB.getPartByCode(code); if (part) await addPartToJob(jobId, part.id, 1); else showToast('error', 'ບໍ່ພົບ', 'ບໍ່ພົບລະຫັດນີ້'); }
         };
 
@@ -2261,11 +2370,17 @@
             const modal = document.createElement('div');
             modal.className = 'modal show';
             modal.innerHTML = `
-                <div class="modal-content"><div class="modal-header"><h3><i class="fas fa-tools"></i> ເພີ່ມຄ່າແຮງງານ</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                <div class="modal-body"><div class="form-group"><label>ລາຍລະອຽດງານ <span class="required">*</span></label><input type="text" id="labor_desc" required></div>
-                <div class="form-row"><div class="form-group"><label>ປະເພດຊ່າງ</label><select id="labor_type"><option value="general">ຊ່າງທົ່ວໄປ (50,000 ₭/ຊມ)</option><option value="electrical">ຊ່າງໄຟຟ້າ (70,000)</option><option value="engine">ຊ່າງເຄື່ອງຈັກ (80,000)</option><option value="transmission">ຊ່າງເກຍ (90,000)</option><option value="body">ຊ່າງສີ (60,000)</option><option value="diagnostic">ຊ່າງວິນິດໄສ (100,000)</option></select></div>
-                <div class="form-group"><label>ຈຳນວນຊົ່ວໂມງ <span class="required">*</span></label><input type="number" id="labor_hours" required min="0.5" step="0.5" value="1"></div></div></div>
-                <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button><button class="btn btn-primary" onclick="saveLabor('${jobId}')">ບັນທຶກ</button></div></div>
+                <div class="modal-content">
+                    <div class="modal-header"><h3><i class="fas fa-tools"></i> ເພີ່ມຄ່າແຮງງານ</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
+                    <div class="modal-body">
+                        <div class="form-group"><label>ລາຍລະອຽດງານ <span class="required">*</span></label><input type="text" id="labor_desc" required placeholder="ຕົວຢ່າງ: ປ່ຽນນໍ້າມັນເຄື່ອງ"></div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ປະເພດຊ່າງ</label><select id="labor_type"><option value="general">ຊ່າງທົ່ວໄປ (50,000 ₭/ຊມ)</option><option value="electrical">ຊ່າງໄຟຟ້າ (70,000)</option><option value="engine">ຊ່າງເຄື່ອງຈັກ (80,000)</option><option value="transmission">ຊ່າງເກຍ (90,000)</option><option value="body">ຊ່າງສີ (60,000)</option><option value="diagnostic">ຊ່າງວິນິດໄສ (100,000)</option></select></div>
+                            <div class="form-group"><label>ຈຳນວນຊົ່ວໂມງ <span class="required">*</span></label><input type="number" id="labor_hours" required min="0.5" step="0.5" value="1"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button><button class="btn btn-primary" onclick="saveLabor('${jobId}')">ບັນທຶກ</button></div>
+                </div>
             `;
             document.body.appendChild(modal);
         };
@@ -2275,6 +2390,7 @@
             const type = document.getElementById('labor_type')?.value;
             const hours = parseFloat(document.getElementById('labor_hours')?.value);
             if (!desc) { showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນລາຍລະອຽດ'); return; }
+            if (!hours || hours <= 0) { showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນຈຳນວນຊົ່ວໂມງ'); return; }
             const rate = LABOR_RATES[type] || 50000;
             const cost = rate * hours;
             showLoading();
@@ -2505,7 +2621,7 @@
                 <div class="modal-content">
                     <div class="modal-header"><h3><i class="fas fa-car"></i> ຍານພາຫະນະຂອງ ${customerName}</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
                     <div class="modal-body">
-                        ${vehicles?.length ? `<div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ຈັດການ</th></tr></thead><tbody>${vehicles.map(v => `<tr><td><strong>${v.license_plate}</strong></td><td>${v.brand} ${v.model}</td><td>${v.color || '-'}</td><td>${v.year || '-'}</td><td><button class="btn btn-primary btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty-state">ບໍ່ມີຂໍ້ມູນ</div>'}
+                        ${vehicles?.length ? `<div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>ປ້າຍທະບຽນ</th><th>ຍີ່ຫໍ້/ຮຸ່ນ</th><th>ສີ</th><th>ປີ</th><th>ຈັດການ</th><tr></thead><tbody>${vehicles.map(v => `<tr><td><strong>${v.license_plate}</strong></td><td>${v.brand} ${v.model}</td><td>${v.color || '-'}</td><td>${v.year || '-'}</td><td><button class="btn btn-primary btn-sm" onclick="createJobForVehicle('${v.id}')"><i class="fas fa-clipboard-list"></i> ເປີດງານ</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty-state">ບໍ່ມີຂໍ້ມູນ</div>'}
                         <div style="margin-top:16px;"><button class="btn btn-primary" onclick="this.closest('.modal').remove(); addVehicleToCustomer('${customerId}', '${customerName}')"><i class="fas fa-plus"></i> ເພີ່ມຍານພາຫະນະ</button></div>
                     </div>
                 </div>
@@ -2603,8 +2719,11 @@
             } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
         };
 
-        window.deletePart = async function(partId) {
-            if (currentUser.role !== 'admin') { showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານ'); return; }
+               window.deletePart = async function(partId) {
+            if (currentUser.role !== 'admin') { 
+                showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານ'); 
+                return; 
+            }
             if (!confirm('ຕ້ອງການລຶບອາໄຫຼ່ນີ້?')) return;
             showLoading();
             try {
@@ -2612,7 +2731,10 @@
                 hideLoading();
                 showToast('success', 'ສຳເລັດ', 'ລຶບອາໄຫຼ່ສຳເລັດ');
                 await loadParts();
-            } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+            } catch (error) { 
+                hideLoading(); 
+                showToast('error', 'ຜິດພາດ', error.message); 
+            }
         };
 
         window.showInventoryMovement = async function(partId) {
@@ -2622,38 +2744,92 @@
             modal.className = 'modal show';
             modal.innerHTML = `
                 <div class="modal-content" style="max-width:700px;">
-                    <div class="modal-header"><h3><i class="fas fa-chart-line"></i> ປະຫວັດການເຄື່ອນໄຫວ: ${part?.code} - ${part?.name}</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
-                    <div class="modal-body">
-                        ${movements?.length ? `<div style="max-height:500px;overflow-y:auto;"><table class="data-table"><thead><tr><th>ວັນທີ</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ໃບສັ່ງງານ</th><th>ລູກຄ້າ</th></tr></thead><tbody>${movements.map(m => `<tr><td>${formatDateTime(m.approved_at || m.created_at)}</td><td><span class="status-badge status-approved">ເບີກອອກ</span></td><td style="color:var(--danger);">-${m.quantity}</td><td>${m.job_cards?.job_number || '-'}</td><td>${m.job_cards?.vehicles?.customers?.name || '-'}</td>`).join('')}</tbody></table></div>` : '<div class="empty-state">ບໍ່ມີປະຫວັດ</div>'}
+                    <div class="modal-header">
+                        <h3><i class="fas fa-chart-line"></i> ປະຫວັດການເຄື່ອນໄຫວ: ${part?.code} - ${part?.name}</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button></div>
+                    <div class="modal-body">
+                        ${movements?.length ? `
+                            <div style="max-height:500px;overflow-y:auto;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr><th>ວັນທີ</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ໃບສັ່ງງານ</th><th>ລູກຄ້າ</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        ${movements.map(m => `
+                                            <tr>
+                                                <td>${formatDateTime(m.approved_at || m.created_at)}</td
+                                                <td><span class="status-badge status-approved">ເບີກອອກ</span></td
+                                                <td style="color: var(--danger); font-weight: bold;">-${m.quantity}</td
+                                                <td>${m.job_cards?.job_number || '-'}</td
+                                                <td>${m.job_cards?.vehicles?.customers?.name || '-'}</td
+                                            <tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ` : '<div class="empty-state">ບໍ່ມີປະຫວັດການເຄື່ອນໄຫວ</div>'}
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
+                    </div>
                 </div>
             `;
             document.body.appendChild(modal);
         };
 
         window.showBulkUploadModal = function() {
-            if (currentUser.role !== 'admin') { showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານ'); return; }
+            if (currentUser.role !== 'admin') { 
+                showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານ'); 
+                return; 
+            }
+            
             const modal = document.createElement('div');
             modal.className = 'modal show';
             modal.innerHTML = `
                 <div class="modal-content" style="max-width:800px;">
-                    <div class="modal-header"><h3><i class="fas fa-file-excel"></i> ນຳເຂົ້າ Excel</h3><button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button></div>
+                    <div class="modal-header">
+                        <h3><i class="fas fa-file-excel"></i> ນຳເຂົ້າ Excel</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
                     <div class="modal-body">
-                        <div class="file-upload-area" id="excel-upload-area"><i class="fas fa-cloud-upload-alt fa-2x"></i><p>ກົດເພື່ອເລືອກຟາຍ Excel</p><p style="font-size:12px;">ຕ້ອງມີຄໍລໍາ: code, name, category, brand, stock_quantity, price</p></div>
+                        <div class="file-upload-area" id="excel-upload-area">
+                            <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                            <p>ກົດເພື່ອເລືອກຟາຍ Excel</p>
+                            <p style="font-size:12px;">ຕ້ອງມີຄໍລໍາ: code, name, category, brand, stock_quantity, price</p>
+                        </div>
                         <div id="preview-data" style="margin-top:20px;display:none;"></div>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button><button class="btn btn-primary" id="confirm-upload-btn" style="display:none;" onclick="confirmBulkUpload()">ຢືນຢັນ</button></div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                        <button class="btn btn-primary" id="confirm-upload-btn" style="display:none;" onclick="confirmBulkUpload()">ຢືນຢັນ</button>
+                    </div>
                 </div>
             `;
             document.body.appendChild(modal);
             
             const uploadArea = document.getElementById('excel-upload-area');
             let uploadedData = [];
-            uploadArea.onclick = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = '.xlsx,.xls,.csv'; input.onchange = (e) => processExcelFile(e.target.files[0]); input.click(); };
-            uploadArea.ondragover = (e) => { e.preventDefault(); uploadArea.style.borderColor = 'var(--primary)'; };
+            
+            uploadArea.onclick = () => { 
+                const input = document.createElement('input'); 
+                input.type = 'file'; 
+                input.accept = '.xlsx,.xls,.csv'; 
+                input.onchange = (e) => processExcelFile(e.target.files[0]); 
+                input.click(); 
+            };
+            
+            uploadArea.ondragover = (e) => { 
+                e.preventDefault(); 
+                uploadArea.style.borderColor = 'var(--primary)'; 
+            };
+            
             uploadArea.ondragleave = () => uploadArea.style.borderColor = 'var(--gray-300)';
-            uploadArea.ondrop = (e) => { e.preventDefault(); processExcelFile(e.dataTransfer.files[0]); };
+            
+            uploadArea.ondrop = (e) => { 
+                e.preventDefault(); 
+                processExcelFile(e.dataTransfer.files[0]); 
+            };
             
             function processExcelFile(file) {
                 if (!file) return;
@@ -2675,7 +2851,18 @@
                     }));
                     const preview = document.getElementById('preview-data');
                     preview.style.display = 'block';
-                    preview.innerHTML = `<h4>ພົບ ${uploadedData.length} ລາຍການ</h4><div style="max-height:200px;overflow-y:auto;"><table class="data-table"><thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ຈຳນວນ</th><th>ລາຄາ</th></tr></thead><tbody>${uploadedData.slice(0,10).map(p => `<tr><td>${p.code}</td><td>${p.name}</td><td>${p.stock_quantity}</td><td class="currency">${formatCurrency(p.price)}</td></tr>`).join('')}${uploadedData.length > 10 ? `<tr><td colspan="4">... ແລະອີກ ${uploadedData.length-10} ລາຍການ</td>` : ''}</tbody></table></div>`;
+                    preview.innerHTML = `
+                        <h4>ພົບ ${uploadedData.length} ລາຍການ</h4>
+                        <div style="max-height:300px;overflow-y:auto;">
+                            <table class="data-table">
+                                <thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ຈຳນວນ</th><th>ລາຄາ</th></tr></thead>
+                                <tbody>
+                                    ${uploadedData.slice(0,10).map(p => `<tr><td>${p.code}</td><td>${p.name}</td><td>${p.stock_quantity}</td><td class="currency">${formatCurrency(p.price)}</td></tr>`).join('')}
+                                    ${uploadedData.length > 10 ? `<tr><td colspan="4">... ແລະອີກ ${uploadedData.length-10} ລາຍການ</td></tr>` : ''}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
                     document.getElementById('confirm-upload-btn').style.display = 'inline-flex';
                 };
                 reader.readAsArrayBuffer(file);
@@ -2684,19 +2871,31 @@
             window.confirmBulkUpload = async function() {
                 showLoading();
                 try {
-                    let success = 0, error = 0;
+                    let successCount = 0;
+                    let errorCount = 0;
+                    
                     for (const part of uploadedData) {
                         try {
                             const { data: existing } = await DB.getPartByCode(part.code);
-                            if (!existing) { await DB.createPart(part); success++; }
-                            else error++;
-                        } catch (err) { error++; }
+                            if (!existing) {
+                                await DB.createPart(part);
+                                successCount++;
+                            } else {
+                                errorCount++;
+                            }
+                        } catch (err) {
+                            errorCount++;
+                        }
                     }
+                    
                     hideLoading();
                     document.querySelector('.modal.show')?.remove();
-                    showToast('success', 'ສຳເລັດ', `ນຳເຂົ້າສຳເລັດ ${success} ລາຍການ, ຊ້ຳ ${error}`);
+                    showToast('success', 'ສຳເລັດ', `ນຳເຂົ້າສຳເລັດ ${successCount} ລາຍການ, ຊ້ຳ ${errorCount}`);
                     await loadParts();
-                } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
+                } catch (error) { 
+                    hideLoading(); 
+                    showToast('error', 'ຜິດພາດ', error.message); 
+                }
             };
         };
 
@@ -2721,18 +2920,32 @@
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             initSupabase();
+            
             const savedUser = getCurrentUser();
-            if (savedUser && savedUser.id) { currentUser = savedUser; showMainApp(); }
+            if (savedUser && savedUser.id) { 
+                currentUser = savedUser; 
+                showMainApp(); 
+            }
             
             document.getElementById('login-btn').addEventListener('click', async () => {
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
                 const role = document.getElementById('role').value;
                 const errorDiv = document.getElementById('login-error');
-                if (!role) { errorDiv.textContent = 'ກະລຸນາເລືອກຕຳແໜ່ງ'; errorDiv.classList.add('show'); return; }
+                
+                if (!role) {
+                    errorDiv.textContent = 'ກະລຸນາເລືອກຕຳແໜ່ງ';
+                    errorDiv.classList.add('show');
+                    return;
+                }
+                
                 const success = await login(email, password, role);
-                if (success) errorDiv.classList.remove('show');
-                else { errorDiv.textContent = 'ອີເມວ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ'; errorDiv.classList.add('show'); }
+                if (success) {
+                    errorDiv.classList.remove('show');
+                } else {
+                    errorDiv.textContent = 'ອີເມວ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ';
+                    errorDiv.classList.add('show');
+                }
             });
             
             document.getElementById('logout-btn').addEventListener('click', logout);
@@ -2746,15 +2959,18 @@
                     alert(msg); 
                     for (const n of notifications) await DB.markNotificationRead(n.id); 
                     await loadNotifications(); 
-                } else showToast('info', 'ແຈ້ງເຕືອນ', 'ບໍ່ມີການແຈ້ງເຕືອນໃໝ່');
+                } else {
+                    showToast('info', 'ແຈ້ງເຕືອນ', 'ບໍ່ມີການແຈ້ງເຕືອນໃໝ່');
+                }
             });
             
+            // Enter key support for login
             ['email', 'password', 'role'].forEach(id => { 
-                document.getElementById(id).addEventListener('keypress', (e) => { if (e.key === 'Enter') document.getElementById('login-btn').click(); }); 
+                document.getElementById(id).addEventListener('keypress', (e) => { 
+                    if (e.key === 'Enter') document.getElementById('login-btn').click(); 
+                }); 
             });
         });
     </script>
 </body>
 </html>
-
-
