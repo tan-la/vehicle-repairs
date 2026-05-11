@@ -2272,15 +2272,17 @@
             } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
         };
 
-        window.deletePart = async function(partId) {
-            if (currentUser.role !== 'admin') { showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານເທົ່ານັ້ນ'); return; }
+                window.deletePart = async function(partId) {
+            if (currentUser.role !== 'admin') { 
+                showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານເທົ່ານັ້ນ'); 
+                return; 
+            }
             if (!confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບອາໄຫຼ່ນີ້?')) return;
             showLoading();
             try {
                 await DB.deletePart(partId);
                 hideLoading();
-                showToast('success', 'ສຳເລັດ', 'ລຶບອາໄຫຼ່ສຳ
-                            showToast('success', 'ສຳເລັດ', 'ລຶບອາໄຫຼ່ສຳເລັດ');
+                showToast('success', 'ສຳເລັດ', 'ລຶບອາໄຫຼ່ສຳເລັດ');
                 await loadParts();
             } catch (error) { 
                 hideLoading(); 
@@ -2303,15 +2305,17 @@
                         ${movements?.length ? `
                             <div style="max-height:500px;overflow-y:auto;">
                                 <table class="data-table">
-                                    <thead><tr><th>ວັນທີ</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ໃບສັ່ງງານ</th><th>ລູກຄ້າ</th></tr></thead>
+                                    <thead>
+                                        <tr><th>ວັນທີ</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ໃບສັ່ງງານ</th><th>ລູກຄ້າ</th></table>
+                                    </thead>
                                     <tbody>
                                         ${movements.map(m => `
                                             <tr>
-                                                <td>${formatDateTime(m.approved_at || m.created_at)}</td>
+                                                <td>${formatDateTime(m.approved_at || m.created_at)}</td
                                                 <td><span class="status-badge status-approved">ເບີກອອກ</span></td>
-                                                <td style="color: var(--danger); font-weight: bold;">-${m.quantity}</td>
-                                                <td>${m.job_cards?.job_number || '-'}</td>
-                                                <td>${m.job_cards?.vehicles?.customers?.name || '-'}</td>
+                                                <td style="color: var(--danger); font-weight: bold;">-${m.quantity}</td
+                                                <td>${m.job_cards?.job_number || '-'}</td
+                                                <td>${m.job_cards?.vehicles?.customers?.name || '-'}</td
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -2328,7 +2332,10 @@
         };
 
         window.showBulkUploadModal = function() {
-            if (currentUser.role !== 'admin') { showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານເທົ່ານັ້ນ'); return; }
+            if (currentUser.role !== 'admin') { 
+                showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານເທົ່ານັ້ນ'); 
+                return; 
+            }
             
             const modal = document.createElement('div');
             modal.className = 'modal show';
@@ -2403,7 +2410,7 @@
                             <table class="data-table">
                                 <thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ຈຳນວນ</th><th>ລາຄາ</th></tr></thead>
                                 <tbody>
-                                    ${uploadedData.slice(0,10).map(p => `<tr><td>${p.code}</td><td>${p.name}</td><td>${p.stock_quantity}</td><td class="currency">${formatCurrency(p.price)}</td></tr>`).join('')}
+                                    ${uploadedData.slice(0,10).map(p => `<tr><td>${p.code}</td><td>${p.name}</td><td>${p.stock_quantity}</td><td class="currency">${formatCurrency(p.price)}</td>`).join('')}
                                     ${uploadedData.length > 10 ? `<tr><td colspan="4">... ແລະອີກ ${uploadedData.length-10} ລາຍການ</td></tr>` : ''}
                                 </tbody>
                             </table>
@@ -2422,7 +2429,6 @@
                     
                     for (const part of uploadedData) {
                         try {
-                            // Check if part code already exists
                             const { data: existing } = await DB.getPartByCode(part.code);
                             if (!existing) {
                                 await DB.createPart(part);
