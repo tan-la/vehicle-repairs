@@ -1678,33 +1678,34 @@
         }
 
         async function loadJobCards() {
-            const content = document.getElementById('content-area');
-            showLoading();
-            try {
-                const { data: jobs } = await DB.getJobCards();
-                content.innerHTML = `
-                    <div class="data-table-container">
-                        <div class="table-header">
-                            <h3 class="table-title"><i class="fas fa-clipboard-list"></i> ລາຍການໃບສັ່ງງານ</h3>
-                            <div class="table-actions">
-                                <input type="text" id="job-search" class="search-input" placeholder="ຄົ້ນຫາໃບສັ່ງງານ...">
-                                <button class="btn btn-primary btn-sm" onclick="showCreateJobModal()"><i class="fas fa-plus"></i> ເປີດໃບສັ່ງງານ</button>
-                            </div>
-                        </div>
-                        <div id="jobs-table">${renderJobsTable(jobs || [])}</div>
+    const content = document.getElementById('content-area');
+    showLoading();
+    try {
+        const { data: jobs } = await DB.getJobCards();
+        content.innerHTML = `
+            <div class="data-table-container">
+                <div class="table-header">
+                    <h3 class="table-title"><i class="fas fa-clipboard-list"></i> ລາຍການໃບສັ່ງງານ</h3>
+                    <div class="table-actions">
+                        <input type="text" id="job-search" class="search-input" placeholder="ຄົ້ນຫາໃບສັ່ງງານ...">
+                        <button class="btn btn-outline btn-sm" onclick="showAdvancedSearch()"><i class="fas fa-search-plus"></i> ຄົ້ນຫາຂັ້ນສູງ</button>
+                        <button class="btn btn-primary btn-sm" onclick="showCreateJobModal()"><i class="fas fa-plus"></i> ເປີດໃບສັ່ງງານ</button>
                     </div>
-                `;
-                document.getElementById('job-search')?.addEventListener('keyup', (e) => {
-                    const search = e.target.value.toLowerCase();
-                    document.querySelectorAll('#jobs-table .data-table tbody tr').forEach(row => {
-                        row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
-                    });
-                });
-            } catch (error) { 
-                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
-            }
-            hideLoading();
-        }
+                </div>
+                <div id="jobs-table">${renderJobsTable(jobs || [])}</div>
+            </div>
+        `;
+        document.getElementById('job-search')?.addEventListener('keyup', (e) => {
+            const search = e.target.value.toLowerCase();
+            document.querySelectorAll('#jobs-table .data-table tbody tr').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
+            });
+        });
+    } catch (error) { 
+        content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+    }
+    hideLoading();
+}
 
         async function loadMyJobs() {
             const content = document.getElementById('content-area');
@@ -1995,6 +1996,140 @@
             hideLoading();
         }
 
+        // ============================================
+// ADD ADVANCED SEARCH FUNCTIONS HERE
+// ============================================
+
+function showAdvancedSearch() {
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-search"></i> ຄົ້ນຫາຂັ້ນສູງ</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>ວັນທີເລີ່ມ</label>
+                    <input type="date" id="search_date_from" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>ວັນທີສິ້ນສຸດ</label>
+                    <input type="date" id="search_date_to" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>ສະຖານະ</label>
+                    <select id="search_status" class="form-control">
+                        <option value="">ທັງໝົດ</option>
+                        <option value="pending">ລໍຖ້າ</option>
+                        <option value="assigned">ມອບໝາຍ</option>
+                        <option value="in_progress">ກຳລັງສ້ອມແປງ</option>
+                        <option value="completed">ສຳເລັດ</option>
+                        <option value="released">ສົ່ງມອບ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ລະດັບລາຄາ (₭)</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="search_min_price" class="form-control" placeholder="ຕຳ່ສຸດ" style="flex:1">
+                        <input type="number" id="search_max_price" class="form-control" placeholder="ສູງສຸດ" style="flex:1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ເລກໃບສັ່ງງານ</label>
+                    <input type="text" id="search_job_number" class="form-control" placeholder="JC...">
+                </div>
+                <div class="form-group">
+                    <label>ປ້າຍທະບຽນ</label>
+                    <input type="text" id="search_license_plate" class="form-control" placeholder="ກມ 1234">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                <button class="btn btn-danger" onclick="clearAdvancedSearch()">ລ້າງທັງໝົດ</button>
+                <button class="btn btn-primary" onclick="performAdvancedSearch()">ຄົ້ນຫາ</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function performAdvancedSearch() {
+    showLoading();
+    try {
+        const dateFrom = document.getElementById('search_date_from')?.value;
+        const dateTo = document.getElementById('search_date_to')?.value;
+        const status = document.getElementById('search_status')?.value;
+        const minPrice = document.getElementById('search_min_price')?.value;
+        const maxPrice = document.getElementById('search_max_price')?.value;
+        const jobNumber = document.getElementById('search_job_number')?.value;
+        const licensePlate = document.getElementById('search_license_plate')?.value;
+        
+        let query = sbClient.from('job_cards').select('*, vehicles(license_plate, brand, model, customers(name, phone))');
+        
+        if (dateFrom) query = query.gte('created_at', dateFrom);
+        if (dateTo) query = query.lte('created_at', dateTo + 'T23:59:59');
+        if (status) query = query.eq('status', status);
+        if (jobNumber) query = query.ilike('job_number', `%${jobNumber}%`);
+        
+        const { data: jobs, error } = await query;
+        if (error) throw error;
+        
+        // Filter by license plate (client-side since it's a nested field)
+        let filteredJobs = jobs || [];
+        if (licensePlate) {
+            filteredJobs = filteredJobs.filter(job => 
+                job.vehicles?.license_plate?.toLowerCase().includes(licensePlate.toLowerCase())
+            );
+        }
+        
+        // Filter by price range (need to calculate total per job)
+        if (minPrice || maxPrice) {
+            const jobsWithTotal = await Promise.all(filteredJobs.map(async (job) => {
+                const { data: parts } = await DB.getJobParts(job.id);
+                const { data: labor } = await DB.getJobLabor(job.id);
+                const partsTotal = parts?.reduce((sum, p) => sum + ((p.part?.price || 0) * p.quantity), 0) || 0;
+                const laborTotal = labor?.reduce((sum, l) => sum + (l.cost || 0), 0) || 0;
+                return { ...job, total: partsTotal + laborTotal };
+            }));
+            
+            if (minPrice) filteredJobs = jobsWithTotal.filter(j => j.total >= parseFloat(minPrice));
+            if (maxPrice) filteredJobs = jobsWithTotal.filter(j => j.total <= parseFloat(maxPrice));
+        }
+        
+        // Display results
+        const content = document.getElementById('content-area');
+        content.innerHTML = `
+            <div class="data-table-container">
+                <div class="table-header">
+                    <h3 class="table-title"><i class="fas fa-search"></i> ຜົນການຄົ້ນຫາ (${filteredJobs.length} ລາຍການ)</h3>
+                    <div class="table-actions">
+                        <button class="btn btn-outline btn-sm" onclick="showAdvancedSearch()"><i class="fas fa-filter"></i> ຄົ້ນຫາໃໝ່</button>
+                        <button class="btn btn-primary btn-sm" onclick="loadJobCards()"><i class="fas fa-list"></i> ສະແດງທັງໝົດ</button>
+                    </div>
+                </div>
+                ${renderJobsTable(filteredJobs, true)}
+            </div>
+        `;
+        
+        document.querySelector('.modal.show')?.remove();
+        showToast('success', 'ສຳເລັດ', `ພົບ ${filteredJobs.length} ລາຍການ`);
+    } catch (error) {
+        showToast('error', 'ຜິດພາດ', error.message);
+    }
+    hideLoading();
+}
+
+function clearAdvancedSearch() {
+    const fields = ['search_date_from', 'search_date_to', 'search_status', 'search_min_price', 'search_max_price', 'search_job_number', 'search_license_plate'];
+    fields.forEach(field => {
+        const el = document.getElementById(field);
+        if (el) el.value = '';
+    });
+    showToast('info', 'ແຈ້ງເຕືອນ', 'ລ້າງຂໍ້ມູນການຄົ້ນຫາແລ້ວ');
+}
+        
         async function loadNotifications() {
             try {
                 const { data: notifications } = await DB.getUnreadNotifications(currentUser.id);
