@@ -1309,7 +1309,10 @@
                 ],
                 warehouse: [
                     { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
-                    { icon: 'fa-boxes', label: 'ສ
+                    { icon: 'fa-boxes', label: 'ສາງອາໄຫຼ່', page: 'parts' },
+                    { icon: 'fa-clipboard-list', label: 'ຄຳຂໍອາໄຫຼ່', page: 'parts-requests' },
+                    { icon: 'fa-qrcode', label: 'ສະແກນ QR', page: 'scan' }
+                    ],
                     <title>Customer Receipt</title>
                     <style>
                         body { font-family: 'Noto Sans Lao', monospace; padding: 20px; max-width: 350px; margin: 0 auto; }
@@ -2036,7 +2039,7 @@
             setInterval(() => loadNotifications(), 30000);
         }
 
-        function buildNavigation(role) {
+                function buildNavigation(role) {
             const navMenu = document.getElementById('nav-menu');
             navMenu.innerHTML = '';
             const navConfig = {
@@ -2066,7 +2069,7 @@
                 admin: [
                     { icon: 'fa-tachometer-alt', label: 'ໜ້າຫຼັກ', page: 'dashboard' },
                     { icon: 'fa-users', label: 'ລູກຄ້າ', page: 'customers' },
-                                        { icon: 'fa-car', label: 'ຍານພາຫະນະ', page: 'vehicles' },
+                    { icon: 'fa-car', label: 'ຍານພາຫະນະ', page: 'vehicles' },
                     { icon: 'fa-clipboard-list', label: 'ໃບສັ່ງງານ', page: 'job-cards' },
                     { icon: 'fa-boxes', label: 'ສາງອາໄຫຼ່', page: 'parts' },
                     { icon: 'fa-clipboard-list', label: 'ຄຳຂໍອາໄຫຼ່', page: 'parts-requests' },
@@ -2087,7 +2090,7 @@
                 navMenu.appendChild(li);
             });
         }
-
+            
                 async function loadPage(page) {
             currentPage = page;
             const titles = {
