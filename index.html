@@ -844,6 +844,20 @@
             return sbClient;
         }
 
+        function subscribeToRealtimeUpdates() {
+    const subscription = sbClient
+        .channel('real-time-updates')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'job_cards' }, 
+            (payload) => {
+                showToast('info', 'ອັບເດດ', 'ມີການປ່ຽນແປງຂໍ້ມູນໃບສັ່ງງານ');
+                if (currentPage === 'dashboard') loadDashboard();
+                if (currentPage === 'job-cards') loadJobCards();
+                if (currentPage === 'my-jobs') loadMyJobs();
+            })
+        .subscribe();
+    return subscription;
+}
+        
         function getCurrentUser() { const user = localStorage.getItem('vrms_currentUser'); return user ? JSON.parse(user) : null; }
         function setCurrentUser(user) { localStorage.setItem('vrms_currentUser', JSON.stringify(user)); currentUser = user; }
         function clearCurrentUser() { localStorage.removeItem('vrms_currentUser'); currentUser = null; }
@@ -3027,6 +3041,7 @@
             updateTime();
             setInterval(updateTime, 1000);
             setInterval(() => loadNotifications(), 30000);
+            subscribeToRealtimeUpdates();
         }
 
         // ============================================
