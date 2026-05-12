@@ -1188,7 +1188,8 @@
             async getCustomerReport() {
                 const { data, error } = await initSupabase().from('customers').select('*, vehicles(*)').order('created_at', { ascending: false });
                 return { data, error };
-            }
+            },
+            
             async addAuditLog(action, tableName, recordId, oldData = null, newData = null) {
         try {
             initSupabase().from('audit_logs').insert([{
