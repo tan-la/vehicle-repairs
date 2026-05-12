@@ -871,6 +871,7 @@
                 if (!user) throw new Error('ບໍ່ພົບຜູ້ໃຊ້ ຫຼື ຕຳແໜ່ງບໍ່ຖືກຕ້ອງ');
                 if (password !== '123456') throw new Error('ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ');
                 setCurrentUser({ id: user.id, name: user.name, email: user.email, role: user.role });
+                await DB.addAuditLog('LOGIN', 'staff', user.id, null, { email: user.email, role: user.role });
                 hideLoading();
                 showToast('success', 'ຍິນດີຕ້ອນຮັບ', `ສະບາຍດີ, ${user.name}`);
                 showMainApp();
@@ -883,7 +884,10 @@
         }
 
         function logout() {
+            const userId = currentUser?.id;
+            const userName = currentUser?.name;
             clearCurrentUser();
+            DB.addAuditLog('LOGOUT', 'staff', userId, null, { name: userName }); // Don't await
             document.getElementById('main-app').style.display = 'none';
             document.getElementById('login-page').style.display = 'flex';
             document.getElementById('email').value = '';
@@ -1185,6 +1189,28 @@
                 const { data, error } = await initSupabase().from('customers').select('*, vehicles(*)').order('created_at', { ascending: false });
                 return { data, error };
             }
+            async addAuditLog(action, tableName, recordId, oldData = null, newData = null) {
+        try {
+            initSupabase().from('audit_logs').insert([{
+                user_id: currentUser?.id,
+                user_name: currentUser?.name,
+                user_role: currentUser?.role,
+                action: action,
+                table_name: tableName,
+                record_id: recordId,
+                old_data: oldData,
+                new_data: newData,
+                ip_address: null,
+                user_agent: navigator.userAgent
+            }]).then(() => {
+                console.log(`Audit log: ${action} on ${tableName}`);
+            }).catch(err => {
+                console.error('Failed to save audit log:', err);
+            });
+        } catch (err) {
+            console.error('Audit log error:', err);
+        }
+    }
         };
 
         // ============================================
@@ -2335,7 +2361,7 @@ function clearAdvancedSearch() {
     }
     hideLoading();
 }
-        async function exportCustomerReport() {
+       async function exportCustomerReport() {
     showLoading();
     try {
         const { data: customers } = await DB.getCustomerReport();
@@ -2365,6 +2391,60 @@ function clearAdvancedSearch() {
     }
     hideLoading();
 }
+
+// ============================================
+// ADD THE viewAuditLogs FUNCTION HERE
+// ============================================
+
+async function viewAuditLogs() {
+    const { data: logs } = await initSupabase()
+        .from('audit_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+    
+    // Display in a modal
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content modal-xl">
+            <div class="modal-header">
+                <h3><i class="fas fa-history"></i> ບັນທຶກການເຄື່ອນໄຫວລະບົບ (Audit Log)</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ວັນ/ເວລາ</th>
+                                <th>ຜູ້ໃຊ້</th>
+                                <th>ຕຳແໜ່ງ</th>
+                                <th>ການກະທຳ</th>
+                                <th>ຕາຕະລາງ</th>
+                                <th>ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${logs?.map(log => `
+                                <tr>
+                                    <td>${formatDateTime(log.created_at)}</td
+                                    <td>${log.user_name || '-'}</td
+                                    <td>${log.user_role || '-'}</td
+                                    <td>${log.action}</td
+                                    <td>${log.table_name || '-'}</td
+                                    <td>${log.record_id || '-'}</td
+                                </tr>
+                            `).join('') || '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</tr>'}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
 
 // ============================================
 // ADD VIRTUAL SCROLL TABLE CLASS HERE
@@ -2505,6 +2585,7 @@ function applyVirtualScroll(tableId, data, rowHeight = 48) {
                 const { data, error } = await DB.createJobCard(jobCard);
                 if (error) throw error;
                 await DB.createNotification({ user_id: mechanicId, title: 'ມີງານໃໝ່', message: `ທ່ານໄດ້ຮັບມອບໝາຍງານ ${data.job_number}`, type: 'job_assigned' });
+                await DB.addAuditLog('CREATE', 'job_cards', data.id, null, { job_number: data.job_number, vehicle_id: vehicleId, mechanic_id: mechanicId });
                 hideLoading();
                 document.querySelector('.modal.show')?.remove();
                 showToast('success', 'ສຳເລັດ', `ເປີດໃບສັ່ງງານ ${data.job_number} ສຳເລັດ`);
@@ -2554,6 +2635,7 @@ function applyVirtualScroll(tableId, data, rowHeight = 48) {
             showLoading();
             try {
                 await DB.updateJobCard(jobId, { status: 'in_progress', started_at: new Date().toISOString() });
+                await DB.addAuditLog('UPDATE', 'job_cards', jobId, { status: 'assigned' }, { status: 'in_progress' });
                 hideLoading();
                 showToast('success', 'ສຳເລັດ', 'ເລີ່ມດຳເນີນງານແລ້ວ');
                 document.querySelector('.modal.show')?.remove();
@@ -2566,6 +2648,7 @@ function applyVirtualScroll(tableId, data, rowHeight = 48) {
             showLoading();
             try {
                 await DB.updateJobCard(jobId, { status: 'completed', completed_at: new Date().toISOString() });
+                await DB.addAuditLog('UPDATE', 'job_cards', jobId, { status: 'in_progress' }, { status: 'completed' });
                 hideLoading();
                 showToast('success', 'ສຳເລັດ', 'ສົ່ງງານໄປກວດກາ PDI ແລ້ວ');
                 document.querySelector('.modal.show')?.remove();
@@ -2874,6 +2957,7 @@ window.confirmReturn = async function(jobId, jobPartId, maxQuantity) {
                     await DB.updatePartStock(partId, part.stock_quantity - quantity);
                     await DB.updateJobPartStatus(requestId, 'approved');
                     await DB.updateJobCard(jobId, { status: 'parts_approved' });
+                    await DB.addAuditLog('APPROVE', 'job_parts', requestId, null, { part_id: partId, quantity: quantity, job_id: jobId });
                     
                     const { data: job } = await DB.getJobCardById(jobId);
                     const mechanicName = job?.mechanic?.name || 'N/A';
@@ -3115,11 +3199,12 @@ window.confirmReturn = async function(jobId, jobPartId, maxQuantity) {
             if (!name) { showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນຊື່'); return; }
             showLoading();
             try {
-                await DB.createPart({ code, name, category: document.getElementById('part_category')?.value, brand: document.getElementById('part_brand')?.value, stock_quantity: parseInt(document.getElementById('part_stock')?.value) || 0, price: parseFloat(document.getElementById('part_price')?.value) || 0, description: document.getElementById('part_desc')?.value, qr_code: generatePartQRCode(null, code) });
-                hideLoading();
-                document.querySelector('.modal.show')?.remove();
-                showToast('success', 'ສຳເລັດ', 'ເພີ່ມອາໄຫຼ່ສຳເລັດ');
-                await loadParts();
+                const { data: newPart } = await DB.createPart({ code, name, category: document.getElementById('part_category')?.value, brand: document.getElementById('part_brand')?.value, stock_quantity: parseInt(document.getElementById('part_stock')?.value) || 0, price: parseFloat(document.getElementById('part_price')?.value) || 0, description: document.getElementById('part_desc')?.value, qr_code: generatePartQRCode(null, code) });
+await DB.addAuditLog('CREATE', 'parts', newPart.id, null, { code: code, name: name });
+hideLoading();
+document.querySelector('.modal.show')?.remove();
+showToast('success', 'ສຳເລັດ', 'ເພີ່ມອາໄຫຼ່ສຳເລັດ');
+await loadParts();
             } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
         };
 
