@@ -1577,6 +1577,7 @@
                     { icon: 'fa-chart-bar', label: 'ລາຍງານສາງ', page: 'inventory-report' },
                     { icon: 'fa-users-chart', label: 'ລາຍງານລູກຄ້າ', page: 'customer-report' },
                     { icon: 'fa-users-cog', label: 'ພະນັກງານ', page: 'staff' },
+                    { icon: 'fa-history', label: 'ບັນທຶກການເຄື່ອນໄຫວ', page: 'audit-log' },
                     { icon: 'fa-qrcode', label: 'ສະແກນ QR', page: 'scan' }
                 ]
             };
@@ -1608,6 +1609,7 @@
                 'parts-requests': loadPartsRequests, pdi: loadPDI, staff: loadStaff,
                 'scan': showScanPage, 'financial-report': loadFinancialReport,
                 'inventory-report': loadInventoryReport, 'customer-report': loadCustomerReport
+                'audit-log': viewAuditLogs 
             };
             if (pages[page]) await pages[page]();
         }
