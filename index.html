@@ -2408,55 +2408,86 @@ async function viewAuditLogs() {
             .limit(100);
         
         // Process logs to show meaningful IDs
-        const processedLogs = await Promise.all(logs?.map(async (log) => {
-            let displayId = log.record_id || '-';
-            
-            // For job_cards, fetch and show job_number instead of UUID
-            if (log.table_name === 'job_cards' && log.record_id) {
-                const { data: job } = await initSupabase()
-                    .from('job_cards')
-                    .select('job_number')
-                    .eq('id', log.record_id)
-                    .single();
-                if (job) displayId = job.job_number;
+        const processedLogs = [];
+        if (logs && logs.length > 0) {
+            for (const log of logs) {
+                let displayId = log.record_id || '-';
+                
+                // For job_cards, fetch and show job_number instead of UUID
+                if (log.table_name === 'job_cards' && log.record_id) {
+                    const { data: job } = await initSupabase()
+                        .from('job_cards')
+                        .select('job_number')
+                        .eq('id', log.record_id)
+                        .single();
+                    if (job) displayId = job.job_number;
+                }
+                // For parts, fetch and show part code instead of UUID
+                else if (log.table_name === 'parts' && log.record_id) {
+                    const { data: part } = await initSupabase()
+                        .from('parts')
+                        .select('code')
+                        .eq('id', log.record_id)
+                        .single();
+                    if (part) displayId = part.code;
+                }
+                // For transactions, show receipt number
+                else if (log.table_name === 'transactions' && log.record_id) {
+                    const { data: transaction } = await initSupabase()
+                        .from('transactions')
+                        .select('receipt_number')
+                        .eq('id', log.record_id)
+                        .single();
+                    if (transaction) displayId = transaction.receipt_number;
+                }
+                // For customers, show customer name
+                else if (log.table_name === 'customers' && log.record_id) {
+                    const { data: customer } = await initSupabase()
+                        .from('customers')
+                        .select('name')
+                        .eq('id', log.record_id)
+                        .single();
+                    if (customer) displayId = customer.name;
+                }
+                // For staff, we already have user_name
+                else if (log.table_name === 'staff') {
+                    displayId = '-';
+                }
+                
+                processedLogs.push({ ...log, displayId });
             }
-            // For parts, fetch and show part code instead of UUID
-            else if (log.table_name === 'parts' && log.record_id) {
-                const { data: part } = await initSupabase()
-                    .from('parts')
-                    .select('code')
-                    .eq('id', log.record_id)
-                    .single();
-                if (part) displayId = part.code;
-            }
-            // For transactions, show receipt number
-            else if (log.table_name === 'transactions' && log.record_id) {
-                const { data: transaction } = await initSupabase()
-                    .from('transactions')
-                    .select('receipt_number')
-                    .eq('id', log.record_id)
-                    .single();
-                if (transaction) displayId = transaction.receipt_number;
-            }
-            // For customers, show customer name (or keep ID if not found)
-            else if (log.table_name === 'customers' && log.record_id) {
-                const { data: customer } = await initSupabase()
-                    .from('customers')
-                    .select('name')
-                    .eq('id', log.record_id)
-                    .single();
-                if (customer) displayId = customer.name;
-            }
-            // For staff, we already have user_name, so just show "N/A" or keep minimal
-            else if (log.table_name === 'staff') {
-                displayId = '-';  // Staff name is already in "ຜູ້ໃຊ້" column
-            }
-            
-            return { ...log, displayId };
-        }) || []);
+        }
         
+        // Build the modal HTML - IMPORTANT: No extra text outside the table!
         const modal = document.createElement('div');
         modal.className = 'modal show';
+        
+        // Build table rows HTML
+        let tableRows = '';
+        if (processedLogs.length > 0) {
+            for (const log of processedLogs) {
+                tableRows += `
+                    <tr style="border-bottom: 1px solid var(--gray-200);">
+                        <td style="padding: 10px 8px; font-size: 0.8rem;">${formatDateTime(log.created_at)}</td>
+                        <td style="padding: 10px 8px;">${escapeHtml(log.user_name || '-')}</td>
+                        <td style="padding: 10px 8px;">${getRoleLabel(log.user_role) || log.user_role || '-'}</td>
+                        <td style="padding: 10px 8px;">
+                            <span class="status-badge ${log.action === 'LOGIN' ? 'status-approved' : log.action === 'LOGOUT' ? 'status-pending' : 'status-progress'}">
+                                ${log.action}
+                            </span>
+                        </td>
+                        <td style="padding: 10px 8px;">${log.table_name || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 0.8rem;">
+                            ${log.displayId !== '-' ? `<code style="background: var(--gray-100); padding: 2px 6px; border-radius: 4px;">${escapeHtml(log.displayId)}</code>` : '-'}
+                        </td>
+                    </tr>
+                `;
+            }
+        } else {
+            tableRows = '<tr><td colspan="6" style="text-align: center; padding: 40px;">ບໍ່ມີຂໍ້ມູນ</td></tr>';
+        }
+        
+        // Set the modal content - NO TEXT outside the table structure!
         modal.innerHTML = `
             <div class="modal-content modal-xl" style="max-width: 1200px; width: 90%;">
                 <div class="modal-header">
@@ -2477,22 +2508,7 @@ async function viewAuditLogs() {
                                 </tr>
                             </thead>
                             <tbody>
-                                ${processedLogs.map(log => `
-                                    <tr style="border-bottom: 1px solid var(--gray-200);">
-                                        <td style="padding: 10px 8px; font-size: 0.8rem;">${formatDateTime(log.created_at)}</td
-                                        <td style="padding: 10px 8px;">${log.user_name || '-'}</td
-                                        <td style="padding: 10px 8px;">${getRoleLabel(log.user_role) || log.user_role || '-'}</td
-                                        <td style="padding: 10px 8px;">
-                                            <span class="status-badge ${log.action === 'LOGIN' ? 'status-approved' : log.action === 'LOGOUT' ? 'status-pending' : 'status-progress'}">
-                                                ${log.action}
-                                            </span>
-                                        </td
-                                        <td style="padding: 10px 8px;">${log.table_name || '-'}</td
-                                        <td style="padding: 10px 8px; font-size: 0.8rem;">
-                                            ${log.displayId !== '-' ? `<code style="background: var(--gray-100); padding: 2px 6px; border-radius: 4px;">${log.displayId}</code>` : '-'}
-                                        </td
-                                    </tr>
-                                `).join('') || '<tr><td colspan="6" style="text-align: center; padding: 40px;">ບໍ່ມີຂໍ້ມູນ</td></tr>'}
+                                ${tableRows}
                             </tbody>
                         </table>
                     </div>
@@ -2503,11 +2519,25 @@ async function viewAuditLogs() {
                 </div>
             </div>
         `;
+        
         document.body.appendChild(modal);
+        
     } catch (error) {
+        console.error('Audit log error:', error);
         showToast('error', 'ຜິດພາດ', error.message);
     }
     hideLoading();
+}
+
+// Helper function to escape HTML and prevent rendering issues
+function escapeHtml(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 // Export function for audit log
@@ -2525,8 +2555,8 @@ async function exportAuditLogToExcel() {
             return;
         }
         
-        // Process each log to get display IDs
-        const processedLogs = await Promise.all(logs.map(async (log) => {
+        const exportData = [];
+        for (const log of logs) {
             let displayId = log.record_id || '-';
             
             if (log.table_name === 'job_cards' && log.record_id) {
@@ -2545,17 +2575,17 @@ async function exportAuditLogToExcel() {
                 displayId = '-';
             }
             
-            return {
+            exportData.push({
                 'ວັນ/ເວລາ': formatDateTime(log.created_at),
                 'ຜູ້ໃຊ້': log.user_name || '-',
                 'ຕຳແໜ່ງ': getRoleLabel(log.user_role) || log.user_role || '-',
                 'ການກະທຳ': log.action,
                 'ຕາຕະລາງ': log.table_name || '-',
                 'ເລກທີ່ອ້າງອີງ': displayId
-            };
-        }));
+            });
+        }
         
-        const ws = XLSX.utils.json_to_sheet(processedLogs);
+        const ws = XLSX.utils.json_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Audit_Log');
         XLSX.writeFile(wb, `audit_log_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
@@ -2566,7 +2596,7 @@ async function exportAuditLogToExcel() {
     }
     hideLoading();
 }
-
+        
 // ============================================
 // ADD VIRTUAL SCROLL TABLE CLASS HERE
 // ============================================
