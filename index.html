@@ -2532,7 +2532,8 @@ function applyVirtualScroll(tableId, data, rowHeight = 48) {
                         <div class="form-row"><div class="form-group"><label>ຊ່າງຜູ້ຮັບຜິດຊອບ</label><input type="text" value="${job.mechanic?.name || '-'}" readonly></div><div class="form-group"><label>ສະຖານະ</label><input type="text" value="${getStatusLabel(job.status)}" readonly></div></div>
                         <div class="form-group"><label>ບັນຫາທີ່ແຈ້ງ</label><textarea readonly rows="3">${job.problem_description || '-'}</textarea></div>
                         ${job.notes ? `<div class="form-group"><label>ໝາຍເຫດ</label><textarea readonly rows="2">${job.notes}</textarea></div>` : ''}
-                        <div class="form-group"><label>ອາໄຫຼ່ທີ່ຂໍ</label><div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">${job.parts?.length ? job.parts.map(p => `<div style="display:flex;justify-content:space-between;padding:8px0;"><div><strong>${p.part?.name}</strong><br><small>${p.part?.code}</small></div><div>${p.quantity} x ${formatCurrency(p.part?.price)}</div><div><strong>${formatCurrency((p.part?.price||0)*p.quantity)}</strong></div></div>`).join('') : '<div>ຍັງບໍ່ມີການຂໍອາໄຫຼ່</div>'}</div></div>
+                        <div class="form-group"><label>ອາໄຫຼ່ທີ່ຂໍ</label><div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">${job.parts?.length ? job.parts.map(p => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee;"><div style="flex:2"><strong>${p.part?.name}</strong><br><small>${p.part?.code}</small></div><div style="flex:1;text-align:center">${p.quantity} x ${formatCurrency(p.part?.price)}</div><div style="flex:1;text-align:right"><strong>${formatCurrency((p.part?.price||0)*p.quantity)}</strong></div><div><button class="btn btn-warning btn-sm" onclick="returnParts('${job.id}', '${p.id}', ${p.quantity})" style="margin-left:10px;" title="ຄືນອາໄຫຼ່"><i class="fas fa-undo-alt"></i>ຄືນອາໄຫຼ່</button></div>
+</div>`).join('') : '<div>ຍັງບໍ່ມີການຂໍອາໄຫຼ່</div>'}</div></div>
                         <div class="form-group"><label>ຄ່າແຮງງານ</label><div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">${job.labor?.length ? job.labor.map(l => `<div style="display:flex;justify-content:space-between;padding:8px0;"><div><strong>${l.description}</strong><br><small>${l.hours} ຊມ x ${formatCurrency(l.hourly_rate)}/ຊມ</small></div><div><strong>${formatCurrency(l.cost)}</strong></div></div>`).join('') : '<div>ຍັງບໍ່ມີການບັນທຶກຄ່າແຮງງານ</div>'}</div></div>
                         <div style="padding:12px;background:var(--primary-light);border-radius:8px;margin-top:16px;"><div><span>ລວມຄ່າອາໄຫຼ່:</span><span>${formatCurrency(partsTotal)}</span></div><div><span>ລວມຄ່າແຮງງານ:</span><span>${formatCurrency(laborTotal)}</span></div><div><strong>ລວມທັງໝົດ: ${formatCurrency(partsTotal+laborTotal)}</strong></div></div>
                         <div><label>ວັນທີເປີດງານ</label><input type="text" value="${formatDateTime(job.created_at)}" readonly></div>
@@ -2730,6 +2731,133 @@ function applyVirtualScroll(tableId, data, rowHeight = 48) {
             } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
         };
 
+        // ============================================
+// PART RETURN FUNCTIONS
+// ============================================
+
+window.returnParts = async function(jobId, jobPartId, maxQuantity) {
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-undo-alt"></i> ຄືນອາໄຫຼ່</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>ຈຳນວນທີ່ຕ້ອງການຄືນ</label>
+                    <input type="number" id="return_qty" class="form-control" min="1" max="${maxQuantity}" value="${maxQuantity}">
+                    <small class="text-muted">ສາງມີຈຳນວນສູງສຸດ ${maxQuantity} ອັນ</small>
+                </div>
+                <div class="form-group">
+                    <label>ເຫດຜົນການຄືນ</label>
+                    <select id="return_reason" class="form-control">
+                        <option value="not_fit">ບໍ່ກົງກັບລົດ / ໃຊ້ບໍ່ໄດ້</option>
+                        <option value="wrong_part">ສົ່ງອາໄຫຼ່ຜິດ</option>
+                        <option value="damaged">ອາໄຫຼ່ຊຳລຸດ</option>
+                        <option value="not_needed">ບໍ່ຈຳເປັນຕ້ອງໃຊ້ແລ້ວ</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ຍົກເລີກ</button>
+                <button class="btn btn-warning" onclick="confirmReturn('${jobId}', '${jobPartId}', ${maxQuantity})">ຢືນຢັນການຄືນ</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+};
+
+window.confirmReturn = async function(jobId, jobPartId, maxQuantity) {
+    const returnQty = parseInt(document.getElementById('return_qty')?.value);
+    const reason = document.getElementById('return_reason')?.value;
+    
+    if (!returnQty || returnQty < 1 || returnQty > maxQuantity) {
+        showToast('warning', 'ແຈ້ງເຕືອນ', 'ກະລຸນາປ້ອນຈຳນວນທີ່ຖືກຕ້ອງ (1-' + maxQuantity + ')');
+        return;
+    }
+    
+    document.querySelector('.modal.show')?.remove();
+    
+    showLoading();
+    try {
+        // Get the job part record
+        const { data: jobPart, error: fetchError } = await initSupabase()
+            .from('job_parts')
+            .select('*, part:part_id(*)')
+            .eq('id', jobPartId)
+            .single();
+        
+        if (fetchError) throw fetchError;
+        if (!jobPart) throw new Error('ບໍ່ພົບຂໍ້ມູນ');
+        
+        // Calculate remaining quantity
+        const remainingQuantity = jobPart.quantity - returnQty;
+        
+        if (remainingQuantity < 0) {
+            throw new Error('ຈຳນວນທີ່ຄືນຫຼາຍກວ່າທີ່ເບີກ');
+        }
+        
+        // Update or remove the job part
+        if (remainingQuantity === 0) {
+            // Remove the part entirely if all returned
+            const { error: deleteError } = await DB.deleteJobPart(jobPartId);
+            if (deleteError) throw deleteError;
+        } else {
+            // Update quantity
+            const { error: updateError } = await DB.updateJobPartQuantity(jobPartId, remainingQuantity);
+            if (updateError) throw updateError;
+        }
+        
+        // Return stock to warehouse
+        const newStock = (jobPart.part.stock_quantity || 0) + returnQty;
+        const { error: stockError } = await DB.updatePartStock(jobPart.part_id, newStock);
+        if (stockError) throw stockError;
+        
+        // Create return transaction record (optional - requires table)
+        try {
+            await initSupabase().from('part_returns').insert([{
+                job_card_id: jobId,
+                part_id: jobPart.part_id,
+                quantity: returnQty,
+                reason: reason,
+                returned_by: currentUser.id,
+                returned_at: new Date().toISOString(),
+                status: 'approved'
+            }]);
+        } catch (err) {
+            console.log('Return record not saved (table may not exist):', err);
+            // Don't throw error - this is optional
+        }
+        
+        // Create notification for warehouse
+        await DB.createNotification({
+            user_id: null,
+            title: 'ມີການຄືນອາໄຫຼ່',
+            message: `ຄືນ ${jobPart.part.name} ${returnQty} ອັນ ຈາກໃບສັ່ງງານ`,
+            type: 'part_return'
+        });
+        
+        hideLoading();
+        showToast('success', 'ສຳເລັດ', `ຄືນອາໄຫຼ່ ${returnQty} ອັນ ສຳເລັດ`);
+        
+        // Refresh the current view
+        if (currentPage === 'my-jobs') {
+            await loadMyJobs();
+        } else if (currentPage === 'job-cards') {
+            await loadJobCards();
+        }
+        
+        // Close any open job detail modal
+        document.querySelector('.modal.show')?.remove();
+        
+    } catch (error) {
+        hideLoading();
+        showToast('error', 'ຜິດພາດ', error.message);
+    }
+};
+        
         // ============================================
         // WAREHOUSE ACTIONS
         // ============================================
