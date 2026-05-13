@@ -3489,22 +3489,25 @@ await loadParts();
         const { data: part } = await DB.getPartById(partId);
         const { data: movements } = await DB.getInventoryMovements(partId);
         
-        // Build table rows HTML
         let tableRows = '';
         if (movements && movements.length > 0) {
             for (const m of movements) {
+                // Use requested_at since approved_at is often NULL
+                const dateValue = m.approved_at || m.requested_at;
+                const formattedDate = dateValue ? formatDateTime(dateValue) : formatDateTime(m.requested_at);
+                
                 tableRows += `
                     <tr style="border-bottom: 1px solid var(--gray-200);">
-                        <td style="padding: 10px 8px;">${formatDateTime(m.approved_at || m.created_at)}</td>
-                        <td style="padding: 10px 8px;"><span class="status-badge status-approved">ເບີກອອກ</span></td>
-                        <td style="padding: 10px 8px; color: var(--danger); font-weight: bold;">-${m.quantity}</td>
-                        <td style="padding: 10px 8px;">${m.job_cards?.job_number || '-'}</td>
-                        <td style="padding: 10px 8px;">${m.job_cards?.vehicles?.customers?.name || '-'}</td>
+                        <td style="padding: 10px 8px;">${formattedDate}</td
+                        <td style="padding: 10px 8px;"><span class="status-badge status-approved">ເບີກອອກ</span></td
+                        <td style="padding: 10px 8px; color: var(--danger); font-weight: bold;">-${m.quantity}</td
+                        <td style="padding: 10px 8px;">${m.job_cards?.job_number || '-'}</td
+                        <td style="padding: 10px 8px;">${m.job_cards?.vehicles?.customers?.name || '-'}</td
                     </tr>
                 `;
             }
         } else {
-            tableRows = '<tr><td colspan="5" style="text-align: center; padding: 40px;">ບໍ່ມີປະຫວັດການເຄື່ອນໄຫວ</td></tr>';
+            tableRows = '<tr><td colspan="5" style="text-align: center; padding: 40px;">ບໍ່ມີປະຫວັດການເຄື່ອນໄຫວ</td</tr>';
         }
         
         const modal = document.createElement('div');
@@ -3540,6 +3543,7 @@ await loadParts();
         `;
         document.body.appendChild(modal);
     } catch (error) {
+        console.error('Inventory movement error:', error);
         showToast('error', 'ຜິດພາດ', error.message);
     }
     hideLoading();
