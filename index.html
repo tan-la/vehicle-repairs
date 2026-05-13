@@ -1869,53 +1869,82 @@
         }
 
         async function loadFinancialReport() {
-            const content = document.getElementById('content-area');
-            showLoading();
-            try {
-                const { data: transactions } = await DB.getFinancialReports();
-                const totalRevenue = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
-                const paidAmount = transactions?.filter(t => t.status === 'paid').reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
-                const pendingAmount = totalRevenue - paidAmount;
+    const content = document.getElementById('content-area');
+    showLoading();
+    try {
+        const { data: transactions } = await DB.getFinancialReports();
+        const totalRevenue = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+        const paidAmount = transactions?.filter(t => t.status === 'paid').reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+        const pendingAmount = totalRevenue - paidAmount;
+        
+        // Build table rows HTML
+        let tableRows = '';
+        if (transactions && transactions.length > 0) {
+            for (let i = 0; i < transactions.length; i++) {
+                const t = transactions[i];
+                const dateValue = t.created_at;
+                const formattedDate = dateValue ? formatDateTime(dateValue) : '-';
+                const receiptNumber = t.receipt_number || '-';
+                const jobNumber = t.job_cards?.job_number || '-';
+                const customerName = t.job_cards?.vehicles?.customers?.name || '-';
+                const amount = formatCurrency(t.amount || 0);
+                const statusBadge = t.status === 'paid' 
+                    ? '<span class="status-badge status-approved">ຊຳລະແລ້ວ</span>' 
+                    : '<span class="status-badge status-pending">ຍັງບໍ່ທັນຊຳລະ</span>';
                 
-                content.innerHTML = `
-                    <div class="data-table-container">
-                        <div class="table-header">
-                            <h3 class="table-title"><i class="fas fa-chart-line"></i> ລາຍງານການເງິນ</h3>
-                            <div class="table-actions">
-                                <button class="btn btn-outline btn-sm" onclick="exportFinancialReport()"><i class="fas fa-download"></i> ສົ່ງອອກ Excel</button>
-                            </div>
-                        </div>
-                        <div class="report-summary">
-                            <div class="report-summary-item"><div class="label">ລາຍຮັບທັງໝົດ</div><div class="value">${formatCurrency(totalRevenue)}</div></div>
-                            <div class="report-summary-item"><div class="label">ຊຳລະແລ້ວ</div><div class="value">${formatCurrency(paidAmount)}</div></div>
-                            <div class="report-summary-item"><div class="label">ຄ້າງຊຳລະ</div><div class="value">${formatCurrency(pendingAmount)}</div></div>
-                        </div>
-                        <div style="overflow-x: auto;">
-                            <table class="data-table">
-                                <thead>
-                                    <tr><th>ວັນທີ</th><th>ເລກໃບເສັງ</th><th>ເລກໃບສັ່ງງານ</th><th>ລູກຄ້າ</th><th>ຈຳນວນເງິນ</th><th>ສະຖານະ</th></tr>
-                                </thead>
-                                <tbody>
-                                    ${transactions?.map(t => `
-                                        <tr>
-                                            <td>${formatDateTime(t.created_at)}</td
-                                            <td>${t.receipt_number}</td
-                                            <td>${t.job_cards?.job_number || '-'}</td
-                                            <td>${t.job_cards?.vehicles?.customers?.name || '-'}</td
-                                            <td class="currency">${formatCurrency(t.amount)}</td
-                                            <td><span class="status-badge ${t.status === 'paid' ? 'status-approved' : 'status-pending'}">${t.status === 'paid' ? 'ຊຳລະແລ້ວ' : 'ຍັງບໍ່ທັນຊຳລະ'}</span></td
-                                        </tr>
-                                    `).join('') || '<tr><td colspan="6" class="empty-state">ບໍ່ມີຂໍ້ມູນ</td</tr>'}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                tableRows += `
+                    <tr style="border-bottom: 1px solid var(--gray-200);">
+                        <td style="padding: 10px 8px;">${formattedDate}</td
+                        <td style="padding: 10px 8px;">${receiptNumber}</td
+                        <td style="padding: 10px 8px;">${jobNumber}</td
+                        <td style="padding: 10px 8px;">${customerName}</td
+                        <td style="padding: 10px 8px;" class="currency">${amount}</td
+                        <td style="padding: 10px 8px;">${statusBadge}</td
+                    </tr>
                 `;
-            } catch (error) { 
-                content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
             }
-            hideLoading();
+        } else {
+            tableRows = '<tr><td colspan="6" style="text-align: center; padding: 40px;">ບໍ່ມີຂໍ້ມູນ</td</tr>';
         }
+        
+        content.innerHTML = `
+            <div class="data-table-container">
+                <div class="table-header">
+                    <h3 class="table-title"><i class="fas fa-chart-line"></i> ລາຍງານການເງິນ</h3>
+                    <div class="table-actions">
+                        <button class="btn btn-outline btn-sm" onclick="exportFinancialReport()"><i class="fas fa-download"></i> ສົ່ງອອກ Excel</button>
+                    </div>
+                </div>
+                <div class="report-summary">
+                    <div class="report-summary-item"><div class="label">ລາຍຮັບທັງໝົດ</div><div class="value">${formatCurrency(totalRevenue)}</div></div>
+                    <div class="report-summary-item"><div class="label">ຊຳລະແລ້ວ</div><div class="value">${formatCurrency(paidAmount)}</div></div>
+                    <div class="report-summary-item"><div class="label">ຄ້າງຊຳລະ</div><div class="value">${formatCurrency(pendingAmount)}</div></div>
+                </div>
+                <div style="overflow-x: auto; padding: 16px;">
+                    <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--gray-100); position: sticky; top: 0;">
+                                <th style="padding: 12px 8px; text-align: left;">ວັນທີ</th>
+                                <th style="padding: 12px 8px; text-align: left;">ເລກໃບເສັງ</th>
+                                <th style="padding: 12px 8px; text-align: left;">ເລກໃບສັ່ງງານ</th>
+                                <th style="padding: 12px 8px; text-align: left;">ລູກຄ້າ</th>
+                                <th style="padding: 12px 8px; text-align: left;">ຈຳນວນເງິນ</th>
+                                <th style="padding: 12px 8px; text-align: left;">ສະຖານະ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    } catch (error) { 
+        console.error('Financial report error:', error);
+        content.innerHTML = `<div class="empty-state"><h3>ເກີດຂໍ້ຜິດພາດ</h3><p>${error.message}</p></div>`; 
+    }
+    hideLoading();
+}
 
         async function loadInventoryReport() {
     const content = document.getElementById('content-area');
