@@ -2771,12 +2771,20 @@ function applyVirtualScroll(tableId, data, rowHeight = 48) {
                         <div><label>ວັນທີເປີດງານ</label><input type="text" value="${formatDateTime(job.created_at)}" readonly></div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
-                        ${job.status === 'assigned' && currentUser.role === 'mechanic' ? `<button class="btn btn-primary" onclick="startJob('${job.id}')">ເລີ່ມງານ</button>` : ''}
-                        ${(job.status === 'in_progress' || job.status === 'parts_approved') && currentUser.role === 'mechanic' ? `<button class="btn btn-warning" onclick="showRequestPartsModal('${job.id}')">ຂໍອາໄຫຼ່/ເພີ່ມຄ່າແຮງງານ</button><button class="btn btn-success" onclick="completeJob('${job.id}')">ສຳເລັດງານ</button>` : ''}
-                        ${job.status === 'completed' && currentUser.role === 'pdi' ? `<button class="btn btn-primary" onclick="startPDI('${job.id}')">ກວດກາ PDI</button>` : ''}
-                        ${job.status === 'completed' && currentUser.role === 'mechanic' ? `<button class="btn btn-info" onclick="printCustomerReceipt('${job.id}')">ພິມໃບສົ່ງງານ</button>` : ''}
-                    </div>
+    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
+    ${job.status === 'assigned' && currentUser.role === 'mechanic' ? `<button class="btn btn-primary" onclick="startJob('${job.id}')">ເລີ່ມງານ</button>` : ''}
+    ${(job.status === 'in_progress' || job.status === 'parts_approved') && currentUser.role === 'mechanic' ? `<button class="btn btn-warning" onclick="showRequestPartsModal('${job.id}')">ຂໍອາໄຫຼ່/ເພີ່ມຄ່າແຮງງານ</button><button class="btn btn-success" onclick="completeJob('${job.id}')">ສຳເລັດງານ</button>` : ''}
+    ${job.status === 'completed' && currentUser.role === 'pdi' ? `<button class="btn btn-primary" onclick="startPDI('${job.id}')">ກວດກາ PDI</button>` : ''}
+    ${job.status === 'completed' && currentUser.role === 'mechanic' ? `<button class="btn btn-info" onclick="printCustomerReceipt('${job.id}')">ພິມໃບສົ່ງງານ</button>` : ''}
+    ${job.status === 'pdi_failed' && currentUser.role === 'mechanic' ? `
+        <button class="btn btn-warning" onclick="reworkJob('${job.id}')">
+            <i class="fas fa-tools"></i> ກັບມາແກ້ໄຂ
+        </button>
+        <button class="btn btn-info" onclick="viewPDIFeedback('${job.id}')">
+            <i class="fas fa-comment-dots"></i> ເບິ່ງເຫດຜົນ
+        </button>
+    ` : ''}
+</div>
                 </div>
             `;
             document.body.appendChild(modal);
@@ -2807,6 +2815,72 @@ function applyVirtualScroll(tableId, data, rowHeight = 48) {
                 await loadMyJobs();
             } catch (error) { hideLoading(); showToast('error', 'ຜິດພາດ', error.message); }
         };
+
+        window.reworkJob = async function(jobId) {
+    if (!confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການກັບມາແກ້ໄຂງານນີ້? ຫຼັງຈາກແກ້ໄຂສຳເລັດ, ກະລຸນາສົ່ງກວດກາ PDI ໃໝ່')) return;
+    
+    showLoading();
+    try {
+        const { data: job } = await DB.getJobCardById(jobId);
+        
+        if (job.status !== 'pdi_failed') {
+            showToast('warning', 'ແຈ້ງເຕືອນ', 'ງານນີ້ບໍ່ໄດ້ຖືກປະຕິເສດຈາກ PDI');
+            hideLoading();
+            return;
+        }
+        
+        await DB.updateJobCard(jobId, { 
+            status: 'in_progress', 
+            updated_at: new Date().toISOString()
+        });
+        
+        await DB.addAuditLog('REWORK', 'job_cards', jobId, { status: 'pdi_failed' }, { status: 'in_progress' });
+        
+        hideLoading();
+        showToast('success', 'ສຳເລັດ', 'ງານຖືກກັບມາແກ້ໄຂ, ກະລຸນາແກ້ໄຂຕາມຄຳແນະນຳຂອງ PDI');
+        
+        document.querySelector('.modal.show')?.remove();
+        await loadMyJobs();
+        
+    } catch (error) {
+        hideLoading();
+        showToast('error', 'ຜິດພາດ', error.message);
+    }
+};
+
+window.viewPDIFeedback = async function(jobId) {
+    showLoading();
+    try {
+        const { data: job } = await DB.getJobCardById(jobId);
+        
+        const { data: pdiChecks } = await initSupabase()
+            .from('pdi_checklists')
+            .select('*')
+            .eq('job_card_id', jobId)
+            .eq('result', 'fail');
+        
+        let message = 'ສາເຫດທີ່ຖືກປະຕິເສດ:\n\n';
+        
+        if (pdiChecks && pdiChecks.length > 0) {
+            pdiChecks.forEach(check => {
+                const itemName = check.item_name?.replace(/_/g, ' ') || check.item_id;
+                message += `✗ ${itemName}\n`;
+            });
+        } else {
+            message += 'ບໍ່ພົບລາຍລະອຽດ, ກະລຸນາຕິດຕໍ່ຝ່າຍ PDI\n';
+        }
+        
+        if (job.notes) {
+            message += `\nໝາຍເຫດເພີ່ມເຕີມ: ${job.notes}\n`;
+        }
+        
+        alert(message);
+        
+    } catch (error) {
+        showToast('error', 'ຜິດພາດ', error.message);
+    }
+    hideLoading();
+};
 
         // ============================================
         // PARTS REQUEST & LABOR (MECHANIC)
