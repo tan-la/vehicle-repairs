@@ -3484,46 +3484,66 @@ await loadParts();
         };
 
         window.showInventoryMovement = async function(partId) {
-            const { data: part } = await DB.getPartById(partId);
-            const { data: movements } = await DB.getInventoryMovements(partId);
-            const modal = document.createElement('div');
-            modal.className = 'modal show';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width:700px;">
-                    <div class="modal-header">
-                        <h3><i class="fas fa-chart-line"></i> ປະຫວັດການເຄື່ອນໄຫວ: ${part?.code} - ${part?.name}</h3>
-                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        ${movements?.length ? `
-                            <div style="max-height:500px;overflow-y:auto;">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr><th>ວັນທີ</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ໃບສັ່ງງານ</th><th>ລູກຄ້າ</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        ${movements.map(m => `
-                                            <tr>
-                                                <td>${formatDateTime(m.approved_at || m.created_at)}</td
-                                                <td><span class="status-badge status-approved">ເບີກອອກ</span></td
-                                                <td style="color: var(--danger); font-weight: bold;">-${m.quantity}</td
-                                                <td>${m.job_cards?.job_number || '-'}</td
-                                                <td>${m.job_cards?.vehicles?.customers?.name || '-'}</td
-                                            <tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ` : '<div class="empty-state">ບໍ່ມີປະຫວັດການເຄື່ອນໄຫວ</div>'}
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
+    showLoading();
+    try {
+        const { data: part } = await DB.getPartById(partId);
+        const { data: movements } = await DB.getInventoryMovements(partId);
+        
+        // Build table rows HTML
+        let tableRows = '';
+        if (movements && movements.length > 0) {
+            for (const m of movements) {
+                tableRows += `
+                    <tr style="border-bottom: 1px solid var(--gray-200);">
+                        <td style="padding: 10px 8px;">${formatDateTime(m.approved_at || m.created_at)}</td>
+                        <td style="padding: 10px 8px;"><span class="status-badge status-approved">ເບີກອອກ</span></td>
+                        <td style="padding: 10px 8px; color: var(--danger); font-weight: bold;">-${m.quantity}</td>
+                        <td style="padding: 10px 8px;">${m.job_cards?.job_number || '-'}</td>
+                        <td style="padding: 10px 8px;">${m.job_cards?.vehicles?.customers?.name || '-'}</td>
+                    </tr>
+                `;
+            }
+        } else {
+            tableRows = '<tr><td colspan="5" style="text-align: center; padding: 40px;">ບໍ່ມີປະຫວັດການເຄື່ອນໄຫວ</td></tr>';
+        }
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal show';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 800px; width: 90%;">
+                <div class="modal-header">
+                    <h3><i class="fas fa-chart-line"></i> ປະຫວັດການເຄື່ອນໄຫວ: ${part?.code || '-'} - ${part?.name || '-'}</h3>
+                    <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 16px;">
+                    <div style="overflow-x: auto; max-height: 500px;">
+                        <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: var(--gray-100); position: sticky; top: 0;">
+                                    <th style="padding: 12px 8px; text-align: left;">ວັນທີ</th>
+                                    <th style="padding: 12px 8px; text-align: left;">ປະເພດ</th>
+                                    <th style="padding: 12px 8px; text-align: left;">ຈຳນວນ</th>
+                                    <th style="padding: 12px 8px; text-align: left;">ໃບສັ່ງງານ</th>
+                                    <th style="padding: 12px 8px; text-align: left;">ລູກຄ້າ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            `;
-            document.body.appendChild(modal);
-        };
-
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } catch (error) {
+        showToast('error', 'ຜິດພາດ', error.message);
+    }
+    hideLoading();
+};
         window.showBulkUploadModal = function() {
             if (currentUser.role !== 'admin') { 
                 showToast('warning', 'ບໍ່ມີສິດ', 'ສະເພາະຜູ້ບໍລິຫານ'); 
