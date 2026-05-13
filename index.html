@@ -2829,9 +2829,9 @@ function applyVirtualScroll(tableId, data, rowHeight = 48) {
             return;
         }
         
+        // Remove updated_at - it doesn't exist in your table!
         await DB.updateJobCard(jobId, { 
-            status: 'in_progress', 
-            updated_at: new Date().toISOString()
+            status: 'in_progress'
         });
         
         await DB.addAuditLog('REWORK', 'job_cards', jobId, { status: 'pdi_failed' }, { status: 'in_progress' });
