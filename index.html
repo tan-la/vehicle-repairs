@@ -1178,6 +1178,14 @@
                 const { data, error } = await initSupabase().from('transactions').select('*, job_cards:job_card_id(*)').eq('receipt_number', receiptNumber).single();
                 return { data, error };
             },
+            async getTransactionByJobId(jobId) {
+            const { data, error } = await initSupabase()
+            .from('transactions')
+            .select('*')
+            .eq('job_card_id', jobId)
+            .maybeSingle();  
+            return { data, error };
+            },
             async getFinancialReports() {
                 const { data, error } = await initSupabase().from('transactions').select('*, job_cards:job_card_id(*)').order('created_at', { ascending: false });
                 return { data, error };
@@ -1487,6 +1495,113 @@
             `);
             printWindow.document.close();
         }
+
+        // Re-print customer receipt without creating a new transaction
+async function reprintCustomerReceipt(jobId) {
+    showLoading();
+    try {
+        const { data: job } = await DB.getJobCardById(jobId);
+        if (!job) {
+            showToast('error', 'ຜິດພາດ', 'ບໍ່ພົບຂໍ້ມູນ');
+            hideLoading();
+            return;
+        }
+        
+        // Calculate totals
+        let partsTotal = 0, laborTotal = 0;
+        if (job.parts) partsTotal = job.parts.reduce((sum, p) => sum + ((p.part?.price || 0) * p.quantity), 0);
+        if (job.labor) laborTotal = job.labor.reduce((sum, l) => sum + (l.cost || 0), 0);
+        const grandTotal = partsTotal + laborTotal;
+        
+        // Get existing transaction or create a new one
+        let { data: transaction } = await DB.getTransactionByJobId(jobId);
+        let receiptNumber;
+        
+        if (!transaction) {
+            // Create new transaction if none exists
+            receiptNumber = generateReceiptNumber();
+            await DB.createTransaction({
+                job_card_id: job.id,
+                receipt_number: receiptNumber,
+                amount: grandTotal,
+                status: 'pending',
+                created_by: currentUser.id
+            });
+        } else {
+            receiptNumber = transaction.receipt_number;
+        }
+        
+        // Print the receipt
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Receipt - ${receiptNumber}</title>
+                <style>
+                    body { font-family: 'Noto Sans Lao', monospace; padding: 20px; max-width: 350px; margin: 0 auto; }
+                    .receipt { border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
+                    .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+                    .header h2 { margin: 0; font-size: 16px; }
+                    .qr-code { text-align: center; margin: 15px 0; }
+                    .item { display: flex; justify-content: space-between; margin: 5px 0; font-size: 12px; }
+                    .total { border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-weight: bold; }
+                    .footer { text-align: center; border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-size: 10px; }
+                    .signature { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; }
+                    .sign-line { border-top: 1px solid #000; width: 120px; text-align: center; font-size: 10px; }
+                    .reprint-note { text-align: center; font-size: 10px; color: #ff6600; margin-top: 10px; }
+                </style>
+            </head>
+            <body>
+                <div class="receipt">
+                    <div class="header">
+                        <h2>ສູນສ້ອມແປງຍານພາຫະນະ</h2>
+                        <p>Vehicle Repair Center</p>
+                        <p>ເລກທີ່ຮັບ: ${receiptNumber}</p>
+                        <p>ວັນທີ: ${formatDateTime(new Date())}</p>
+                    </div>
+                    <div><p><strong>ລູກຄ້າ:</strong> ${job.vehicles?.customers?.name || '-'}</p>
+                    <p><strong>ຍານພາຫະນະ:</strong> ${job.vehicles?.brand || ''} ${job.vehicles?.model || ''} (${job.vehicles?.license_plate || '-'})</p>
+                    <p><strong>ໃບສັ່ງງານ:</strong> ${job.job_number}</p></div>
+                    <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
+                    <div class="items">
+                        <div class="item"><strong>ລາຍການ</strong><strong>ລາຄາ</strong></div>
+                        ${job.parts?.map(p => `<div class="item"><span>${p.part?.name} x ${p.quantity}</span><span>${formatCurrency((p.part?.price || 0) * p.quantity)}</span></div>`).join('') || ''}
+                        ${job.labor?.map(l => `<div class="item"><span>${l.description} (${l.hours} ຊມ)</span><span>${formatCurrency(l.cost)}</span></div>`).join('') || ''}
+                    </div>
+                    <div class="total">
+                        <div class="item"><span>ລວມຄ່າອາໄຫຼ່:</span><span>${formatCurrency(partsTotal)}</span></div>
+                        <div class="item"><span>ລວມຄ່າແຮງງານ:</span><span>${formatCurrency(laborTotal)}</span></div>
+                        <div class="item" style="font-size: 14px;"><strong>ລວມທັງໝົດ:</strong><strong>${formatCurrency(grandTotal)}</strong></div>
+                    </div>
+                    <div class="qr-code" id="qrcode"></div>
+                    <div class="footer">
+                        <p>ກະລຸນາຊຳລະເງິນທີ່ເຄົາເຕີ</p>
+                        <p>ຂອບໃຈທີ່ໃຊ້ບໍລິການ</p>
+                        <p class="reprint-note">**(ໃບເສັງລາຄານີ້ຖືກພິມຊ້ຳ)**</p>
+                    </div>
+                    <div class="signature">
+                        <div class="sign-line">ລູກຄ້າ</div>
+                        <div class="sign-line">ພະນັກງານ</div>
+                    </div>
+                </div>
+                <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"><\/script>
+                <script>new QRCode(document.getElementById("qrcode"), { text: "${receiptNumber}", width: 120, height: 120 });<\/script>
+                <script>setTimeout(() => { window.print(); window.close(); }, 500);<\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        
+        showToast('success', 'ສຳເລັດ', `ພິມໃບເສັງລາຄາ ${receiptNumber} ສຳເລັດ`);
+        
+    } catch (error) {
+        console.error('Reprint error:', error);
+        showToast('error', 'ຜິດພາດ', error.message);
+    }
+    hideLoading();
+}
         
         async function printWarehouseReceipt(requestId, partName, quantity, jobNumber, customerName, mechanicName) {
             const receiptNumber = generateWarehouseReceiptNumber();
@@ -2962,27 +3077,38 @@ function applyVirtualScroll(tableId, data, rowHeight = 48) {
                         <div class="form-group"><label>ຄ່າແຮງງານ</label><div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;">${job.labor?.length ? job.labor.map(l => `<div style="display:flex;justify-content:space-between;padding:8px0;"><div><strong>${l.description}</strong><br><small>${l.hours} ຊມ x ${formatCurrency(l.hourly_rate)}/ຊມ</small></div><div><strong>${formatCurrency(l.cost)}</strong></div></div>`).join('') : '<div>ຍັງບໍ່ມີການບັນທຶກຄ່າແຮງງານ</div>'}</div></div>
                         <div style="padding:12px;background:var(--primary-light);border-radius:8px;margin-top:16px;"><div><span>ລວມຄ່າອາໄຫຼ່:</span><span>${formatCurrency(partsTotal)}</span></div><div><span>ລວມຄ່າແຮງງານ:</span><span>${formatCurrency(laborTotal)}</span></div><div><strong>ລວມທັງໝົດ: ${formatCurrency(partsTotal+laborTotal)}</strong></div></div>
                         <div><label>ວັນທີເປີດງານ</label><input type="text" value="${formatDateTime(job.created_at)}" readonly></div>
-                    </div>
-            <div class="modal-footer">
-    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
-    ${job.status === 'assigned' && currentUser.role === 'mechanic' ? `<button class="btn btn-primary" onclick="startJob('${job.id}')">ເລີ່ມງານ</button>` : ''}
-    ${(job.status === 'in_progress' || job.status === 'parts_approved') && currentUser.role === 'mechanic' ? `<button class="btn btn-warning" onclick="showRequestPartsModal('${job.id}')">ຂໍອາໄຫຼ່/ເພີ່ມຄ່າແຮງງານ</button><button class="btn btn-success" onclick="completeJob('${job.id}')">ສຳເລັດງານ</button>` : ''}
-    ${job.status === 'completed' && currentUser.role === 'pdi' ? `<button class="btn btn-primary" onclick="startPDI('${job.id}')">ກວດກາ PDI</button>` : ''}
-    ${job.status === 'completed' && currentUser.role === 'mechanic' ? `<button class="btn btn-info" onclick="printCustomerReceipt('${job.id}')">ພິມໃບສົ່ງງານ</button>` : ''}
-    ${job.status === 'pdi_failed' && currentUser.role === 'mechanic' ? `
-        <button class="btn btn-warning" onclick="reworkJob('${job.id}')">
-            <i class="fas fa-tools"></i> ກັບມາແກ້ໄຂ
-        </button>
-        <button class="btn btn-info" onclick="viewPDIFeedback('${job.id}')">
-            <i class="fas fa-comment-dots"></i> ເບິ່ງເຫດຜົນ
-        </button>
-    ` : ''}
-</div>
                 </div>
-            `;
-            document.body.appendChild(modal);
-        };
-
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
+                ${job.status === 'assigned' && currentUser.role === 'mechanic' ? `<button class="btn btn-primary" onclick="startJob('${job.id}')">ເລີ່ມງານ</button>` : ''}
+                ${(job.status === 'in_progress' || job.status === 'parts_approved') && currentUser.role === 'mechanic' ? `<button class="btn btn-warning" onclick="showRequestPartsModal('${job.id}')">ຂໍອາໄຫຼ່/ເພີ່ມຄ່າແຮງງານ</button><button class="btn btn-success" onclick="completeJob('${job.id}')">ສຳເລັດງານ</button>` : ''}
+                ${job.status === 'completed' && currentUser.role === 'pdi' ? `<button class="btn btn-primary" onclick="startPDI('${job.id}')">ກວດກາ PDI</button>` : ''}
+                ${job.status === 'completed' && currentUser.role === 'mechanic' ? `<button class="btn btn-info" onclick="printCustomerReceipt('${job.id}')">ພິມໃບສົ່ງງານ</button>` : ''}
+                ${job.status === 'pdi_failed' && currentUser.role === 'mechanic' ? `
+                    <button class="btn btn-warning" onclick="reworkJob('${job.id}')">
+                        <i class="fas fa-tools"></i> ກັບມາແກ້ໄຂ
+                    </button>
+                    <button class="btn btn-info" onclick="viewPDIFeedback('${job.id}')">
+                        <i class="fas fa-comment-dots"></i> ເບິ່ງເຫດຜົນ
+                    </button>
+                ` : ''}
+                <!-- Warehouse: Re-print warehouse parts receipt -->
+                ${(currentUser.role === 'warehouse' || currentUser.role === 'admin') && (job.status === 'parts_approved' || job.status === 'in_progress' || job.status === 'completed' || job.status === 'pdi_passed' || job.status === 'released') ? `
+                    <button class="btn btn-outline btn-sm" onclick="printAllApprovedPartsForJob('${job.id}')">
+                        <i class="fas fa-boxes"></i> ພິມໃບເບີກອາໄຫຼ່
+                    </button>
+                ` : ''}
+                <!-- Reception/Admin: Re-print customer receipt -->
+                ${(currentUser.role === 'reception' || currentUser.role === 'admin') && (job.status === 'completed' || job.status === 'pdi_passed' || job.status === 'released') ? `
+                    <button class="btn btn-success btn-sm" onclick="reprintCustomerReceipt('${job.id}')">
+                        <i class="fas fa-receipt"></i> ພິມໃບເສັງລາຄາ (ໃໝ່)
+                    </button>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+};
         window.startJob = async function(jobId) {
             showLoading();
             try {
