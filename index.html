@@ -734,6 +734,7 @@
         let currentPartPage = 1;
         let partsPerPage = 20;
         let allParts = [];
+        let printedJobs = new Set();
 
         const LABOR_RATES = {
             general: 50000,
@@ -1534,6 +1535,142 @@
             `);
             printWindow.document.close();
         }
+
+        // Function to print all approved parts for a specific job
+async function printAllApprovedPartsForJob(jobId, jobData = null) {
+    try {
+        // Get job data if not provided
+        let job = jobData;
+        if (!job) {
+            const { data } = await DB.getJobCardById(jobId);
+            job = data;
+        }
+        
+        // Get all approved parts for this job
+        const { data: approvedParts } = await initSupabase()
+            .from('job_parts')
+            .select('*, part:part_id(*)')
+            .eq('job_card_id', jobId)
+            .eq('status', 'approved');
+        
+        if (!approvedParts || approvedParts.length === 0) {
+            showToast('warning', 'ແຈ້ງເຕືອນ', 'ບໍ່ມີອາໄຫຼ່ທີ່ຖືກອະນຸມັດສຳລັບງານນີ້');
+            return;
+        }
+        
+        const receiptNumber = generateWarehouseReceiptNumber();
+        const printWindow = window.open('', '_blank');
+        const licensePlate = job?.vehicles?.license_plate || 'N/A';
+        const customerName = job?.vehicles?.customers?.name || 'N/A';
+        const mechanicName = job?.mechanic?.name || 'N/A';
+        const jobNumber = job?.job_number || 'N/A';
+        const vehicleBrand = job?.vehicles?.brand || '';
+        const vehicleModel = job?.vehicles?.model || '';
+        
+        // Build parts list HTML
+        let partsHtml = '';
+        let totalQuantity = 0;
+        let totalValue = 0;
+        
+        approvedParts.forEach(p => {
+            const partPrice = p.part?.price || 0;
+            const itemTotal = partPrice * p.quantity;
+            partsHtml += `
+                <div class="item">
+                    <div style="flex:2;">
+                        <strong>${p.part?.name || 'ບໍ່ມີຊື່'}</strong><br>
+                        <small>ລະຫັດ: ${p.part?.code || '-'}</small>
+                    </div>
+                    <div style="flex:1; text-align: center;">
+                        ${p.quantity} x ${formatCurrency(partPrice)}
+                    </div>
+                    <div style="flex:1; text-align: right;">
+                        <strong>${formatCurrency(itemTotal)}</strong>
+                    </div>
+                </div>
+            `;
+            totalQuantity += p.quantity;
+            totalValue += itemTotal;
+        });
+        
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Warehouse Receipt - ${receiptNumber}</title>
+                <style>
+                    body { font-family: 'Noto Sans Lao', monospace; padding: 20px; max-width: 400px; margin: 0 auto; }
+                    .receipt { border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
+                    .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+                    .header h2 { margin: 0; font-size: 16px; }
+                    .header p { margin: 5px 0; font-size: 12px; }
+                    .vehicle-info { background: #f3f4f6; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 12px; }
+                    .item { display: flex; justify-content: space-between; margin: 8px 0; padding: 5px 0; border-bottom: 1px dotted #eee; }
+                    .total { border-top: 1px dashed #000; margin-top: 10px; padding-top: 10px; font-weight: bold; }
+                    .signature { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; }
+                    .sign-line { border-top: 1px solid #000; width: 130px; text-align: center; font-size: 10px; padding-top: 5px; }
+                    .footer { text-align: center; margin-top: 20px; font-size: 10px; }
+                    .total-value { font-size: 14px; margin-top: 10px; }
+                </style>
+            </head>
+            <body>
+                <div class="receipt">
+                    <div class="header">
+                        <h2>ໃບເບີກອາໄຫຼ່</h2>
+                        <p>Parts Issue Voucher</p>
+                        <p>ເລກທີ: ${receiptNumber}</p>
+                        <p>ວັນທີ: ${formatDateTime(new Date())}</p>
+                    </div>
+                    
+                    <div class="vehicle-info">
+                        <div><strong>ຍານພາຫະນະ:</strong> ${vehicleBrand} ${vehicleModel}</div>
+                        <div><strong>ປ້າຍທະບຽນ:</strong> ${licensePlate}</div>
+                        <div><strong>ລູກຄ້າ:</strong> ${customerName}</div>
+                        <div><strong>ໃບສັ່ງງານ:</strong> ${jobNumber}</div>
+                        <div><strong>ຊ່າງຜູ້ຂໍ:</strong> ${mechanicName}</div>
+                    </div>
+                    
+                    <div class="items">
+                        <div class="item" style="border-bottom: 1px solid #000; margin-bottom: 5px;">
+                            <div style="flex:2;"><strong>ລາຍການ</strong></div>
+                            <div style="flex:1; text-align: center;"><strong>ຈຳນວນ</strong></div>
+                            <div style="flex:1; text-align: right;"><strong>ລາຄາ</strong></div>
+                        </div>
+                        ${partsHtml}
+                    </div>
+                    
+                    <div class="total">
+                        <div class="item">
+                            <span>ລວມຈຳນວນອາໄຫຼ່:</span>
+                            <span><strong>${totalQuantity} ອັນ</strong></span>
+                        </div>
+                        <div class="item total-value">
+                            <span>ມູນຄ່າລວມ:</span>
+                            <span><strong>${formatCurrency(totalValue)}</strong></span>
+                        </div>
+                    </div>
+                    
+                    <div class="signature">
+                        <div class="sign-line">ຜູ້ເບີກ (Mechanic)</div>
+                        <div class="sign-line">ຜູ້ຈ່າຍ (Warehouse)</div>
+                    </div>
+                    <div class="footer">
+                        <p>ອະນຸມັດແລ້ວ - Approved</p>
+                        <p>ຂອບໃຈທີ່ໃຊ້ບໍລິການ</p>
+                    </div>
+                </div>
+                <script>setTimeout(() => { window.print(); window.close(); }, 500);<\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        
+    } catch (error) {
+        console.error('Print error:', error);
+        showToast('error', 'ຜິດພາດ', 'ບໍ່ສາມາດພິມໃບເບີກໄດ້');
+    }
+}
 
         // ============================================
         // NAVIGATION
@@ -3226,38 +3363,53 @@ window.confirmReturn = async function(jobId, jobPartId, maxQuantity) {
         // WAREHOUSE ACTIONS
         // ============================================
         window.approvePartRequest = async function(requestId, approved, quantity, partId, jobId) {
-            showLoading();
-            try {
-                if (approved) {
-                    const { data: part } = await DB.getPartById(partId);
-                    if (part.stock_quantity < quantity) { 
-                        hideLoading(); 
-                        showToast('warning', 'ສາງບໍ່ພຽງພໍ', `ມີສາງ ${part.stock_quantity} ອັນ ແຕ່ຕ້ອງການ ${quantity} ອັນ`); 
-                        return; 
-                    }
-                    await DB.updatePartStock(partId, part.stock_quantity - quantity);
-                    await DB.updateJobPartStatus(requestId, 'approved');
-                    await DB.updateJobCard(jobId, { status: 'parts_approved' });
-                    await DB.addAuditLog('APPROVE', 'job_parts', requestId, null, { part_id: partId, quantity: quantity, job_id: jobId });
-                    
-                    const { data: job } = await DB.getJobCardById(jobId);
-                    const mechanicName = job?.mechanic?.name || 'N/A';
-                    const customerName = job?.vehicles?.customers?.name || 'N/A';
-                    const jobNumber = job?.job_number || 'N/A';
-                    
-                    await printWarehouseReceipt(requestId, part.name, quantity, jobNumber, customerName, mechanicName);
-                    showToast('success', 'ສຳເລັດ', 'ອະນຸມັດ ແລະ ເບີກອາໄຫຼ່ສຳເລັດ');
-                } else {
-                    await DB.updateJobPartStatus(requestId, 'rejected');
-                    showToast('success', 'ສຳເລັດ', 'ປະຕິເສດຄຳຂໍແລ້ວ');
-                }
-                await loadPartsRequests();
-            } catch (error) { 
+    showLoading();
+    try {
+        if (approved) {
+            const { data: part } = await DB.getPartById(partId);
+            if (part.stock_quantity < quantity) { 
                 hideLoading(); 
-                showToast('error', 'ຜິດພາດ', error.message); 
+                showToast('warning', 'ສາງບໍ່ພຽງພໍ', `ມີສາງ ${part.stock_quantity} ອັນ ແຕ່ຕ້ອງການ ${quantity} ອັນ`); 
+                return; 
             }
-            hideLoading();
-        };
+            
+            // Update stock and status
+            await DB.updatePartStock(partId, part.stock_quantity - quantity);
+            await DB.updateJobPartStatus(requestId, 'approved');
+            await DB.updateJobCard(jobId, { status: 'parts_approved' });
+            await DB.addAuditLog('APPROVE', 'job_parts', requestId, null, { part_id: partId, quantity: quantity, job_id: jobId });
+            
+            // Get job details
+            const { data: job } = await DB.getJobCardById(jobId);
+            const licensePlate = job?.vehicles?.license_plate || 'N/A';
+            
+            // Check if we already printed a receipt for this job
+            if (!printedJobs.has(jobId)) {
+                // Ask if user wants to print receipt for ALL parts of this vehicle
+                const wantToPrint = confirm(`ອະນຸມັດ ${part.name} ${quantity} ອັນ ສຳເລັດ\n\nທ່ານຕ້ອງການພິມໃບເບີກອາໄຫຼ່ສຳລັບລົດທະບຽນ ${licensePlate} ບໍ່?\n\n(ຈະພິມທຸກອາໄຫຼ່ທີ່ອະນຸມັດແລ້ວສຳລັບລົດຄັນນີ້)`);
+                
+                if (wantToPrint) {
+                    await printAllApprovedPartsForJob(jobId, job);
+                    printedJobs.add(jobId); // Mark as printed, no more popups for this job
+                    showToast('success', 'ສຳເລັດ', `ພິມໃບເບີກອາໄຫຼ່ສຳລັບລົດທະບຽນ ${licensePlate} ສຳເລັດ`);
+                } else {
+                    showToast('success', 'ສຳເລັດ', `ອະນຸມັດ ${part.name} ${quantity} ອັນ ສຳເລັດ (ຍັງບໍ່ທັນພິມໃບເບີກ)`);
+                }
+            } else {
+                // Already printed, just show approval message
+                showToast('success', 'ສຳເລັດ', `ອະນຸມັດ ${part.name} ${quantity} ອັນ ສຳເລັດ (ພິມໃບເບີກແລ້ວ)`);
+            }
+        } else {
+            await DB.updateJobPartStatus(requestId, 'rejected');
+            showToast('success', 'ສຳເລັດ', 'ປະຕິເສດຄຳຂໍແລ້ວ');
+        }
+        await loadPartsRequests();
+    } catch (error) { 
+        hideLoading(); 
+        showToast('error', 'ຜິດພາດ', error.message); 
+    }
+    hideLoading();
+};
 
         window.showQRScannerForRequest = function() {
             showQRScannerModal('ສະແກນ QR ເພື່ອຊອກຫາຄຳຂໍ', async (scannedData) => {
