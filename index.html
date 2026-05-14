@@ -1579,7 +1579,7 @@ async function reprintCustomerReceipt(jobId) {
                     <div class="footer">
                         <p>ກະລຸນາຊຳລະເງິນທີ່ເຄົາເຕີ</p>
                         <p>ຂອບໃຈທີ່ໃຊ້ບໍລິການ</p>
-                        <p class="reprint-note">**(ໃບເສັງລາຄານີ້ຖືກພິມຊ້ຳ)**</p>
+                        <p class="reprint-note">**(ໃບຮັບເງິນນີ້ຖືກພິມຊ້ຳ)**</p>
                     </div>
                     <div class="signature">
                         <div class="sign-line">ລູກຄ້າ</div>
@@ -1594,7 +1594,7 @@ async function reprintCustomerReceipt(jobId) {
         `);
         printWindow.document.close();
         
-        showToast('success', 'ສຳເລັດ', `ພິມໃບເສັງລາຄາ ${receiptNumber} ສຳເລັດ`);
+        showToast('success', 'ສຳເລັດ', `ພິມໃບຮັບເງິນ ${receiptNumber} ສຳເລັດ`);
         
     } catch (error) {
         console.error('Reprint error:', error);
@@ -2201,7 +2201,7 @@ async function printAllApprovedPartsForJob(jobId, jobData = null) {
                         <thead>
                             <tr style="background-color: #f3f4f6;">
                                 <th style="padding: 12px 16px; text-align: left; font-weight: 600;">ວັນທີ</th>
-                                <th style="padding: 12px 16px; text-align: left; font-weight: 600;">ເລກໃບເສັງ</th>
+                                <th style="padding: 12px 16px; text-align: left; font-weight: 600;">ເລກໃບຮັບເງີນ</th>
                                 <th style="padding: 12px 16px; text-align: left; font-weight: 600;">ເລກໃບສັ່ງງານ</th>
                                 <th style="padding: 12px 16px; text-align: left; font-weight: 600;">ລູກຄ້າ</th>
                                 <th style="padding: 12px 16px; text-align: left; font-weight: 600;">ຈຳນວນເງິນ</th>
@@ -2487,7 +2487,7 @@ function clearAdvancedSearch() {
             hideLoading();
             
             if (!transaction) {
-                showToast('error', 'ບໍ່ພົບ', `ບໍ່ພົບໃບເສັງລາຄາເລກທີ ${receiptNumber}`);
+                showToast('error', 'ບໍ່ພົບ', `ບໍ່ພົບໃບຮັບເງິນເລກທີ ${receiptNumber}`);
                 return;
             }
             
@@ -2496,7 +2496,7 @@ function clearAdvancedSearch() {
             modal.innerHTML = `
                 <div class="modal-content modal-lg">
                     <div class="modal-header">
-                        <h3><i class="fas fa-receipt"></i> ຂໍ້ມູນໃບເສັງລາຄາ</h3>
+                        <h3><i class="fas fa-receipt"></i> ຂໍ້ມູນໃບຮັບເງິນ</h3>
                         <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
                     </div>
                     <div class="modal-body">
@@ -2584,7 +2584,7 @@ function clearAdvancedSearch() {
         }
         
         window.manualSearch = function() {
-            const type = prompt('ເລືອກປະເພດ (1=ໃບເສັງລາຄາ, 2=ໃບສັ່ງງານ):');
+            const type = prompt('ເລືອກປະເພດ (1=ໃບຮັບເງິນ, 2=ໃບສັ່ງງານ):');
             const code = prompt('ກະລຸນາໃສ່ລະຫັດ:');
             if (code) {
                 if (type === '1') {
@@ -2623,7 +2623,7 @@ function clearAdvancedSearch() {
         
         const exportData = transactions.map(t => ({
             'ວັນທີ': formatDateTime(t.created_at),
-            'ເລກໃບເສັງ': t.receipt_number,
+            'ເລກໃບຮັບເງິນ': t.receipt_number,
             'ເລກໃບສັ່ງງານ': t.job_cards?.job_number || '-',
             'ລູກຄ້າ': t.job_cards?.vehicles?.customers?.name || '-',
             'ຈຳນວນເງິນ (₭)': t.amount || 0,
@@ -3101,7 +3101,7 @@ function applyVirtualScroll(tableId, data, rowHeight = 48) {
                 <!-- Reception/Admin: Re-print customer receipt -->
                 ${(currentUser.role === 'reception' || currentUser.role === 'admin') && (job.status === 'completed' || job.status === 'pdi_passed' || job.status === 'released') ? `
                     <button class="btn btn-success btn-sm" onclick="reprintCustomerReceipt('${job.id}')">
-                        <i class="fas fa-receipt"></i> ພິມໃບເສັງລາຄາ (ໃໝ່)
+                        <i class="fas fa-receipt"></i> ພິມໃບຮັບເງິນ (ໃໝ່)
                     </button>
                 ` : ''}
             </div>
