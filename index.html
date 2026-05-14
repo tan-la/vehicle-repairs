@@ -2963,7 +2963,7 @@ function applyVirtualScroll(tableId, data, rowHeight = 48) {
                         <div style="padding:12px;background:var(--primary-light);border-radius:8px;margin-top:16px;"><div><span>ລວມຄ່າອາໄຫຼ່:</span><span>${formatCurrency(partsTotal)}</span></div><div><span>ລວມຄ່າແຮງງານ:</span><span>${formatCurrency(laborTotal)}</span></div><div><strong>ລວມທັງໝົດ: ${formatCurrency(partsTotal+laborTotal)}</strong></div></div>
                         <div><label>ວັນທີເປີດງານ</label><input type="text" value="${formatDateTime(job.created_at)}" readonly></div>
                     </div>
-                    <div class="modal-footer">
+            <div class="modal-footer">
     <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">ປິດ</button>
     ${job.status === 'assigned' && currentUser.role === 'mechanic' ? `<button class="btn btn-primary" onclick="startJob('${job.id}')">ເລີ່ມງານ</button>` : ''}
     ${(job.status === 'in_progress' || job.status === 'parts_approved') && currentUser.role === 'mechanic' ? `<button class="btn btn-warning" onclick="showRequestPartsModal('${job.id}')">ຂໍອາໄຫຼ່/ເພີ່ມຄ່າແຮງງານ</button><button class="btn btn-success" onclick="completeJob('${job.id}')">ສຳເລັດງານ</button>` : ''}
