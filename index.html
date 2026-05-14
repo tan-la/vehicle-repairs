@@ -1941,20 +1941,17 @@ async function printAllApprovedPartsForJob(jobId, jobData = null) {
                                     </div>
                                     <div class="part-price">${formatCurrency((req.part?.price || 0) * req.quantity)}</div>
                                 </div>
-                                <div style="display: flex; gap: 8px; margin-top: 8px; width: 100%;">
-    <div style="flex: 1; font-size: 0.75rem; color: var(--gray-500);">
-        ໃບສັ່ງງານ: ${req.job_cards?.job_number || '-'}<br>
-        ຍານພາຫະນະ: ${req.job_cards?.vehicles?.license_plate || '-'}<br>
-        ລູກຄ້າ: ${req.job_cards?.vehicles?.customers?.name || '-'}
-    </div>
-    <div style="display: flex; gap: 8px;">
-        <button class="btn btn-success btn-sm" onclick="approvePartRequest('${req.id}', true, ${req.quantity}, '${req.part_id}', '${req.job_card_id}')"><i class="fas fa-check"></i> ອະນຸມັດ</button>
-        <button class="btn btn-danger btn-sm" onclick="approvePartRequest('${req.id}', false)"><i class="fas fa-times"></i> ປະຕິເສດ</button>
-        <button class="btn btn-outline btn-sm" onclick="printAllApprovedPartsForJob('${req.job_card_id}')">
-            <i class="fas fa-print"></i> ພິມໃບເບີກ (ທັງໝົດ)
-        </button>
-    </div>
-</div>
+                            <div style="display: flex; gap: 8px; margin-top: 8px; width: 100%;">
+                        <div style="flex: 1; font-size: 0.75rem; color: var(--gray-500);">
+                            ໃບສັ່ງງານ: ${req.job_cards?.job_number || '-'}<br>
+                            ຍານພາຫະນະ: ${req.job_cards?.vehicles?.license_plate || '-'}<br>
+                            ລູກຄ້າ: ${req.job_cards?.vehicles?.customers?.name || '-'}
+                            </div>
+                        <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-success btn-sm" onclick="approvePartRequest('${req.id}', true, ${req.quantity}, '${req.part_id}', '${req.job_card_id}')"><i class="fas fa-check"></i> ອະນຸມັດ</button>
+                    <button class="btn btn-danger btn-sm" onclick="approvePartRequest('${req.id}', false)"><i class="fas fa-times"></i> ປະຕິເສດ</button>
+                        </div>
+                        </div>
                             </div>
                         `).join('')}</div>
                     </div>
